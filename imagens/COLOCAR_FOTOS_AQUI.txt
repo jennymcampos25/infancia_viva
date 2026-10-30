@@ -1,0 +1,2 @@
+Coloque nesta pasta as imagens foto1.jpg até foto8.jpg mencionadas em FOTOS.txt.
+O site pode abrir sem todas elas, mas o banner precisa de imagens para o slideshow.

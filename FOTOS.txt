@@ -1,0 +1,38 @@
+FOTOS DO SLIDESHOW (pagina inicial)
+====================================
+Todas do Unsplash, com licenca gratuita ("Free to use under the Unsplash License").
+Nao exige credito, mas no trabalho escrito do TCC e bom citar a fonte (links abaixo).
+
+COMO BAIXAR CADA UMA:
+1. Abra o link no navegador.
+2. Confira se aparece "Free to use under the Unsplash License" (se aparecer "Unsplash+", pule essa).
+3. Clique na setinha ao lado de "Download free" e escolha "Medium" ou "Large".
+4. Renomeie o arquivo para o nome indicado (foto1.jpg, foto2.jpg...).
+5. Coloque dentro da pasta "imagens" do site (crie a pasta se nao existir).
+
+foto1.jpg - Criancas correndo no morro (silhueta, por do sol) - Rene Bernal
+https://unsplash.com/photos/silhouette-of-childrens-running-on-hill-f0rdHx5P8sQ
+
+foto2.jpg - Tres criancas correndo em direcao a agua - Orhan Kaya
+https://unsplash.com/photos/three-children-running-towards-body-of-water-cLLaDFhxAEo
+
+foto3.jpg - Crianca desenhando no papel - Erika Fletcher
+https://unsplash.com/photos/a-child-is-drawing-on-a-piece-of-paper-YfNWGrQI3a4
+
+foto4.jpg - Criancas brincando com brinquedos de praia - Unsplash
+https://unsplash.com/photos/children-playing-with-beach-toys-by-the-ocean-a2HTEzE2w5c
+
+foto5.jpg - Grupo de criancas brincando com brinquedos no chao
+https://unsplash.com/photos/a-group-of-children-playing-with-toys-on-the-floor-1w20Cysy1cg
+
+foto6.jpg - Menino com gizes de cera na mesa - Stephen Andrews
+https://unsplash.com/photos/a-little-boy-that-is-sitting-at-a-table-with-some-crayons-6NbSIxwZ3_4
+
+foto7.jpg - Criancas brincando no chafariz do parque
+https://unsplash.com/photos/children-play-in-a-modern-water-fountain-park-n2GD1-_atM0
+
+foto8.jpg - Criancas correndo na beira do mar - Leonor Oom
+https://unsplash.com/photos/children-running-on-seashore-across-horizon-2s6H_bg1PYo
+
+DICA: o banner e largo e baixo (formato paisagem). Fotos "em pe" (retrato) ficam
+cortadas. Se alguma ficar ruim, apague o arquivo: o slideshow pula fotos que nao existem.

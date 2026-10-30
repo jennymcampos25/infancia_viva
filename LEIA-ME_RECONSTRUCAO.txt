@@ -1,0 +1,46 @@
+TCC — ONG INFÂNCIA VIVA
+Pasta reconstruída a partir dos 12 arquivos enviados pela estudante.
+Os arquivos fornecidos foram copiados sem alterar seu conteúdo.
+
+COMO ABRIR NO VS CODE
+1. Extraia o ZIP para uma pasta fácil de encontrar.
+2. Abra o VS Code.
+3. Clique em Arquivo > Abrir Pasta...
+4. Selecione a pasta "Infancia_Viva_TCC_reconstruido".
+5. Confira os arquivos na barra lateral esquerda.
+
+IMPORTANTE: ESTA CÓPIA AINDA NÃO É O PROJETO COMPLETO
+O resumo do projeto cita outros arquivos que não estavam entre os arquivos enviados:
+- conexao.php
+- doacao.html
+- sobre.html
+- faq.html
+- contato.html
+- login.html
+- cadastro.html
+- pagamento.html
+- cadastro.php
+- login.php
+- logout.php
+- sessao.php
+- minha_conta.php
+- admin_usuario.php
+- atualizar_banco.php
+- banco.sql
+- criar_admin.php
+- teste_conexao.php
+
+Não crie arquivos vazios com esses nomes: vários são necessários para os links,
+o login, o banco de dados e as funções do site funcionarem. Primeiro confira se
+eles ainda existem na pasta original, na lixeira ou no pendrive.
+
+ATENÇÃO AOS CAMINHOS
+- index.html e as páginas referenciam "estilo.css" e "script.js".
+- O menu e os formulários referenciam páginas HTML que não estão neste pacote.
+- O banner espera imagens em "imagens/foto1.jpg" até "imagens/foto8.jpg".
+- Os arquivos PHP dependem de "funcoes.php", que por sua vez inclui "conexao.php".
+- Não é possível garantir que o site funcione por completo até recuperar/verificar
+  os arquivos faltantes e o banco de dados.
+
+Próximo passo: compare esta pasta com a pasta antiga do TCC antes de substituir
+qualquer coisa. Guarde uma cópia de segurança.
