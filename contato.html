@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Contato - Infância Viva</title>
+    <link rel="stylesheet" href="estilo.css">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
+</head>
+
+<body>
+
+<header class="topo">
+    <a class="logo" href="index.html"><span class="logo-icone">♥</span> Infância Viva</a>
+    <button type="button" class="menu-botao" id="menuBotao" aria-label="Abrir menu" aria-expanded="false">☰</button>
+    <nav id="menu">
+        <a href="index.html">Início</a>
+        <a href="doacao.html">Doação</a>
+        <a href="sobre.html">Sobre nós</a>
+        <a href="faq.html">Perguntas frequentes</a>
+        <a href="contato.html">Contato</a>
+        <a href="login.html" id="linkLogin">Login</a>
+    </nav>
+</header>
+<main>
+
+<h1>Entre em contato</h1>
+
+<p>
+    Quer saber mais sobre a Infância Viva ou fazer parte
+    da nossa corrente de solidariedade?
+</p>
+
+<p>
+    Entre em contato conosco. Será um prazer receber sua
+    mensagem e contar com você nessa causa.
+</p>
+
+<h2>Fale conosco</h2>
+
+<p>
+    E-mail: infanciavivaong8@gmail.com
+</p>
+
+<p>
+    Telefone: (21) 95555-3333
+</p>
+
+<p>
+    Instagram: onginfanciaviva_
+</p>
+
+<h2>Envie uma mensagem</h2>
+
+<form id="formContato" action="contato.php" method="post">
+
+    <label>Nome:</label>
+    <br>
+    <input type="text" name="nome" required>
+
+    <br><br>
+
+    <label>E-mail:</label>
+    <br>
+    <input type="email" name="email" required>
+
+    <br><br>
+
+    <label>Mensagem:</label>
+    <br>
+    <textarea name="mensagem" rows="6" cols="60" required></textarea>
+
+    <br><br>
+
+    <button type="submit">Enviar mensagem</button>
+
+</form>
+
+<p id="mensagemSucesso"></p>
+
+<h2>Avalie a Infância Viva</h2>
+
+<p>
+    Sua opinião é muito importante para nós!
+    A avaliação é opcional.
+</p>
+
+<form id="formAvaliacao" action="avaliacao.php" method="post">
+
+    <label>Como você avalia a Infância Viva?</label>
+
+    <br><br>
+
+    <div class="estrelas">
+        <label><input type="radio" name="avaliacao" value="1"> <span class="estrela">★</span></label>
+        <label><input type="radio" name="avaliacao" value="2"> <span class="estrela">★★</span></label>
+        <label><input type="radio" name="avaliacao" value="3"> <span class="estrela">★★★</span></label>
+        <label><input type="radio" name="avaliacao" value="4"> <span class="estrela">★★★★</span></label>
+        <label><input type="radio" name="avaliacao" value="5"> <span class="estrela">★★★★★</span></label>
+    </div>
+
+    
+
+    <br><br>
+
+    <label>Deixe um comentário (opcional):</label>
+
+    <br><br>
+
+    <textarea name="comentario" rows="6" cols="60"></textarea>
+
+    <br><br>
+
+    <button type="submit">Enviar avaliação</button>
+
+</form>
+
+<p id="mensagemAvaliacao"></p>
+
+<script src="script.js"></script>
+<script>
+    // Mensagens que voltam do PHP pelo endereço (?enviado=ok, ?avaliado=ok ou ?erro=...)
+    var params = new URLSearchParams(location.search);
+    var msgContato = document.getElementById("mensagemSucesso");
+    var msgAval = document.getElementById("mensagemAvaliacao");
+
+    if (params.get("enviado") === "ok") msgContato.textContent = "Mensagem enviada com sucesso!";
+    if (params.get("avaliado") === "ok") msgAval.textContent = "Obrigado pela sua avaliação!";
+    if (params.get("erro") === "contato") msgContato.textContent = "Não foi possível enviar. Confira nome, e-mail e mensagem.";
+    if (params.get("erro") === "avaliacao") msgAval.textContent = "Escolha uma nota ou escreva um comentário.";
+</script>
+
+</main>
+<footer class="rodape">
+    <div class="rodape-conteudo">
+        <div>
+            <strong>♥ Infância Viva</strong>
+            <p>Pequenos gestos podem transformar grandes histórias.</p>
+        </div>
+        <div>
+            <strong>Contato</strong>
+            <p>infanciavivaong8@gmail.com<br>(21) 95555-3333<br>Instagram: onginfanciaviva_</p>
+        </div>
+        <div>
+            <strong>Como ajudar</strong>
+            <p><a href="doacao.html">Doar brinquedos</a><br><a href="pagamento.html">Contribuir online</a><br><a href="faq.html">Perguntas frequentes</a></p>
+        </div>
+    </div>
+    <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC</p>
+</footer>
+</body>
+
+</html>

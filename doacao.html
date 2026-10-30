@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Doação - Infância Viva</title>
+    <link rel="stylesheet" href="estilo.css">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
+</head>
+
+<body>
+
+<header class="topo">
+    <a class="logo" href="index.html"><span class="logo-icone">♥</span> Infância Viva</a>
+    <button type="button" class="menu-botao" id="menuBotao" aria-label="Abrir menu" aria-expanded="false">☰</button>
+    <nav id="menu">
+        <a href="index.html">Início</a>
+        <a href="doacao.html">Doação</a>
+        <a href="sobre.html">Sobre nós</a>
+        <a href="faq.html">Perguntas frequentes</a>
+        <a href="contato.html">Contato</a>
+        <a href="login.html" id="linkLogin">Login</a>
+    </nav>
+</header>
+<main>
+
+<h1>Faça uma doação</h1>
+
+<h2>Faça parte dessa história</h2>
+
+<p>
+    Às vezes, um pequeno gesto pode significar muito
+    para uma criança. Na Infância Viva, acreditamos
+    que cada brinquedo doado pode levar alegria,
+    carinho e criar um momento especial.
+</p>
+
+<h2>Doe carinho, compartilhe alegria</h2>
+
+<p>
+    Cada contribuição representa cuidado e demonstra que
+    existem pessoas dispostas a fazer a diferença na vida
+    de uma criança.
+</p>
+
+<h2>Juntos podemos fazer a diferença</h2>
+
+<p>
+    A transformação começa com atitudes simples.
+    Quando cada pessoa faz a sua parte, conseguimos
+    alcançar mais crianças e espalhar ainda mais alegria.
+</p>
+
+<h2>Dados para a doação</h2>
+
+<p>
+    Tem conta? <a href="login.html">Entre</a> antes de doar para acompanhar
+    suas doações em "Minha conta". Não tem? Você pode doar mesmo assim.
+</p>
+
+<form action="doacao.php" method="post" onsubmit="return validarDoacao()">
+
+    <label>Nome completo:</label>
+    <input type="text" name="nome" required>
+
+    <br><br>
+
+    <label>E-mail:</label>
+    <input type="email" name="email" required>
+
+    <br><br>
+
+    <label>Telefone:</label>
+    <input type="text" name="telefone" required>
+
+    <br><br>
+
+    <label>Brinquedo:</label>
+    <input type="text" name="brinquedo" required>
+
+    <br><br>
+
+    <label>Quantidade:</label>
+    <input type="number" name="quantidade" min="1" required>
+
+    <br><br>
+
+    <label>Data da doação:</label>
+    <input type="date" name="data" required>
+
+    <br><br>
+
+    <label>Endereço:</label>
+    <input type="text" name="endereco" required>
+
+    <br><br>
+
+    <label>Observações:</label>
+    <input type="text" name="observacoes">
+
+    <br><br>
+
+    <h3>Contribua com a nossa causa</h3>
+
+    <p>
+        Escolha o valor que deseja doar e contribua
+        para que a Infância Viva continue realizando
+        seu trabalho.
+    </p>
+
+    <label>Deseja contribuir também com dinheiro?</label>
+
+    <select name="valor" id="valor" onchange="mostrarOutroValor()" required>
+
+        <option value="">Selecione uma opção</option>
+        <option value="0">Não, quero doar só o brinquedo</option>
+        <option value="10">R$ 10,00</option>
+        <option value="20">R$ 20,00</option>
+        <option value="50">R$ 50,00</option>
+        <option value="100">R$ 100,00</option>
+        <option value="outro">Outro valor</option>
+
+    </select>
+
+    <div id="outroValor"></div>
+
+    <h3>Doação presencial</h3>
+
+    <p>
+        Prefere fazer sua doação pessoalmente?
+        Escolha um dos nossos pontos de arrecadação
+        e entregue sua contribuição.
+    </p>
+
+    <label>Escolha o ponto de arrecadação:</label>
+
+    <select name="ponto" id="ponto" required>
+
+        <option value="">Selecione um local</option>
+        <option value="sede">Sede da Infância Viva</option>
+        <option value="escola">Escola parceira</option>
+        <option value="centro">Centro comunitário</option>
+
+    </select>
+
+    <br><br>
+
+    <button type="submit">Enviar doação</button>
+
+</form>
+
+<h2>Outras formas de ajudar</h2>
+
+<p><a class="botao" href="pagamento.html">Contribuir online agora →</a></p>
+
+<p>
+    Existem várias formas de fazer parte da Infância Viva.
+    Escolha a maneira que mais combina com você e ajude
+    a levar alegria para mais crianças.
+</p>
+
+<h3>Doação em dinheiro</h3>
+
+<p>
+    Você pode contribuir com o valor que desejar e ajudar
+    nossa ONG a continuar levando carinho e esperança
+    para as crianças.
+</p>
+
+<h3>Doação por PIX</h3>
+
+<p>
+    Faça sua contribuição de forma rápida e segura
+    utilizando nossa chave PIX.
+</p>
+
+<div class="pix">
+    <img src="qrcode_infancia_viva.png"
+         alt="QR Code para doação via PIX"
+         width="250">
+    <p>Escaneie o QR Code acima para fazer sua doação via PIX.</p>
+    <p><strong>Chave PIX:</strong> infanciavivaong8@gmail.com</p>
+</div>
+
+<script src="script.js"></script>
+
+</main>
+<footer class="rodape">
+    <div class="rodape-conteudo">
+        <div>
+            <strong>♥ Infância Viva</strong>
+            <p>Pequenos gestos podem transformar grandes histórias.</p>
+        </div>
+        <div>
+            <strong>Contato</strong>
+            <p>infanciavivaong8@gmail.com<br>(21) 95555-3333<br>Instagram: onginfanciaviva_</p>
+        </div>
+        <div>
+            <strong>Como ajudar</strong>
+            <p><a href="doacao.html">Doar brinquedos</a><br><a href="pagamento.html">Contribuir online</a><br><a href="faq.html">Perguntas frequentes</a></p>
+        </div>
+    </div>
+    <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC</p>
+</footer>
+</body>
+
+</html>

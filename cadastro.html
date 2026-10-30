@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cadastro - Infância Viva</title>
+    <link rel="stylesheet" href="estilo.css">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
+</head>
+<body>
+<header class="topo">
+    <a class="logo" href="index.html"><span class="logo-icone">♥</span> Infância Viva</a>
+    <button type="button" class="menu-botao" id="menuBotao" aria-label="Abrir menu" aria-expanded="false">☰</button>
+    <nav id="menu">
+        <a href="index.html">Início</a>
+        <a href="doacao.html">Doação</a>
+        <a href="sobre.html">Sobre nós</a>
+        <a href="faq.html">Perguntas frequentes</a>
+        <a href="contato.html">Contato</a>
+        <a href="login.html" id="linkLogin">Login</a>
+    </nav>
+</header>
+<main>
+<h1 style="text-align:center">Criar conta</h1>
+<form class="formulario-estreito" id="formCadastro" action="cadastro.php" method="post">
+    <label>Nome completo</label>
+    <input type="text" name="nome" required>
+    <label>E-mail</label>
+    <input type="email" name="email" required>
+    <label>Senha (mínimo 6 caracteres)</label>
+    <input type="password" name="senha" required>
+    <label>Confirmar senha</label>
+    <input type="password" name="confirmar" required>
+    <button type="submit">Cadastrar</button>
+    <p id="aviso" class="aviso"></p>
+    <p>Já tem conta? <a href="login.html">Entrar</a></p>
+</form>
+</main>
+<footer class="rodape">
+    <div class="rodape-conteudo">
+        <div>
+            <strong>♥ Infância Viva</strong>
+            <p>Pequenos gestos podem transformar grandes histórias.</p>
+        </div>
+        <div>
+            <strong>Contato</strong>
+            <p>infanciavivaong8@gmail.com<br>(21) 95555-3333<br>Instagram: onginfanciaviva_</p>
+        </div>
+        <div>
+            <strong>Como ajudar</strong>
+            <p><a href="doacao.html">Doar brinquedos</a><br><a href="pagamento.html">Contribuir online</a><br><a href="faq.html">Perguntas frequentes</a></p>
+        </div>
+    </div>
+    <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC</p>
+</footer>
+<script src="script.js"></script>
+</body>
+</html>

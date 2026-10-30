@@ -72,23 +72,30 @@ if ($erro == "") {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Doação - Infância Viva</title>
     <link rel="stylesheet" href="estilo.css">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
 </head>
 <body>
-<nav>
-    <a href="index.html">Início</a>
-    <a href="doacao.html">Doação</a>
-    <a href="sobre.html">Sobre nós</a>
-    <a href="faq.html">Perguntas frequentes</a>
-    <a href="contato.html">Contato</a>
-    <a href="login.html" id="linkLogin">Login</a>
-</nav>
+<header class="topo">
+    <a class="logo" href="index.html"><span class="logo-icone">♥</span> Infância Viva</a>
+    <button type="button" class="menu-botao" id="menuBotao" aria-label="Abrir menu" aria-expanded="false">☰</button>
+    <nav id="menu">
+        <a href="index.html">Início</a>
+        <a href="doacao.html">Doação</a>
+        <a href="sobre.html">Sobre nós</a>
+        <a href="faq.html">Perguntas frequentes</a>
+        <a href="contato.html">Contato</a>
+        <a href="login.html" id="linkLogin">Login</a>
+    </nav>
+</header>
 <main>
 <?php if ($erro): ?>
     <h1>Ops!</h1>
     <p class="aviso erro"><?= h($erro) ?></p>
     <a class="botao" href="doacao.html">Voltar</a>
 <?php else: ?>
-    <h1>Doação recebida! 💗</h1>
+    <h1>Doação recebida!</h1>
     <p>Obrigado, <?= h($nome) ?>!</p>
     <p>Sua doação de <?= $quantidade ?> brinquedo(s) foi registrada.</p>
     <p>Brinquedo: <?= h($brinquedo) ?></p>
@@ -104,6 +111,23 @@ if ($erro == "") {
     <?php endif; ?>
 <?php endif; ?>
 </main>
+<footer class="rodape">
+    <div class="rodape-conteudo">
+        <div>
+            <strong>♥ Infância Viva</strong>
+            <p>Pequenos gestos podem transformar grandes histórias.</p>
+        </div>
+        <div>
+            <strong>Contato</strong>
+            <p>infanciavivaong8@gmail.com<br>(21) 95555-3333<br>Instagram: onginfanciaviva_</p>
+        </div>
+        <div>
+            <strong>Como ajudar</strong>
+            <p><a href="doacao.html">Doar brinquedos</a><br><a href="pagamento.html">Contribuir online</a><br><a href="faq.html">Perguntas frequentes</a></p>
+        </div>
+    </div>
+    <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC</p>
+</footer>
 <script src="script.js"></script>
 </body>
 </html>

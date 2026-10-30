@@ -21,7 +21,7 @@
 - **Formulários:** usam `usuario_logado_id()` (funcoes.php), que confere a conta no banco; se ela foi apagada, a sessão é encerrada e o registro vai como visitante.
 - **Slideshow:** fotos locais `imagens/foto1.jpg` a `foto8.jpg` (Unsplash, licença livre; links em FOTOS.txt). Foto que não existir é pulada.
 - **Doação:** o valor em dinheiro é opcional (opção "Não, quero doar só o brinquedo"); "Outro valor" vazio é bloqueado no JavaScript.
-- **Visual:** estilo.css compartilhado por todas as páginas (roxo #403f9c, fundo #f5f5f5, mesmo menu em todas).
+- **Visual (v1 do upgrade, aguardando o usuário dizer o que mudar):** estilo.css compartilhado; cores em variáveis no topo (roxo #403f9c, amarelo #ffc145, rosa #ff6f91, fundo #f7f6fb); fonte Nunito do Google Fonts (sem internet cai para Segoe UI/Arial). Topo fixo com logo + menu (link da página atual destacado; abaixo de 1100px vira botão ☰), rodapé com contato em todas as páginas, banner com botões, cartões no Início e no Sobre (Valores e Como ajudar), estrelas clicáveis no Contato, FAQ com +, quadro do Pix, tabelas listradas, páginas de admin/Minha conta mais largas (main.largo). favicon.svg resolve o erro do favicon. Emojis foram trocados por ícones de linha em SVG embutidos no HTML (classe .icone, sem dependência externa); estrelas da avaliação usam o símbolo ★; títulos e avisos ficaram sem emoji. Símbolos simples mantidos: ♥ no logo, ☰, ←, →, ✔/✘ nas páginas internas.
 - **Pagamento é simulado:** nenhum gateway; os campos de cartão não têm `name`, então nada de cartão é enviado ou guardado. O ponto para um gateway futuro está comentado em pagamento.php.
 - O localStorage foi totalmente removido; o site só usa o banco.
 
@@ -36,7 +36,7 @@
 1. Senha do admin: o usuário decidiu manter `admin123` (site não será publicado).
 2. Apagar `criar_admin.php`, `teste_conexao.php` e `atualizar_banco.php` da pasta do servidor depois dos testes.
 3. Fotos do slideshow: o usuário baixa as fotos de FOTOS.txt para a pasta `imagens`.
-4. Aparência: será tratada separadamente (menu quebra em telas estreitas, favicon).
+4. Aparência: primeira versão entregue; o usuário vai dizer os ajustes.
 5. Ideias opcionais: botões no painel para apagar mensagens ou marcar doações como entregues.
 6. Bug do admin "deslogando": o código do admin.php nunca apaga a sessão; cair no login significa que a sessão não foi enviada (troca entre `localhost` e `127.0.0.1`). O usuário decidiu não tratar. O sobre.html sem script.js (menu mostrava "Login" estando logado) foi corrigido.
 7. Apagar `atualizar_banco.php` antes da apresentação (depois de atualizar os dois computadores).
@@ -58,4 +58,4 @@
 - O `qrcode_infancia_viva.png` (Pix) é arquivo do usuário e não está no zip.
 
 ## Arquivos (todos no zip `infancia_viva_site.zip`)
-index.html, doacao.html, sobre.html, faq.html, contato.html, login.html, cadastro.html, pagamento.html, admin.php, admin_usuario.php, admin_limpar.php, minha_conta.php, funcoes.php, atualizar_banco.php, doacao.php, pagamento.php, contato.php, avaliacao.php, cadastro.php, login.php, logout.php, sessao.php, conexao.php, estilo.css, script.js, banco.sql, criar_admin.php, teste_conexao.php, FOTOS.txt (+ pasta imagens com as fotos baixadas pelo usuário).
+index.html, doacao.html, sobre.html, faq.html, contato.html, login.html, cadastro.html, pagamento.html, admin.php, admin_usuario.php, admin_limpar.php, minha_conta.php, funcoes.php, atualizar_banco.php, doacao.php, pagamento.php, contato.php, avaliacao.php, cadastro.php, login.php, logout.php, sessao.php, conexao.php, estilo.css, favicon.svg, script.js, banco.sql, criar_admin.php, teste_conexao.php, FOTOS.txt (+ pasta imagens com as fotos baixadas pelo usuário).

@@ -1,63 +1,38 @@
-javascript
 /* ===== Utilidades ===== */
 function aviso(msg, ok) {
     var el = document.getElementById("aviso");
-
-    if (el) {
-        el.textContent = msg;
-        el.className = "aviso " + (ok ? "ok" : "erro");
-    }
-
+    if (el) { el.textContent = msg; el.className = "aviso " + (ok ? "ok" : "erro"); }
     return false;
 }
 
-
-/* ===== Doação ===== */
+/* ===== Doação (código original mantido) ===== */
 function doar() {
     alert("Obrigado por querer fazer parte da Infância Viva!");
-    window.location.href = "doacao.php";
+    window.location.href = "doacao.html";
 }
 
-
 function validarDoacao() {
-    var nome = document.getElementsByName("nome")[0];
-    var email = document.getElementsByName("email")[0];
-    var telefone = document.getElementsByName("telefone")[0];
-    var brinquedo = document.getElementsByName("brinquedo")[0];
-    var quantidade = document.getElementsByName("quantidade")[0];
-    var data = document.getElementsByName("data")[0];
-    var endereco = document.getElementsByName("endereco")[0];
-    var valor = document.getElementsByName("valor")[0];
-    var ponto = document.getElementsByName("ponto")[0];
+    var nome = document.getElementsByName("nome")[0].value;
+    var email = document.getElementsByName("email")[0].value;
+    var telefone = document.getElementsByName("telefone")[0].value;
+    var brinquedo = document.getElementsByName("brinquedo")[0].value;
+    var quantidade = document.getElementsByName("quantidade")[0].value;
+    var data = document.getElementsByName("data")[0].value;
+    var endereco = document.getElementsByName("endereco")[0].value;
+    var valor = document.getElementsByName("valor")[0].value;
+    var ponto = document.getElementsByName("ponto")[0].value;
 
-    if (
-        !nome || !email || !telefone || !brinquedo ||
-        !quantidade || !data || !endereco || !valor || !ponto
-    ) {
-        alert("Não foi possível encontrar todos os campos do formulário.");
-        return false;
-    }
-
-    if (
-        nome.value == "" ||
-        email.value == "" ||
-        telefone.value == "" ||
-        brinquedo.value == "" ||
-        quantidade.value == "" ||
-        data.value == "" ||
-        endereco.value == "" ||
-        valor.value == "" ||
-        ponto.value == ""
-    ) {
+    if (nome == "" || email == "" || telefone == "" ||
+        brinquedo == "" || quantidade == "" || data == "" ||
+        endereco == "" || valor == "" || ponto == "") {
         alert("Por favor, preencha todos os campos obrigatórios.");
         return false;
     }
 
-    // Se escolheu "Outro valor", precisa digitar um valor maior que zero
-    if (valor.value == "outro") {
-        var campoOutro = document.getElementById("campoOutroValor");
-
-        if (!campoOutro || campoOutro.value == "" || Number(campoOutro.value) <= 0) {
+    // Escolheu "Outro valor": precisa digitar um valor maior que zero
+    if (valor == "outro") {
+        var outro = document.getElementById("campoOutroValor").value;
+        if (outro == "" || Number(outro) <= 0) {
             alert("Digite o valor que deseja doar ou escolha outra opção.");
             return false;
         }
@@ -66,138 +41,89 @@ function validarDoacao() {
     return true;
 }
 
-
 function mostrarOutroValor() {
-    var campoValor = document.getElementById("valor");
+    var valor = document.getElementById("valor").value;
     var outroValor = document.getElementById("outroValor");
 
-    if (!campoValor || !outroValor) {
-        return;
-    }
-
-    if (campoValor.value == "outro") {
+    if (valor == "outro") {
         outroValor.innerHTML =
-            '<label for="campoOutroValor">Digite o valor:</label>' +
+            '<label>Digite o valor:</label>' +
             '<input type="number" name="outroValor" id="campoOutroValor" step="0.01" min="0.01" onkeydown="confirmarValor(event)">';
     } else {
         outroValor.innerHTML = "";
     }
 }
 
-
 function confirmarValor(event) {
     if (event.key == "Enter") {
         event.preventDefault();
-
-        var campoValor = document.getElementById("campoOutroValor");
-
-        if (campoValor && campoValor.value != "") {
-            alert("Você escolheu doar R$ " + campoValor.value + ".");
+        var valor = document.getElementById("campoOutroValor").value;
+        if (valor != "") {
+            alert("Você escolheu doar R$ " + valor + ".");
         }
     }
 }
 
-
 /* ===== Login e cadastro =====
-   São feitos pelo PHP (login.php, cadastro.php, logout.php).
-*/
-
+   Agora são feitos pelo PHP (login.php, cadastro.php, logout.php). */
 
 /* ===== Pagamento (simulado) ===== */
 function iniciarPagamento() {
     var f = document.getElementById("formPagamento");
-
-    if (!f) {
-        return;
-    }
-
+    if (!f) return;
     var v = new URLSearchParams(location.search).get("valor");
-
-    if (v && !isNaN(v) && f.valor) {
-        f.valor.value = v;
-    }
+    if (v && !isNaN(v)) f.valor.value = v;
 
     var m = f.metodo;
-
-    if (!m) {
-        return;
-    }
-
     function alternar() {
-        var boxPix = document.getElementById("boxPix");
-        var boxCartao = document.getElementById("boxCartao");
-
-        if (boxPix) {
-            boxPix.hidden = m.value !== "pix";
-        }
-
-        if (boxCartao) {
-            boxCartao.hidden = m.value !== "cartao";
-        }
+        document.getElementById("boxPix").hidden = m.value !== "pix";
+        document.getElementById("boxCartao").hidden = m.value !== "cartao";
     }
-
     m.addEventListener("change", alternar);
     alternar();
 }
 
-
 /* ===== Inicialização ===== */
 document.addEventListener("DOMContentLoaded", function () {
+    // Menu: destaca o link da página atual
+    var pagina = location.pathname.split("/").pop() || "index.html";
+    var links = document.querySelectorAll("#menu a");
+    for (var k = 0; k < links.length; k++) {
+        if (links[k].getAttribute("href") === pagina) links[k].className = "ativo";
+    }
 
-    /*
-       Menu:
-       o link "Login" vira "Sair" quando existe uma sessão no servidor.
-    */
+    // Menu do celular: o botão ☰ abre e fecha
+    var botaoMenu = document.getElementById("menuBotao");
+    if (botaoMenu) {
+        botaoMenu.addEventListener("click", function () {
+            var aberto = document.getElementById("menu").classList.toggle("aberto");
+            botaoMenu.setAttribute("aria-expanded", aberto ? "true" : "false");
+        });
+    }
+
+    // Menu: o link "Login" vira "Sair" quando há sessão no servidor (PHP)
     fetch("sessao.php", { credentials: "same-origin" })
-        .then(function (r) {
-            return r.json();
-        })
+        .then(function (r) { return r.json(); })
         .then(function (s) {
             var lk = document.getElementById("linkLogin");
-
-            if (!lk || !s.logado) {
-                return;
-            }
-
+            if (!lk || !s.logado) return;
             var conta = document.createElement("a");
             conta.href = "minha_conta.php";
             conta.textContent = "Minha conta";
-
             lk.parentNode.insertBefore(conta, lk);
-
             if (s.tipo === "admin") {
                 var a = document.createElement("a");
                 a.href = "admin.php";
                 a.textContent = "Admin";
-
                 lk.parentNode.insertBefore(a, lk);
             }
-
-            var primeiroNome = "";
-
-            if (s.nome) {
-                primeiroNome = s.nome.split(" ")[0];
-            }
-
-            lk.textContent = primeiroNome != ""
-                ? "Sair (" + primeiroNome + ")"
-                : "Sair";
-
+            lk.textContent = "Sair (" + s.nome.split(" ")[0] + ")";
             lk.href = "logout.php";
         })
-        .catch(function () {
-            // Se não houver sessão disponível, mantém o menu normalmente.
-        });
+        .catch(function () {});
 
-
-    /*
-       Mensagens vindas do PHP pelo endereço:
-       ?erro=...
-       ?cadastro=ok
-       ?pagamento=ok
-    */
+    // Mensagens vindas do PHP pelo endereço (?erro=... ou ?cadastro=ok)
     var q = new URLSearchParams(location.search);
-
     var erros = {
         campos: "Preencha todos os campos.",
         email_invalido: "E-mail inválido.",
@@ -208,26 +134,12 @@ document.addEventListener("DOMContentLoaded", function () {
         pagamento: "Confira o nome, o valor e a forma de pagamento.",
         erro: "Ocorreu um erro. Tente novamente."
     };
+    if (q.get("erro")) aviso(erros[q.get("erro")] || erros.erro, false);
+    if (q.get("pagamento") === "ok") aviso("Pagamento registrado! Obrigado!", true);
+    if (q.get("cadastro") === "ok") aviso("Cadastro realizado! Agora é só entrar.", true);
 
-    if (q.get("erro")) {
-        aviso(erros[q.get("erro")] || erros.erro, false);
-    }
-
-    if (q.get("pagamento") === "ok") {
-        aviso("Pagamento registrado! Obrigado 💗", true);
-    }
-
-    if (q.get("cadastro") === "ok") {
-        aviso("Cadastro realizado! Agora é só entrar.", true);
-    }
-
-
-    /*
-       Slideshow do banner.
-       As imagens ficam dentro da pasta "imagens".
-    */
+    // Slideshow do banner: fotos da pasta "imagens" (fotos do Unsplash, licença livre)
     var slide = document.getElementById("slide");
-
     if (slide) {
         var imagens = [
             "imagens/foto1.jpg",
@@ -239,35 +151,20 @@ document.addEventListener("DOMContentLoaded", function () {
             "imagens/foto7.jpg",
             "imagens/foto8.jpg"
         ];
-
         var i = 0;
-
-        /*
-           Se alguma imagem não existir, ela é retirada da lista
-           e o slideshow continua com as outras.
-        */
+        // Se alguma foto não existir na pasta, ela sai da lista e o slideshow segue com as outras
         slide.onerror = function () {
             imagens.splice(i, 1);
-
-            if (imagens.length === 0) {
-                return;
-            }
-
+            if (imagens.length === 0) return;
             i = i % imagens.length;
             slide.src = imagens[i];
         };
-
         setInterval(function () {
-            if (imagens.length < 2) {
-                return;
-            }
-
+            if (imagens.length < 2) return;
             i = (i + 1) % imagens.length;
             slide.src = imagens[i];
         }, 4000);
     }
 
-
-    /* Inicia as funções da página de pagamento, quando ela existir */
     iniciarPagamento();
 });
