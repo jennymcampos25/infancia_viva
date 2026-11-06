@@ -16,6 +16,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
     email       VARCHAR(150) NOT NULL UNIQUE,
     senha_hash  VARCHAR(255) NOT NULL,
     tipo        ENUM('doador','admin') NOT NULL DEFAULT 'doador',
+    foto        VARCHAR(30) NULL,       -- NULL = sem foto; avatar1..avatar6 = foto pronta; upload:... = foto enviada
+    foto_dados  MEDIUMBLOB NULL,        -- a foto enviada (já reduzida para 256x256)
     criado_em   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

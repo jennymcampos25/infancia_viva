@@ -19,9 +19,15 @@ function exigir_login() {
         header("Location: login.html");
         exit;
     }
-    $st = $pdo->prepare("SELECT id, nome, email, tipo, DATE_FORMAT(criado_em, '%d/%m/%Y') AS desde
-                         FROM usuarios WHERE id = ?");
-    $st->execute(array($_SESSION["usuario_id"]));
+    $campos = "id, nome, email, tipo, DATE_FORMAT(criado_em, '%d/%m/%Y') AS desde";
+    try {
+        $st = $pdo->prepare("SELECT $campos, foto FROM usuarios WHERE id = ?");
+        $st->execute(array($_SESSION["usuario_id"]));
+    } catch (PDOException $e) {
+        // Banco ainda sem a coluna "foto": funciona sem ela até rodar o atualizar_banco.php
+        $st = $pdo->prepare("SELECT $campos, NULL AS foto FROM usuarios WHERE id = ?");
+        $st->execute(array($_SESSION["usuario_id"]));
+    }
     $u = $st->fetch();
 
     // A conta não existe mais no banco: encerra a sessão
@@ -59,6 +65,52 @@ function exigir_admin() {
         exit;
     }
     return $u;
+}
+
+// ---- FOTO DE PERFIL ----
+// Coluna usuarios.foto: NULL = sem foto, "avatar1" a "avatar6" = foto pronta,
+// "upload:123456" = foto enviada pela pessoa (guardada em usuarios.foto_dados; o número muda a cada troca).
+
+$AVATARES = array("avatar1", "avatar2", "avatar3", "avatar4", "avatar5", "avatar6");
+
+// Endereço da imagem para usar no <img src="...">
+function foto_url($id, $foto) {
+    global $AVATARES;
+    if (in_array($foto, $AVATARES, true)) return "imagens/avatares/$foto.svg";
+    if (strpos((string) $foto, "upload:") === 0) return "foto.php?id=" . (int) $id . "&v=" . substr($foto, 7);
+    return "imagens/avatares/padrao.svg";
+}
+
+// Lê a escolha do formulário (campos foto_padrao e foto_upload).
+// Devolve null se a pessoa não escolheu nada, false se a imagem é inválida,
+// ou array(valor_da_coluna_foto, bytes_da_imagem_ou_null).
+function ler_foto_do_formulario() {
+    global $AVATARES;
+    $padrao = isset($_POST["foto_padrao"]) ? $_POST["foto_padrao"] : "";
+    $upload = isset($_POST["foto_upload"]) ? $_POST["foto_upload"] : "";
+
+    if ($upload !== "") {
+        // O navegador já reduz a foto para 256x256 antes de enviar (script.js)
+        if (!preg_match('#^data:image/(jpeg|png);base64,([A-Za-z0-9+/=]+)$#', $upload, $m)) return false;
+        $bytes = base64_decode($m[2], true);
+        if ($bytes === false || strlen($bytes) > 300000) return false;
+        $info = @getimagesizefromstring($bytes);
+        if (!$info || !in_array($info["mime"], array("image/jpeg", "image/png"), true)
+            || $info[0] > 1024 || $info[1] > 1024) return false;
+        return array("upload:" . time(), $bytes);
+    }
+    if (in_array($padrao, $AVATARES, true)) return array($padrao, null);
+    if ($padrao === "nenhuma") return array(null, null);
+    return null;
+}
+
+function salvar_foto($usuario_id, $escolha) {
+    global $pdo;
+    $st = $pdo->prepare("UPDATE usuarios SET foto = ?, foto_dados = ? WHERE id = ?");
+    $st->bindValue(1, $escolha[0]);
+    $st->bindValue(2, $escolha[1], $escolha[1] === null ? PDO::PARAM_NULL : PDO::PARAM_LOB);
+    $st->bindValue(3, (int) $usuario_id, PDO::PARAM_INT);
+    $st->execute();
 }
 
 // ---- TABELAS ----

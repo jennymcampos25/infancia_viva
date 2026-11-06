@@ -1,6 +1,6 @@
 <?php
 // Recebe o formulário de cadastro.html e grava o usuário no banco.
-require "conexao.php";
+require "funcoes.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     header("Location: cadastro.html");
@@ -30,12 +30,19 @@ $st = $pdo->prepare("SELECT id FROM usuarios WHERE email = ?");
 $st->execute(array($email));
 if ($st->fetch()) voltar("email_existe");
 
+// Foto de perfil (opcional): confere antes de criar a conta
+$foto = ler_foto_do_formulario();
+if ($foto === false) voltar("foto");
+
 // A senha NUNCA é guardada pura: vira um hash que não dá para desfazer
 $hash = password_hash($senha, PASSWORD_DEFAULT);
 
 try {
     $st = $pdo->prepare("INSERT INTO usuarios (nome, email, senha_hash, tipo) VALUES (?, ?, ?, 'doador')");
     $st->execute(array($nome, $email, $hash));
+    if ($foto !== null) {
+        salvar_foto($pdo->lastInsertId(), $foto);
+    }
 } catch (PDOException $e) {
     voltar("erro");
 }

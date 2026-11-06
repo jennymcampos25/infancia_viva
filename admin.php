@@ -7,8 +7,9 @@ require "funcoes.php";
 // ---- PROTEÇÃO: só entra quem está logado E é administrador no banco ----
 exigir_admin();
 
-// Banco ainda no formato antigo (sem usuario_id)? Manda para a atualização.
-if (!$pdo->query("SHOW COLUMNS FROM doacoes LIKE 'usuario_id'")->fetch()) {
+// Banco ainda no formato antigo (sem usuario_id ou sem foto)? Manda para a atualização.
+if (!$pdo->query("SHOW COLUMNS FROM doacoes LIKE 'usuario_id'")->fetch()
+    || !$pdo->query("SHOW COLUMNS FROM usuarios LIKE 'foto'")->fetch()) {
     header("Location: atualizar_banco.php");
     exit;
 }
@@ -147,7 +148,7 @@ $visitantes = $pdo->query(
         </div>
         <div>
             <strong>Contato</strong>
-            <p>infanciavivaong8@gmail.com<br>(21) 95555-3333<br>Instagram: onginfanciaviva_</p>
+            <p>E-mail: *<br>Telefone: *<br>Instagram: *</p>
         </div>
         <div>
             <strong>Como ajudar</strong>

@@ -59,3 +59,10 @@
 
 ## Arquivos (todos no zip `infancia_viva_site.zip`)
 index.html, doacao.html, sobre.html, faq.html, contato.html, login.html, cadastro.html, pagamento.html, admin.php, admin_usuario.php, admin_limpar.php, minha_conta.php, funcoes.php, atualizar_banco.php, doacao.php, pagamento.php, contato.php, avaliacao.php, cadastro.php, login.php, logout.php, sessao.php, conexao.php, estilo.css, favicon.svg, script.js, banco.sql, criar_admin.php, teste_conexao.php, FOTOS.txt (+ pasta imagens com as fotos baixadas pelo usuário).
+
+## Site no ar (Coolify) e foto de perfil
+- O site está hospedado no Coolify (Dockerfile com php:8.2-apache; conexao.php lê DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD). O banco online é separado do EasyPHP. O repositório GitHub jennymcampos25/infancia_viva é a versão do servidor online; a versão local (EasyPHP) é mantida à parte pelo usuário.
+- Contatos (e-mail, telefone, Instagram, chave Pix) estão como "*" até o grupo definir os definitivos.
+- Bolinha de perfil no topo (script.js, iniciarPerfil): sem login mostra imagens/avatares/padrao.svg e leva ao Login; com login mostra a foto e abre um menu (Minha conta, Painel do administrador só para admin, Sair). Substituiu os links Login/Minha conta/Admin/Sair do menu.
+- Foto de perfil: escolhida no cadastro e trocada em Minha conta (foto_salvar.php). Pode ser da galeria (o navegador recorta e reduz para 256x256 JPEG antes de enviar) ou uma das 6 prontas (imagens/avatares/avatar1..6.svg). Colunas usuarios.foto (NULL, avatarN ou upload:timestamp) e usuarios.foto_dados (MEDIUMBLOB). foto.php entrega a foto enviada só ao próprio usuário e ao admin. Banco antigo: rodar atualizar_banco.php (o admin.php redireciona para ele).
+

@@ -69,7 +69,7 @@ if ($id === 0) {
         </div>
         <div>
             <strong>Contato</strong>
-            <p>infanciavivaong8@gmail.com<br>(21) 95555-3333<br>Instagram: onginfanciaviva_</p>
+            <p>E-mail: *<br>Telefone: *<br>Instagram: *</p>
         </div>
         <div>
             <strong>Como ajudar</strong>

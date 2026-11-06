@@ -1,5 +1,6 @@
 <?php
-// Atualiza um banco ANTIGO para ligar doações, pagamentos, mensagens e avaliações ao usuário.
+// Atualiza um banco ANTIGO: liga doações, pagamentos, mensagens e avaliações ao usuário
+// e cria as colunas da foto de perfil.
 // Rode uma vez em cada computador (precisa estar logado como administrador).
 // Pode rodar de novo sem problema: o que já foi feito é pulado.
 session_start();
@@ -32,6 +33,15 @@ try {
             $msg .= " $n registro(s) antigo(s) ligado(s) a usuários pelo e-mail.";
         }
         $relatorio[] = $msg;
+    }
+
+    // Foto de perfil dos usuários
+    if ($pdo->query("SHOW COLUMNS FROM usuarios LIKE 'foto'")->fetch()) {
+        $relatorio[] = "usuarios: colunas da foto de perfil já existiam.";
+    } else {
+        $pdo->exec("ALTER TABLE usuarios ADD COLUMN foto VARCHAR(30) NULL AFTER tipo,
+                                         ADD COLUMN foto_dados MEDIUMBLOB NULL AFTER foto");
+        $relatorio[] = "usuarios: colunas da foto de perfil criadas.";
     }
     $ok = true;
 } catch (PDOException $e) {
