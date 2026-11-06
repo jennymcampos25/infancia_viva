@@ -65,4 +65,4 @@ index.html, doacao.html, sobre.html, faq.html, contato.html, login.html, cadastr
 - Contatos (e-mail, telefone, Instagram, chave Pix) estão como "*" até o grupo definir os definitivos.
 - Bolinha de perfil no topo (script.js, iniciarPerfil): sem login mostra imagens/avatares/padrao.svg e leva ao Login; com login mostra a foto e abre um menu (Minha conta, Painel do administrador só para admin, Sair). Substituiu os links Login/Minha conta/Admin/Sair do menu.
 - Foto de perfil: escolhida no cadastro e trocada em Minha conta (foto_salvar.php). Pode ser da galeria (o navegador recorta e reduz para 256x256 JPEG antes de enviar) ou uma das 6 prontas (imagens/avatares/avatar1..6.svg). Colunas usuarios.foto (NULL, avatarN ou upload:timestamp) e usuarios.foto_dados (MEDIUMBLOB). foto.php entrega a foto enviada só ao próprio usuário e ao admin. Banco antigo: rodar atualizar_banco.php (o admin.php redireciona para ele).
-
+- Cache: as páginas carregam `estilo.css?v=N` e `script.js?v=N`. Sempre que o estilo.css ou o script.js mudarem, aumentar o N em todas as páginas, para os navegadores baixarem o arquivo novo sem precisar de Ctrl+F5.
