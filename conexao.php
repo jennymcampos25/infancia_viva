@@ -1,4 +1,3 @@
-
 <?php
 // Conexao com o MySQL - Infancia Viva
 // Configuracao via variaveis de ambiente do Coolify.
