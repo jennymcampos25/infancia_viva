@@ -13,3 +13,6 @@ Para adicionar mais uma foto:
    "foco" escolhe que parte da foto aparece quando o banner corta as bordas:
    o primeiro numero e a posicao na largura e o segundo na altura (0% = topo, 100% = baixo).
 3. Aumente o numero do "script.js?v=" em todas as paginas para os navegadores baixarem o arquivo novo.
+
+Para TROCAR uma foto mantendo o mesmo nome (ex.: foto1.jpg), aumente tambem o "?v=" dela no script.js
+(e no index.html, no caso da foto1). Sem isso, quem ja visitou o site continua vendo a foto antiga.

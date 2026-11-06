@@ -250,14 +250,16 @@ document.addEventListener("DOMContentLoaded", function () {
     if (q.get("cadastro") === "ok") aviso("Cadastro realizado! Agora é só entrar.", true);
 
     // Slideshow do banner: fotos da pasta "imagens".
+    // O "?v=2" no fim do nome obriga o navegador a baixar a foto de novo; aumente quando trocar uma foto
+    // mantendo o mesmo nome de arquivo.
     // "foco" diz qual parte da foto fica visível quando o banner corta as bordas
     // (horizontal vertical; ex.: "50% 25%" = centro na largura, mais para cima na altura).
     var slide = document.getElementById("slide");
     if (slide) {
         var imagens = [
-            { src: "imagens/foto1.jpg", foco: "50% 22%" },   // roda de crianças olhando para baixo
-            { src: "imagens/foto2.jpg", foco: "50% 55%" },   // mãos com carinhas desenhadas
-            { src: "imagens/foto3.jpg", foco: "50% 20%" }    // crianças correndo na grama
+            { src: "imagens/foto1.jpg?v=2", foco: "50% 22%" },   // roda de crianças olhando para baixo
+            { src: "imagens/foto2.jpg?v=2", foco: "50% 55%" },   // mãos com carinhas desenhadas
+            { src: "imagens/foto3.jpg?v=2", foco: "50% 20%" }    // crianças correndo na grama
         ];
         var i = 0;
         function mostrar() {

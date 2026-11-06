@@ -86,6 +86,6 @@ $hist = buscar_historico((int) $u["id"]);
     </div>
     <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC</p>
 </footer>
-<script src="script.js?v=3"></script>
+<script src="script.js?v=4"></script>
 </body>
 </html>
