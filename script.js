@@ -249,31 +249,33 @@ document.addEventListener("DOMContentLoaded", function () {
     if (q.get("foto") === "ok") aviso("Foto atualizada!", true);
     if (q.get("cadastro") === "ok") aviso("Cadastro realizado! Agora é só entrar.", true);
 
-    // Slideshow do banner: fotos da pasta "imagens" (fotos do Unsplash, licença livre)
+    // Slideshow do banner: fotos da pasta "imagens".
+    // "foco" diz qual parte da foto fica visível quando o banner corta as bordas
+    // (horizontal vertical; ex.: "50% 25%" = centro na largura, mais para cima na altura).
     var slide = document.getElementById("slide");
     if (slide) {
         var imagens = [
-            "imagens/foto1.jpg",
-            "imagens/foto2.jpg",
-            "imagens/foto3.jpg",
-            "imagens/foto4.jpg",
-            "imagens/foto5.jpg",
-            "imagens/foto6.jpg",
-            "imagens/foto7.jpg",
-            "imagens/foto8.jpg"
+            { src: "imagens/foto1.jpg", foco: "50% 22%" },   // roda de crianças olhando para baixo
+            { src: "imagens/foto2.jpg", foco: "50% 55%" },   // mãos com carinhas desenhadas
+            { src: "imagens/foto3.jpg", foco: "50% 20%" }    // crianças correndo na grama
         ];
         var i = 0;
+        function mostrar() {
+            slide.style.objectPosition = imagens[i].foco;
+            slide.src = imagens[i].src;
+        }
         // Se alguma foto não existir na pasta, ela sai da lista e o slideshow segue com as outras
         slide.onerror = function () {
             imagens.splice(i, 1);
             if (imagens.length === 0) return;
             i = i % imagens.length;
-            slide.src = imagens[i];
+            mostrar();
         };
+        mostrar();
         setInterval(function () {
             if (imagens.length < 2) return;
             i = (i + 1) % imagens.length;
-            slide.src = imagens[i];
+            mostrar();
         }, 4000);
     }
 

@@ -128,6 +128,6 @@ if ($erro == "") {
     </div>
     <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC</p>
 </footer>
-<script src="script.js?v=2"></script>
+<script src="script.js?v=3"></script>
 </body>
 </html>
