@@ -68,8 +68,14 @@ index.html, doacao.html, sobre.html, faq.html, contato.html, login.html, cadastr
 - Cache: as páginas carregam `estilo.css?v=N` e `script.js?v=N` (hoje v=3 e v=5). Sempre que o estilo.css ou o script.js mudarem, aumentar o N em todas as páginas, para os navegadores baixarem o arquivo novo sem precisar de Ctrl+F5.
 
 ## Logo e paleta (identidade visual nova)
-- Logo oficial do grupo: "Infância Viva" com a casinha de brinquedo no "a" de "Viva" como símbolo principal. Arquivo: imagens/logo_infancia_viva.png (recortada de um JPG com fundo preto; o ideal é trocar pelo original com fundo transparente).
+- Logo oficial do grupo: "Infância Viva" com a casinha de brinquedo no "a" de "Viva" como símbolo principal. Arquivo: imagens/logo_infancia_viva.png (extraída do PDF com fundo transparente enviado pelo grupo).
 - Paleta (variáveis no topo do estilo.css): vermelho #e8572a, amarelo #f5a524 (texto: #a35f00), verde #4f8a3a, azul #2f7a80, escuro #242d32, fundo creme #fff8ee. Fontes: Quicksand nos títulos, Nunito no texto.
 - Topo branco (a palavra "Infância" da logo é quase preta e sumiria num fundo escuro), com a casinha em SVG e "Viva" com uma cor por letra. favicon.svg = casinha.
 - Página inicial: abertura com a logo grande e fotos trocando numa moldura animada, faixa de números (numeros.php lê do banco: brinquedos doados, doações, doadores; pontos de coleta = 3), cartões, "Como funciona", galeria e chamada com confete. Animações: entrada do texto, brinquedos flutuando, aparecer ao rolar, contadores; todas desligam com "reduzir movimento" do sistema.
+
+## Textos (conceito do projeto)
+- A infância é feita de momentos que não voltam: o objetivo é dar a crianças de instituições de acolhimento um brinquedo/lembrança para guardar para sempre. Segundo objetivo: tirar as crianças das telas e fazê-las interagir com o mundo à sua volta.
+- Doação: coletas em datas específicas em escolas parceiras; em algumas ações, oficinas de brinquedos com material reciclado (reaproveitamento e empatia). Trajetória curta, com o propósito de deixar a vida das crianças melhor e mais saudável.
+- Textos reescritos em index.html ("O que nos move", cartões, "Como funciona"), sobre.html (objetivos, como trabalhamos, trajetória, missão, visão, valores), doacao.html (como funciona a coleta), faq.html e contato.html.
+- Pendente: o formulário de doação ainda tem os pontos "Sede / Escola parceira / Centro comunitário" e data livre; não combina 100% com "datas específicas em escolas parceiras".
 
