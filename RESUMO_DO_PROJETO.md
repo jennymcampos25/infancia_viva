@@ -79,3 +79,8 @@ index.html, doacao.html, sobre.html, faq.html, contato.html, login.html, cadastr
 - Textos reescritos em index.html ("O que nos move", cartões, "Como funciona"), sobre.html (objetivos, como trabalhamos, trajetória, missão, visão, valores), doacao.html (como funciona a coleta), faq.html e contato.html.
 - Pendente: o formulário de doação ainda tem os pontos "Sede / Escola parceira / Centro comunitário" e data livre; não combina 100% com "datas específicas em escolas parceiras".
 
+## Pedidos dos professores (11/11)
+- Sobre nós mais chamativo: a página foi refeita no estilo da inicial (abertura com foto, "O que a Infância Viva quer" com uma frase de propósito, objetivos, como trabalhamos, trajetória em linha do tempo com próximos passos, missão e visão em destaque, valores, como ajudar e chamada com confete).
+- Painel administrativo com cara de sistema (não parecido com o site): admin.php?pagina=geral|usuarios|doacoes|pagamentos|mensagens|avaliacoes e admin_usuario.php usam painel_inicio()/painel_fim() do funcoes.php: menu lateral escuro, topo com o nome do admin, sem o topo e o rodapé públicos. Visão geral com números e "Atividade recente"; busca nas tabelas (data-filtrar no script.js); mensagens em cartões com "Responder" por e-mail; avaliações com média e barras por nota. No celular, o menu lateral vira uma barra no topo.
+- Avatares prontos recoloridos com a paleta da logo (foto_url() devolve ?v=2).
+

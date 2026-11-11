@@ -325,5 +325,20 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Painel do administrador: a caixa de busca esconde as linhas da tabela que não têm o texto digitado
+    var buscas = document.querySelectorAll("[data-filtrar]");
+    for (var b = 0; b < buscas.length; b++) {
+        buscas[b].addEventListener("input", function () {
+            var tabela = document.getElementById(this.getAttribute("data-filtrar"));
+            if (!tabela) return;
+            var termo = this.value.toLowerCase();
+            var linhas = tabela.querySelectorAll("tr");
+            for (var l = 0; l < linhas.length; l++) {
+                if (!linhas[l].querySelector("td")) continue;   // linha de títulos
+                linhas[l].hidden = termo !== "" && linhas[l].textContent.toLowerCase().indexOf(termo) === -1;
+            }
+        });
+    }
+
     iniciarPagamento();
 });

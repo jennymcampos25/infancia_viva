@@ -76,7 +76,7 @@ $AVATARES = array("avatar1", "avatar2", "avatar3", "avatar4", "avatar5", "avatar
 // Endereço da imagem para usar no <img src="...">
 function foto_url($id, $foto) {
     global $AVATARES;
-    if (in_array($foto, $AVATARES, true)) return "imagens/avatares/$foto.svg";
+    if (in_array($foto, $AVATARES, true)) return "imagens/avatares/$foto.svg?v=2";   // ?v= muda quando as cores mudam
     if (strpos((string) $foto, "upload:") === 0) return "foto.php?id=" . (int) $id . "&v=" . substr($foto, 7);
     return "imagens/avatares/padrao.svg";
 }
@@ -113,15 +113,91 @@ function salvar_foto($usuario_id, $escolha) {
     $st->execute();
 }
 
+// ---- LAYOUT DO PAINEL ADMINISTRATIVO ----
+// O admin tem uma "cara" de sistema, diferente do site: menu lateral escuro e sem o topo/rodapé públicos.
+
+// Links do menu lateral: pagina => array(texto, ícone)
+$PAINEL_MENU = array(
+    "geral"      => array("Visão geral", '<path d="M3 13h8V3H3zM13 21h8V11h-8zM13 3v6h8V3zM3 21h8v-6H3z"/>'),
+    "usuarios"   => array("Usuários", '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>'),
+    "doacoes"    => array("Doações", '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/>'),
+    "pagamentos" => array("Pagamentos", '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>'),
+    "mensagens"  => array("Mensagens", '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'),
+    "avaliacoes" => array("Avaliações", '<path d="M12 2l2.9 6.1 6.6.8-4.9 4.6 1.3 6.5L12 16.8 6.1 20l1.3-6.5L2.5 8.9l6.6-.8z"/>'),
+);
+
+function icone_painel($desenho) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" '
+         . 'stroke-linejoin="round" aria-hidden="true">' . $desenho . '</svg>';
+}
+
+// Começo da página do painel. $ativo = chave do $PAINEL_MENU destacada; $admin = dados de exigir_admin()
+function painel_inicio($titulo, $ativo, $admin) {
+    global $PAINEL_MENU;
+    ?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><?= h($titulo) ?> - Painel - Infância Viva</title>
+    <link rel="stylesheet" href="estilo.css?v=4">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
+</head>
+<body class="painel">
+<aside class="painel-lateral">
+    <a class="painel-marca" href="admin.php">
+        <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4 52 21H12z" fill="#2f7a80"/><rect x="21" y="19" width="22" height="7" fill="#2f7a80"/><path fill="#f5a524" fill-rule="evenodd" d="M13 26h38a4 4 0 0 1 4 4v26a4 4 0 0 1-4 4H13a4 4 0 0 1-4-4V30a4 4 0 0 1 4-4zM25 60V46a7 7 0 0 1 14 0v14z"/></svg>
+        <span>Infância Viva<small>Painel administrativo</small></span>
+    </a>
+    <nav class="painel-menu">
+        <?php foreach ($PAINEL_MENU as $pagina => $item): ?>
+            <a href="admin.php?pagina=<?= $pagina ?>"<?= $pagina === $ativo ? ' class="ativo"' : '' ?>><?= icone_painel($item[1]) ?><?= h($item[0]) ?></a>
+        <?php endforeach; ?>
+    </nav>
+    <div class="painel-saidas">
+        <a href="index.html"><?= icone_painel('<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/>') ?>Ver o site</a>
+        <a href="logout.php"><?= icone_painel('<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>') ?>Sair</a>
+    </div>
+</aside>
+<div class="painel-conteudo">
+    <header class="painel-topo">
+        <h1><?= h($titulo) ?></h1>
+        <div class="painel-quem">
+            <img src="<?= h(foto_url($admin["id"], $admin["foto"])) ?>" alt="">
+            <span><?= h($admin["nome"]) ?><small>Administrador</small></span>
+        </div>
+    </header>
+    <main class="painel-principal">
+    <?php
+}
+
+function painel_fim() {
+    ?>
+    </main>
+</div>
+<script src="script.js?v=6"></script>
+</body>
+</html>
+    <?php
+}
+
+// Caixa de busca que filtra as linhas de uma tabela (o script.js faz o filtro)
+function busca_tabela($id_tabela, $texto) {
+    echo '<input type="search" class="painel-busca" data-filtrar="' . h($id_tabela) . '" placeholder="' . h($texto) . '">';
+}
+
 // ---- TABELAS ----
 
 // $colunas = array("Título da coluna" => "campo_do_banco")
-function tabela($colunas, $linhas) {
+function tabela($colunas, $linhas, $id = "") {
     if (!$linhas) {
-        echo "<p>Nenhum registro ainda.</p>";
+        echo '<p class="vazio">Nenhum registro ainda.</p>';
         return;
     }
-    echo '<div class="tabela"><table><tr>';
+    echo '<div class="tabela"><table' . ($id ? ' id="' . h($id) . '"' : '') . '><tr>';
     foreach ($colunas as $titulo => $campo) {
         echo "<th>" . h($titulo) . "</th>";
     }
