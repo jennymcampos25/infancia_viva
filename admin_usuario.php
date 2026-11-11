@@ -1,9 +1,9 @@
 <?php
 // Painel do administrador: tudo o que UM usuário fez. ?id=0 mostra o que foi feito sem login.
-session_start();
 header("Content-Type: text/html; charset=UTF-8");
 header("Cache-Control: no-store");
 require "funcoes.php";
+iniciar_sessao();
 
 $admin = exigir_admin();
 

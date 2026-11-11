@@ -250,6 +250,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var erros = {
         campos: "Preencha todos os campos.",
         email_invalido: "E-mail inválido.",
+        email_inexistente: "Esse e-mail não parece existir. Confira se digitou certo.",
         senha_curta: "A senha deve ter pelo menos 6 caracteres.",
         senhas_diferentes: "As senhas não conferem.",
         email_existe: "Este e-mail já está cadastrado.",
@@ -325,17 +326,18 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Painel do administrador: a caixa de busca esconde as linhas da tabela que não têm o texto digitado
+    // Painel do administrador: a caixa de busca esconde o que não tem o texto digitado
     var buscas = document.querySelectorAll("[data-filtrar]");
     for (var b = 0; b < buscas.length; b++) {
         buscas[b].addEventListener("input", function () {
-            var tabela = document.getElementById(this.getAttribute("data-filtrar"));
-            if (!tabela) return;
+            var alvo = document.getElementById(this.getAttribute("data-filtrar"));
+            if (!alvo) return;
             var termo = this.value.toLowerCase();
-            var linhas = tabela.querySelectorAll("tr");
-            for (var l = 0; l < linhas.length; l++) {
-                if (!linhas[l].querySelector("td")) continue;   // linha de títulos
-                linhas[l].hidden = termo !== "" && linhas[l].textContent.toLowerCase().indexOf(termo) === -1;
+            // tabela: filtra as linhas; lista de cartões (mensagens/avaliações): filtra os cartões
+            var itens = alvo.tagName === "TABLE" ? alvo.querySelectorAll("tr") : alvo.children;
+            for (var l = 0; l < itens.length; l++) {
+                if (alvo.tagName === "TABLE" && !itens[l].querySelector("td")) continue;   // linha de títulos
+                itens[l].hidden = termo !== "" && itens[l].textContent.toLowerCase().indexOf(termo) === -1;
             }
         });
     }

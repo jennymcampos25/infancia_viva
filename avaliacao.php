@@ -1,7 +1,7 @@
 <?php
 // Recebe a avaliação (nota e comentário são opcionais, mas precisa ter pelo menos um).
-session_start();
 require "funcoes.php";
+iniciar_sessao();
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     header("Location: contato.html");

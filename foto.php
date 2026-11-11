@@ -1,7 +1,7 @@
 <?php
 // Mostra a foto de perfil enviada por um usuário. Só o próprio usuário e o administrador podem ver.
-session_start();
 require "funcoes.php";
+iniciar_sessao();
 
 $id = isset($_GET["id"]) ? (int) $_GET["id"] : 0;
 $eu = usuario_logado_id();

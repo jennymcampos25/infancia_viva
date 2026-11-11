@@ -1,10 +1,10 @@
 <?php
 // Painel administrativo. Cada assunto é uma "página": admin.php?pagina=geral, usuarios, doacoes,
 // pagamentos, mensagens ou avaliacoes. O layout (menu lateral) está em funcoes.php.
-session_start();
 header("Content-Type: text/html; charset=UTF-8");
 header("Cache-Control: no-store");
 require "funcoes.php";
+iniciar_sessao();
 
 // ---- PROTEÇÃO: só entra quem está logado E é administrador no banco ----
 $admin = exigir_admin();
@@ -30,10 +30,8 @@ function estrelas($nota) {
     return $nota ? str_repeat("★", (int) $nota) . str_repeat("☆", 5 - (int) $nota) : "sem nota";
 }
 
-// Chave secreta da sessão: os botões de apagar só funcionam vindos desta página
-if (empty($_SESSION["chave_admin"])) {
-    $_SESSION["chave_admin"] = sha1(uniqid(mt_rand(), true));
-}
+// Chave secreta da sessão: os botões de apagar só funcionam vindos do painel
+chave_admin();
 
 // Resultado da última limpeza (vem do admin_limpar.php)
 $aviso_limpeza = isset($_SESSION["aviso_admin"]) ? $_SESSION["aviso_admin"] : "";
@@ -159,12 +157,12 @@ elseif ($pagina === "usuarios"):
     <section class="painel-caixa">
         <div class="painel-caixa-topo">
             <p>Clique no nome para ver tudo o que a pessoa fez.</p>
-            <?php busca_tabela("tabela-usuarios", "Buscar por nome ou e-mail"); ?>
+            <div class="painel-ferramentas"><?php busca_tabela("tabela-usuarios", "Buscar por nome ou e-mail"); ?><?= botao_novo("usuarios") ?></div>
         </div>
         <div class="tabela"><table id="tabela-usuarios">
             <tr>
                 <th>Nome</th><th>E-mail</th><th>Tipo</th><th>Cadastro</th>
-                <th>Doações</th><th>Pagamentos</th><th>Mensagens</th><th>Avaliações</th>
+                <th>Doações</th><th>Pagamentos</th><th>Mensagens</th><th>Avaliações</th><th>Ações</th>
             </tr>
             <?php foreach ($usuarios as $u): ?>
             <tr>
@@ -176,6 +174,7 @@ elseif ($pagina === "usuarios"):
                 <td><?= (int) $u["n_pagamentos"] ?></td>
                 <td><?= (int) $u["n_mensagens"] ?></td>
                 <td><?= (int) $u["n_avaliacoes"] ?></td>
+                <td><?= acoes_registro("usuarios", $u["id"], "usuário") ?></td>
             </tr>
             <?php endforeach; ?>
             <tr>
@@ -185,6 +184,7 @@ elseif ($pagina === "usuarios"):
                 <td><?= (int) $visitantes["n_pagamentos"] ?></td>
                 <td><?= (int) $visitantes["n_mensagens"] ?></td>
                 <td><?= (int) $visitantes["n_avaliacoes"] ?></td>
+                <td></td>
             </tr>
         </table></div>
     </section>
@@ -192,7 +192,7 @@ elseif ($pagina === "usuarios"):
 
 // =====================================================================
 elseif ($pagina === "doacoes"):
-    $doacoes = $pdo->query("SELECT nome, email, telefone, brinquedo, quantidade, ponto, valor, observacoes,
+    $doacoes = $pdo->query("SELECT id, nome, email, telefone, brinquedo, quantidade, ponto, valor, observacoes,
                                    DATE_FORMAT(data_doacao, '%d/%m/%Y') AS dia, $dh
                             FROM doacoes ORDER BY id DESC LIMIT 300")->fetchAll();
     foreach ($doacoes as &$d) {
@@ -210,20 +210,19 @@ elseif ($pagina === "doacoes"):
     <?php endif; ?>
     <section class="painel-caixa">
         <div class="painel-caixa-topo">
-            <p>As 300 doações mais recentes.</p>
-            <?php busca_tabela("tabela-doacoes", "Buscar por doador, brinquedo ou local"); ?>
+            <p>As 300 doações mais recentes. E-mail, telefone e observações aparecem em "Editar".</p>
+            <div class="painel-ferramentas"><?php busca_tabela("tabela-doacoes", "Buscar por doador, brinquedo ou local"); ?><?= botao_novo("doacoes") ?></div>
         </div>
         <?php tabela(array(
-            "Registrada em" => "quando", "Doador" => "nome", "E-mail" => "email", "Telefone" => "telefone",
-            "Brinquedo" => "brinquedo", "Qtd" => "quantidade", "Data da entrega" => "dia",
-            "Local" => "ponto", "Valor" => "valor", "Observações" => "observacoes"
-        ), $doacoes, "tabela-doacoes"); ?>
+            "Registrada em" => "quando", "Doador" => "nome", "Brinquedo" => "brinquedo", "Qtd" => "quantidade",
+            "Entrega" => "dia", "Local" => "ponto", "Valor" => "valor"
+        ), $doacoes, "tabela-doacoes", "doacoes"); ?>
     </section>
 <?php
 
 // =====================================================================
 elseif ($pagina === "pagamentos"):
-    $pagamentos = $pdo->query("SELECT nome, valor, metodo, status, $dh FROM pagamentos ORDER BY id DESC LIMIT 300")->fetchAll();
+    $pagamentos = $pdo->query("SELECT id, nome, valor, metodo, status, $dh FROM pagamentos ORDER BY id DESC LIMIT 300")->fetchAll();
     $total = 0;
     foreach ($pagamentos as &$p) {
         $total += (float) $p["valor"];
@@ -238,21 +237,25 @@ elseif ($pagina === "pagamentos"):
     <section class="painel-caixa">
         <div class="painel-caixa-topo">
             <p>O pagamento do site é uma demonstração: nenhum valor é cobrado de verdade.</p>
-            <?php busca_tabela("tabela-pagamentos", "Buscar por nome ou forma"); ?>
+            <div class="painel-ferramentas"><?php busca_tabela("tabela-pagamentos", "Buscar por nome ou forma"); ?><?= botao_novo("pagamentos") ?></div>
         </div>
         <?php tabela(array("Quando" => "quando", "Nome" => "nome", "Valor" => "valor", "Forma" => "metodo", "Status" => "status"),
-                     $pagamentos, "tabela-pagamentos"); ?>
+                     $pagamentos, "tabela-pagamentos", "pagamentos"); ?>
     </section>
 <?php
 
 // =====================================================================
 elseif ($pagina === "mensagens"):
-    $mensagens = $pdo->query("SELECT nome, email, mensagem, $dh FROM mensagens ORDER BY id DESC LIMIT 200")->fetchAll();
+    $mensagens = $pdo->query("SELECT id, nome, email, mensagem, $dh FROM mensagens ORDER BY id DESC LIMIT 200")->fetchAll();
     ?>
+    <div class="painel-caixa-topo">
+        <p><?= count($mensagens) ?> mensagem(ns).</p>
+        <div class="painel-ferramentas"><?php busca_tabela("lista-mensagens", "Buscar nas mensagens"); ?><?= botao_novo("mensagens") ?></div>
+    </div>
     <?php if (!$mensagens): ?>
         <p class="vazio">Nenhuma mensagem recebida ainda.</p>
     <?php endif; ?>
-    <div class="mensagens">
+    <div class="mensagens" id="lista-mensagens">
         <?php foreach ($mensagens as $m): ?>
             <article class="mensagem">
                 <header>
@@ -261,6 +264,7 @@ elseif ($pagina === "mensagens"):
                 </header>
                 <p><?= nl2br(h($m["mensagem"])) ?></p>
                 <a class="link" href="mailto:<?= h(rawurlencode($m["email"])) ?>?subject=<?= rawurlencode("Infância Viva: resposta à sua mensagem") ?>">Responder para <?= h($m["email"]) ?> →</a>
+                <?= acoes_registro("mensagens", $m["id"], "mensagem") ?>
             </article>
         <?php endforeach; ?>
     </div>
@@ -268,7 +272,7 @@ elseif ($pagina === "mensagens"):
 
 // =====================================================================
 elseif ($pagina === "avaliacoes"):
-    $avaliacoes = $pdo->query("SELECT a.nota, a.comentario, DATE_FORMAT(a.criado_em, '%d/%m/%Y %H:%i') AS quando, u.nome
+    $avaliacoes = $pdo->query("SELECT a.id, a.nota, a.comentario, DATE_FORMAT(a.criado_em, '%d/%m/%Y %H:%i') AS quando, u.nome
                                FROM avaliacoes a LEFT JOIN usuarios u ON u.id = a.usuario_id
                                ORDER BY a.id DESC LIMIT 200")->fetchAll();
     $media = $pdo->query("SELECT AVG(nota) FROM avaliacoes")->fetchColumn();
@@ -295,7 +299,11 @@ elseif ($pagina === "avaliacoes"):
             <?php endforeach; ?>
         </section>
     </div>
-    <div class="mensagens">
+    <div class="painel-caixa-topo">
+        <p>Avaliações enviadas pela página Contato.</p>
+        <div class="painel-ferramentas"><?php busca_tabela("lista-avaliacoes", "Buscar nas avaliações"); ?><?= botao_novo("avaliacoes") ?></div>
+    </div>
+    <div class="mensagens" id="lista-avaliacoes">
         <?php foreach ($avaliacoes as $a): ?>
             <article class="mensagem">
                 <header>
@@ -304,6 +312,7 @@ elseif ($pagina === "avaliacoes"):
                     <small><?= h($a["quando"]) ?></small>
                 </header>
                 <?php if ($a["comentario"]): ?><p><?= nl2br(h($a["comentario"])) ?></p><?php endif; ?>
+                <?= acoes_registro("avaliacoes", $a["id"], "avaliação") ?>
             </article>
         <?php endforeach; ?>
     </div>

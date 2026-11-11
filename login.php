@@ -1,7 +1,7 @@
 <?php
 // Recebe o formulário de login.html e confere e-mail e senha no banco.
-session_start();
-require "conexao.php";
+require "funcoes.php";
+iniciar_sessao();
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     header("Location: login.html");
@@ -22,6 +22,8 @@ if (!$u || !password_verify($senha, $u["senha_hash"])) {
 }
 
 session_regenerate_id(true);
+$_SESSION["manter"]       = !empty($_POST["manter"]);   // caixinha "Manter conectado"
+cookie_sessao($_SESSION["manter"]);
 $_SESSION["usuario_id"]   = $u["id"];
 $_SESSION["usuario_nome"] = $u["nome"];
 $_SESSION["usuario_tipo"] = $u["tipo"];

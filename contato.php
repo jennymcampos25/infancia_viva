@@ -1,7 +1,7 @@
 <?php
 // Recebe o formulário "Envie uma mensagem" da página Contato.
-session_start();
 require "funcoes.php";
+iniciar_sessao();
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     header("Location: contato.html");
@@ -21,6 +21,10 @@ $mensagem = campo("mensagem");
 if ($nome === "" || strlen($nome) > 100 || !filter_var($email, FILTER_VALIDATE_EMAIL)
     || $mensagem === "" || strlen($mensagem) > 5000) {
     header("Location: contato.html?erro=contato#mensagemSucesso");
+    exit;
+}
+if (!email_real($email)) {
+    header("Location: contato.html?erro=email#mensagemSucesso");
     exit;
 }
 

@@ -3,9 +3,9 @@
 // e cria as colunas da foto de perfil.
 // Rode uma vez em cada computador (precisa estar logado como administrador).
 // Pode rodar de novo sem problema: o que já foi feito é pulado.
-session_start();
 header("Content-Type: text/html; charset=UTF-8");
 require "funcoes.php";
+iniciar_sessao();
 
 exigir_admin();
 
@@ -54,7 +54,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <title>Atualizar banco</title>
-    <link rel="stylesheet" href="estilo.css?v=4">
+    <link rel="stylesheet" href="estilo.css?v=5">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 <body>

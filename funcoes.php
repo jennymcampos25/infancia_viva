@@ -3,6 +3,129 @@
 // Quem usa faz:  require "funcoes.php";  (ele já inclui o conexao.php)
 require_once "conexao.php";
 
+// ---- SESSÃO (login) ----
+// As sessões ficam guardadas no banco (tabela "sessoes"), e não em arquivos dentro do servidor.
+// Assim ninguém é deslogado quando o site é atualizado no Coolify (o servidor é recriado a cada atualização).
+define("SESSAO_DIAS", 30);   // quanto tempo dura o "Manter conectado" (e uma sessão parada no banco)
+
+class SessaoNoBanco implements SessionHandlerInterface {
+    #[\ReturnTypeWillChange]
+    public function open($caminho, $nome) { return true; }
+
+    #[\ReturnTypeWillChange]
+    public function close() { return true; }
+
+    #[\ReturnTypeWillChange]
+    public function read($id) {
+        global $pdo;
+        try {
+            $st = $pdo->prepare("SELECT dados FROM sessoes WHERE id = ?");
+            $st->execute(array($id));
+        } catch (PDOException $e) {
+            criar_tabela_sessoes();   // primeira vez: a tabela ainda não existe
+            return "";
+        }
+        $dados = $st->fetchColumn();
+        return $dados === false ? "" : $dados;
+    }
+
+    #[\ReturnTypeWillChange]
+    public function write($id, $dados) {
+        global $pdo;
+        $st = $pdo->prepare("REPLACE INTO sessoes (id, dados, atualizado_em) VALUES (?, ?, ?)");
+        return $st->execute(array($id, $dados, time()));
+    }
+
+    #[\ReturnTypeWillChange]
+    public function destroy($id) {
+        global $pdo;
+        $pdo->prepare("DELETE FROM sessoes WHERE id = ?")->execute(array($id));
+        return true;
+    }
+
+    #[\ReturnTypeWillChange]
+    public function gc($duracao) {
+        global $pdo;
+        $pdo->prepare("DELETE FROM sessoes WHERE atualizado_em < ?")->execute(array(time() - $duracao));
+        return true;
+    }
+}
+
+function criar_tabela_sessoes() {
+    global $pdo;
+    $pdo->exec("CREATE TABLE IF NOT EXISTS sessoes (
+                    id            VARCHAR(128) PRIMARY KEY,
+                    dados         MEDIUMBLOB NOT NULL,
+                    atualizado_em INT NOT NULL,
+                    INDEX (atualizado_em)
+                ) ENGINE=InnoDB");
+}
+
+function site_em_https() {
+    return (!empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] !== "off")
+        || (isset($_SERVER["HTTP_X_FORWARDED_PROTO"]) && $_SERVER["HTTP_X_FORWARDED_PROTO"] === "https");
+}
+
+// Envia o cookie da sessão. $manter = true: o cookie vale 30 dias (continua logado depois de fechar o navegador);
+// false: o cookie some quando o navegador fecha.
+function cookie_sessao($manter) {
+    $validade = $manter ? time() + SESSAO_DIAS * 86400 : 0;
+    if (PHP_VERSION_ID >= 70300) {
+        setcookie(session_name(), session_id(), array("expires" => $validade, "path" => "/",
+                  "secure" => site_em_https(), "httponly" => true, "samesite" => "Lax"));
+    } else {
+        setcookie(session_name(), session_id(), $validade, "/", "", site_em_https(), true);
+    }
+}
+
+// Use no lugar de session_start() em todas as páginas PHP
+function iniciar_sessao() {
+    if (session_id() !== "") return;
+    ini_set("session.gc_maxlifetime", SESSAO_DIAS * 86400);   // o padrão do PHP apagava a sessão após 24 min parada
+    if (PHP_VERSION_ID >= 70300) {
+        session_set_cookie_params(array("lifetime" => 0, "path" => "/", "secure" => site_em_https(),
+                                        "httponly" => true, "samesite" => "Lax"));
+    } else {
+        session_set_cookie_params(0, "/", "", site_em_https(), true);
+    }
+    session_set_save_handler(new SessaoNoBanco(), true);
+    session_start();
+    // "Manter conectado": cada visita renova o prazo de 30 dias
+    if (!empty($_SESSION["manter"])) cookie_sessao(true);
+}
+
+// ---- E-MAIL ----
+// Confere se o e-mail pode existir: formato certo, domínio que recebe e-mails e não descartável.
+// Não garante que a caixa de e-mail existe (para isso seria preciso mandar um e-mail de confirmação).
+function email_real($email) {
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) return false;
+    $dominio = strtolower(substr(strrchr($email, "@"), 1));
+
+    $bloqueados = array(
+        "example.com", "example.org", "example.net", "exemplo.com", "teste.com", "test.com",
+        "mailinator.com", "yopmail.com", "guerrillamail.com", "10minutemail.com", "temp-mail.org",
+        "tempmail.com", "trashmail.com", "sharklasers.com", "getnada.com", "dispostable.com",
+        "maildrop.cc", "fakeinbox.com", "throwawaymail.com", "emailondeck.com"
+    );
+    if (in_array($dominio, $bloqueados, true)) return false;
+    if (preg_match('/\.(test|example|invalid|localhost|local)$/', $dominio)) return false;
+
+    if (dominio_recebe_email($dominio)) return true;
+    // Se o servidor não consegue consultar a internet (DNS), não bloqueia ninguém por engano
+    return !dominio_recebe_email("gmail.com");
+}
+
+function dominio_recebe_email($dominio) {
+    if (!function_exists("getmxrr")) return true;
+    if (@getmxrr($dominio, $servidores)) {
+        foreach ($servidores as $s) {
+            if ($s !== "" && $s !== ".") return true;   // "." = domínio que avisa que não recebe e-mails
+        }
+        return false;
+    }
+    return @checkdnsrr($dominio, "A");
+}
+
 // h() protege a tela contra HTML/JS digitado nos formulários
 function h($v) { return htmlspecialchars((string) $v, ENT_QUOTES, "UTF-8"); }
 
@@ -13,7 +136,7 @@ function dinheiro($v) { return "R$ " . number_format((float) $v, 2, ",", "."); }
 // Só deixa passar quem está logado. Devolve os dados do usuário (id, nome, email, tipo).
 function exigir_login() {
     global $pdo;
-    if (session_id() === "") session_start();
+    iniciar_sessao();
 
     if (!isset($_SESSION["usuario_id"])) {
         header("Location: login.html");
@@ -44,7 +167,7 @@ function exigir_login() {
 // Confere no banco: se a conta foi apagada pelo admin, a sessão é encerrada e o registro vai como visitante.
 function usuario_logado_id() {
     global $pdo;
-    if (session_id() === "") session_start();
+    iniciar_sessao();
     if (!isset($_SESSION["usuario_id"])) return null;
 
     $st = $pdo->prepare("SELECT id FROM usuarios WHERE id = ?");
@@ -141,7 +264,7 @@ function painel_inicio($titulo, $ativo, $admin) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= h($titulo) ?> - Painel - Infância Viva</title>
-    <link rel="stylesheet" href="estilo.css?v=4">
+    <link rel="stylesheet" href="estilo.css?v=5">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
@@ -178,7 +301,7 @@ function painel_fim() {
     ?>
     </main>
 </div>
-<script src="script.js?v=6"></script>
+<script src="script.js?v=7"></script>
 </body>
 </html>
     <?php
@@ -189,24 +312,96 @@ function busca_tabela($id_tabela, $texto) {
     echo '<input type="search" class="painel-busca" data-filtrar="' . h($id_tabela) . '" placeholder="' . h($texto) . '">';
 }
 
+// ---- INCLUIR, ALTERAR E APAGAR REGISTROS (painel do admin) ----
+// Cada tabela que o admin pode editar e os campos do formulário.
+// Tipos: texto, email, numero, data, dinheiro, lista, textarea, senha, conta (usuário dono do registro)
+function registros_config() {
+    $pontos = array("Sede da Infância Viva" => "Sede da Infância Viva", "Escola parceira" => "Escola parceira",
+                    "Centro comunitário" => "Centro comunitário");
+    return array(
+        "doacoes" => array("nome" => "doação", "novo" => "Nova doação", "campos" => array(
+            "usuario_id"  => array("Conta do doador", "conta", false),
+            "nome"        => array("Nome do doador", "texto", true),
+            "email"       => array("E-mail", "email", true),
+            "telefone"    => array("Telefone", "texto", true),
+            "brinquedo"   => array("Brinquedo", "texto", true),
+            "quantidade"  => array("Quantidade", "numero", true),
+            "data_doacao" => array("Data da entrega", "data", true),
+            "endereco"    => array("Endereço", "texto", true),
+            "ponto"       => array("Local de entrega", "lista", true, $pontos),
+            "valor"       => array("Valor em dinheiro (R$)", "dinheiro", false),
+            "observacoes" => array("Observações", "textarea", false),
+        )),
+        "pagamentos" => array("nome" => "pagamento", "novo" => "Novo pagamento", "campos" => array(
+            "usuario_id" => array("Conta de quem pagou", "conta", false),
+            "nome"       => array("Nome", "texto", true),
+            "valor"      => array("Valor (R$)", "dinheiro", true),
+            "metodo"     => array("Forma", "lista", true, array("Pix" => "Pix", "Cartão" => "Cartão")),
+            "status"     => array("Situação", "lista", true, array("Simulado" => "Simulado", "Confirmado" => "Confirmado", "Cancelado" => "Cancelado")),
+        )),
+        "mensagens" => array("nome" => "mensagem", "novo" => "Nova mensagem", "campos" => array(
+            "usuario_id" => array("Conta de quem enviou", "conta", false),
+            "nome"       => array("Nome", "texto", true),
+            "email"      => array("E-mail", "email", true),
+            "mensagem"   => array("Mensagem", "textarea", true),
+        )),
+        "avaliacoes" => array("nome" => "avaliação", "novo" => "Nova avaliação", "campos" => array(
+            "usuario_id" => array("Conta de quem avaliou", "conta", false),
+            "nota"       => array("Nota", "lista", false, array("1" => "★ 1", "2" => "★★ 2", "3" => "★★★ 3", "4" => "★★★★ 4", "5" => "★★★★★ 5")),
+            "comentario" => array("Comentário", "textarea", false),
+        )),
+        "usuarios" => array("nome" => "usuário", "novo" => "Novo usuário", "campos" => array(
+            "nome"  => array("Nome", "texto", true),
+            "email" => array("E-mail", "email", true),
+            "tipo"  => array("Tipo de conta", "lista", true, array("doador" => "Doador", "admin" => "Administrador")),
+            "senha" => array("Senha", "senha", false),
+        )),
+    );
+}
+
+// Chave da sessão que os formulários do painel mandam junto (impede que outro site apague coisas em nome do admin)
+function chave_admin() {
+    if (empty($_SESSION["chave_admin"])) $_SESSION["chave_admin"] = sha1(uniqid(mt_rand(), true));
+    return $_SESSION["chave_admin"];
+}
+
+// Botões "Editar" e "Apagar" de um registro
+function acoes_registro($tabela, $id, $nome) {
+    return '<span class="acoes">'
+         . '<a class="acao" href="admin_registro.php?tabela=' . h($tabela) . '&amp;id=' . (int) $id . '">Editar</a>'
+         . '<form action="admin_salvar.php" method="post" onsubmit="return confirm(\'Apagar este registro de ' . h($nome) . '? Não dá para desfazer.\')">'
+         . '<input type="hidden" name="acao" value="apagar"><input type="hidden" name="tabela" value="' . h($tabela) . '">'
+         . '<input type="hidden" name="id" value="' . (int) $id . '"><input type="hidden" name="chave" value="' . h(chave_admin()) . '">'
+         . '<button type="submit" class="acao perigo">Apagar</button></form></span>';
+}
+
+function botao_novo($tabela) {
+    $cfg = registros_config();
+    return '<a class="botao botao-novo" href="admin_registro.php?tabela=' . h($tabela) . '">+ ' . h($cfg[$tabela]["novo"]) . '</a>';
+}
+
 // ---- TABELAS ----
 
 // $colunas = array("Título da coluna" => "campo_do_banco")
-function tabela($colunas, $linhas, $id = "") {
+// $acoes = nome da tabela no banco para mostrar "Editar" e "Apagar" em cada linha (as linhas precisam ter "id")
+function tabela($colunas, $linhas, $id = "", $acoes = "") {
     if (!$linhas) {
         echo '<p class="vazio">Nenhum registro ainda.</p>';
         return;
     }
+    if ($acoes) $cfg = registros_config();
     echo '<div class="tabela"><table' . ($id ? ' id="' . h($id) . '"' : '') . '><tr>';
     foreach ($colunas as $titulo => $campo) {
         echo "<th>" . h($titulo) . "</th>";
     }
+    if ($acoes) echo "<th>Ações</th>";
     echo "</tr>";
     foreach ($linhas as $l) {
         echo "<tr>";
         foreach ($colunas as $campo) {
             echo "<td>" . h(isset($l[$campo]) ? $l[$campo] : "") . "</td>";
         }
+        if ($acoes) echo "<td>" . acoes_registro($acoes, $l["id"], $cfg[$acoes]["nome"]) . "</td>";
         echo "</tr>";
     }
     echo "</table></div>";

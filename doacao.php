@@ -1,7 +1,7 @@
 <?php
-session_start();
 header("Content-Type: text/html; charset=UTF-8");
 require "funcoes.php";
+iniciar_sessao();
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     header("Location: doacao.html");
@@ -41,6 +41,8 @@ if ($nome == "" || $email == "" || $telefone == "" || $brinquedo == "" || $ender
     $erro = "Por favor, preencha todos os campos obrigatórios.";
 } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $erro = "E-mail inválido.";
+} elseif (!email_real($email)) {
+    $erro = "Esse e-mail não parece existir. Confira se digitou certo.";
 } elseif ($quantidade <= 0) {
     $erro = "A quantidade de brinquedos deve ser maior que zero.";
 } elseif (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $data)) {
@@ -71,7 +73,7 @@ if ($erro == "") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Doação - Infância Viva</title>
-    <link rel="stylesheet" href="estilo.css?v=4">
+    <link rel="stylesheet" href="estilo.css?v=5">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
@@ -128,6 +130,6 @@ if ($erro == "") {
     </div>
     <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC</p>
 </footer>
-<script src="script.js?v=6"></script>
+<script src="script.js?v=7"></script>
 </body>
 </html>

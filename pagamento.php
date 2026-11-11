@@ -1,8 +1,8 @@
 <?php
 // Registra o pagamento (SIMULADO) no banco. Nenhum dado de cartão é enviado nem guardado:
 // os campos do cartão na página não têm "name", então o navegador nem os envia.
-session_start();
 require "funcoes.php";
+iniciar_sessao();
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     header("Location: pagamento.html");

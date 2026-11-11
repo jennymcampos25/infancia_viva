@@ -1,13 +1,13 @@
 <?php
 // Diz ao JavaScript das páginas HTML se há alguém logado (usado na bolinha de perfil do menu).
-session_start();
+require "funcoes.php";
+iniciar_sessao();
 header("Content-Type: application/json; charset=UTF-8");
 header("Cache-Control: no-store");
 
 if (isset($_SESSION["usuario_id"])) {
     $foto = null;
     try {
-        require "funcoes.php";
         $st = $pdo->prepare("SELECT foto FROM usuarios WHERE id = ?");
         $st->execute(array($_SESSION["usuario_id"]));
         $foto = $st->fetchColumn();

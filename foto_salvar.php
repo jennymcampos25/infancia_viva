@@ -1,7 +1,7 @@
 <?php
 // Recebe a troca de foto feita na página "Minha conta".
-session_start();
 require "funcoes.php";
+iniciar_sessao();
 
 $u = exigir_login();
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {

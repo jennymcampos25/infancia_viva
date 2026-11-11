@@ -22,6 +22,7 @@ $confirmar = isset($_POST["confirmar"]) ? $_POST["confirmar"] : "";
 
 if ($nome === "" || $email === "" || $senha === "") voltar("campos");
 if (!filter_var($email, FILTER_VALIDATE_EMAIL))     voltar("email_invalido");
+if (!email_real($email))                          voltar("email_inexistente");
 if (strlen($senha) < 6)                             voltar("senha_curta");
 if ($senha !== $confirmar)                          voltar("senhas_diferentes");
 

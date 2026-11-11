@@ -21,6 +21,14 @@ CREATE TABLE IF NOT EXISTS usuarios (
     criado_em   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Sessões de login (ficam no banco para ninguém ser deslogado quando o site é atualizado)
+CREATE TABLE IF NOT EXISTS sessoes (
+    id            VARCHAR(128) PRIMARY KEY,
+    dados         MEDIUMBLOB NOT NULL,
+    atualizado_em INT NOT NULL,
+    INDEX (atualizado_em)
+) ENGINE=InnoDB;
+
 -- Formulário da página Doação (brinquedos)
 CREATE TABLE IF NOT EXISTS doacoes (
     id           INT AUTO_INCREMENT PRIMARY KEY,

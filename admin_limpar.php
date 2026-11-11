@@ -1,7 +1,7 @@
 <?php
 // Botões de "Ferramentas de teste" do painel. Nenhuma opção apaga a conta do administrador.
-session_start();
 require "funcoes.php";
+iniciar_sessao();
 
 exigir_admin();
 
