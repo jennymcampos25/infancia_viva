@@ -1,0 +1,22 @@
+FOTOS DA PAGINA INICIAL
+=======================
+As fotos ficam na pasta "imagens". Elas aparecem em dois lugares do index.html:
+- na abertura (moldura redonda, troca de foto a cada 4 segundos): dentro de <div class="moldura">
+- na galeria "Momentos que fazem a diferenca": dentro de <div class="galeria">
+
+foto1.jpg - Roda de criancas olhando para a camera, vista de baixo
+foto2.jpg - Maos de criancas em roda, com carinhas desenhadas
+foto3.jpg - Tres criancas correndo na grama
+
+Para adicionar mais uma foto na abertura:
+1. Coloque o arquivo na pasta "imagens" (ex.: foto4.jpg).
+2. No index.html, dentro de <div class="moldura">, copie uma linha <img> e troque o nome:
+       <img src="imagens/foto4.jpg?v=1" alt="descricao da foto" style="object-position:50% 30%">
+   "object-position" escolhe que parte da foto aparece quando a moldura corta as bordas:
+   o primeiro numero e a posicao na largura e o segundo na altura (0% = topo, 100% = baixo).
+
+Para TROCAR uma foto mantendo o mesmo nome (ex.: foto1.jpg), aumente o "?v=" dela no index.html.
+Sem isso, quem ja visitou o site continua vendo a foto antiga guardada no navegador.
+
+A logo fica em imagens/logo_infancia_viva.png (fundo transparente). O simbolo da casinha
+(topo, rodape e favicon.svg) e desenhado direto no codigo, nas cores da logo.

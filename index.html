@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Início - Infância Viva</title>
-    <link rel="stylesheet" href="estilo.css?v=2">
+    <link rel="stylesheet" href="estilo.css?v=3">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
 </head>
 <body>
 <header class="topo">
-    <a class="logo" href="index.html"><span class="logo-icone">♥</span> Infância Viva</a>
+    <a class="logo" href="index.html" aria-label="Infância Viva - página inicial"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4 52 21H12z" fill="#2f7a80"/><rect x="21" y="19" width="22" height="7" fill="#2f7a80"/><path fill="#f5a524" fill-rule="evenodd" d="M13 26h38a4 4 0 0 1 4 4v26a4 4 0 0 1-4 4H13a4 4 0 0 1-4-4V30a4 4 0 0 1 4-4zM25 60V46a7 7 0 0 1 14 0v14z"/></svg><span>Infância <span class="l1">V</span><span class="l2">i</span><span class="l3">v</span><span class="l4">a</span></span></a>
     <button type="button" class="menu-botao" id="menuBotao" aria-label="Abrir menu" aria-expanded="false">☰</button>
     <nav id="menu">
         <a href="index.html">Início</a>
@@ -22,74 +22,99 @@
         <a href="login.html" id="linkLogin">Login</a>
     </nav>
 </header>
-<div class="banner">
-    <img id="slide" src="imagens/foto1.jpg?v=2" alt="Crianças brincando">
-    <div class="gradiente"></div>
-    <div class="texto-banner">
-        <h1>Infância Viva</h1>
-        <p>Pequenos gestos podem transformar grandes histórias.</p>
-        <a class="botao destaque" href="doacao.html">Quero doar</a>
-        <a class="botao contorno" href="sobre.html">Conheça a ONG</a>
+<div class="abertura">
+    <div>
+        <img class="logo-grande entra" src="imagens/logo_infancia_viva.png" alt="Infância Viva - Doar brinquedos. Transformar infâncias.">
+        <p class="slogan entra d2">
+            Doar brinquedos é transformar infâncias. Cada brinquedo leva alegria
+            para uma criança que vive em uma instituição de acolhimento.
+        </p>
+        <div class="entra d3">
+            <a class="botao" href="doacao.html">Quero doar</a>
+            <a class="botao contorno" href="sobre.html">Conheça a ONG</a>
+        </div>
+    </div>
+    <!-- Fotos do banner: o script.js troca uma pela outra a cada 4 segundos.
+         Para pôr mais uma foto, copie uma linha <img> (veja o FOTOS.txt). -->
+    <div class="foto-abertura entra d2">
+        <div class="anel"></div>
+        <div class="moldura">
+            <img class="visivel" src="imagens/foto1.jpg?v=2" alt="Crianças em roda, sorrindo para a câmera" style="object-position:50% 25%">
+            <img src="imagens/foto3.jpg?v=2" alt="Crianças correndo na grama" style="object-position:50% 30%">
+            <img src="imagens/foto2.jpg?v=2" alt="Mãos de crianças em roda com carinhas desenhadas" style="object-position:50% 55%">
+        </div>
+    </div>
+    <!-- brinquedos flutuando (só enfeite) -->
+    <svg class="flutua f1" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.9 6.1 6.6.8-4.9 4.6 1.3 6.5L12 16.8 6.1 20l1.3-6.5L2.5 8.9l6.6-.8z" fill="#f5a524"/></svg>
+    <svg class="flutua f2" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" fill="#2f7a80"/><path d="M9 8v8M15 8v8M9 12h6" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
+    <svg class="flutua f3" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#e8572a"/><path d="M2 12h20M12 2c3 3 3 17 0 20M12 2c-3 3-3 17 0 20" stroke="#fff" stroke-width="1.6" fill="none"/></svg>
+    <svg class="flutua f4" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6-8 11-8 11z" fill="#e8572a"/></svg>
+    <svg class="flutua f5" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" fill="#4f8a3a"/><circle cx="12" cy="12" r="4" fill="#fff"/></svg>
+</div>
+
+<!-- Números de verdade: o script.js busca no numeros.php (banco de dados) -->
+<div class="numeros">
+    <div class="numeros-grade">
+        <div class="n1"><strong data-numero="brinquedos">0</strong>brinquedos doados</div>
+        <div class="n2"><strong data-numero="doacoes">0</strong>doações registradas</div>
+        <div class="n3"><strong data-numero="doadores">0</strong>doadores</div>
+        <div class="n4"><strong data-numero="pontos">3</strong>pontos de coleta</div>
     </div>
 </div>
 
-<main>
-<h2>Transformando brinquedos em sorrisos</h2>
-<p>
-    A infância é uma fase de descobertas, brincadeiras e sonhos.
-    Queremos contribuir para que mais crianças possam vivenciar
-    momentos de diversão, afeto e esperança.
-</p>
-<p>
-    Por meio da arrecadação de brinquedos, buscamos levar um pouco
-    mais de felicidade para crianças que vivem em instituições de acolhimento.
-</p>
-
-<h2>Como você pode ajudar?</h2>
-<p>
-    Você pode contribuir doando brinquedos, realizando uma
-    contribuição financeira ou compartilhando nossa iniciativa.
-    Toda forma de apoio ajuda a fortalecer essa corrente.
-</p>
-<div class="cartoes">
-    <div class="cartao">
-        <span class="icone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg></span>
-        <h3>Doe brinquedos</h3>
-        <p>Brinquedos em bom estado, entregues em um dos nossos pontos de arrecadação.</p>
-        <a class="botao" href="doacao.html">Doar agora</a>
-    </div>
-    <div class="cartao">
-        <span class="icone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></span>
-        <h3>Contribua</h3>
-        <p>Uma contribuição em dinheiro ou Pix ajuda a manter a iniciativa funcionando.</p>
-        <a class="botao" href="pagamento.html">Contribuir</a>
-    </div>
-    <div class="cartao">
-        <span class="icone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></span>
-        <h3>Divulgue</h3>
-        <p>Compartilhe a Infância Viva com amigos e família e aumente essa corrente.</p>
-        <a class="botao" href="sobre.html#como-ajudar">Saiba mais</a>
+<div class="secao">
+    <div class="titulo-secao revela"><h2>Como você pode ajudar?</h2><span class="risco"></span></div>
+    <div class="cartoes">
+        <div class="cartao revela">
+            <span class="icone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg></span>
+            <h3>Doe brinquedos</h3>
+            <p>Brinquedos em bom estado, entregues em um dos nossos pontos de coleta.</p>
+            <a class="link" href="doacao.html">Doar agora →</a>
+        </div>
+        <div class="cartao revela d2">
+            <span class="icone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></span>
+            <h3>Contribua</h3>
+            <p>Uma contribuição em dinheiro ou Pix mantém a iniciativa funcionando.</p>
+            <a class="link" href="pagamento.html">Contribuir →</a>
+        </div>
+        <div class="cartao revela d3">
+            <span class="icone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></span>
+            <h3>Divulgue</h3>
+            <p>Compartilhe a Infância Viva com amigos e família e aumente essa corrente.</p>
+            <a class="link" href="sobre.html#como-ajudar">Saiba mais →</a>
+        </div>
     </div>
 </div>
 
-<h2>Por que sua ajuda é importante?</h2>
-<p>
-    Uma doação pode proporcionar momentos de alegria e diversão
-    para uma criança. Cada brinquedo arrecadado representa uma
-    oportunidade de compartilhar carinho e esperança.
-</p>
-
-<div class="chamada">
-    <h2>Faça parte dessa corrente</h2>
-    <p>Escolha uma forma de ajudar e venha fazer parte da Infância Viva.</p>
-    <button type="button" class="botao destaque" onclick="doar()">Quero doar</button>
+<div class="secao">
+    <div class="titulo-secao revela"><h2>Como funciona</h2><span class="risco"></span></div>
+    <div class="passos">
+        <div class="passo revela" style="--cor:var(--vermelho)"><div class="num">1</div><h3>Você doa</h3><p>Preenche o formulário e leva o brinquedo a um ponto de coleta.</p></div>
+        <div class="passo revela d2" style="--cor:var(--amarelo)"><div class="num">2</div><h3>Nós separamos</h3><p>Voluntários conferem, limpam e organizam cada brinquedo.</p></div>
+        <div class="passo revela d3" style="--cor:var(--azul)"><div class="num">3</div><h3>A criança recebe</h3><p>Entregamos nas instituições de acolhimento parceiras.</p></div>
+    </div>
 </div>
-</main>
+
+<div class="secao">
+    <div class="titulo-secao revela"><h2>Momentos que fazem a diferença</h2><span class="risco"></span></div>
+    <div class="galeria">
+        <figure class="revela"><img src="imagens/foto1.jpg?v=2" alt="Crianças em roda, sorrindo" style="object-position:50% 25%"><figcaption>Alegria em roda</figcaption></figure>
+        <figure class="revela d2"><img src="imagens/foto2.jpg?v=2" alt="Mãos de crianças com carinhas desenhadas"><figcaption>Juntos somos mais fortes</figcaption></figure>
+        <figure class="revela d3"><img src="imagens/foto3.jpg?v=2" alt="Crianças correndo na grama" style="object-position:50% 30%"><figcaption>Brincar ao ar livre</figcaption></figure>
+    </div>
+</div>
+
+<div class="chamada larga" data-confete>
+    <svg class="onda" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0h1440v20c-120 30-240 30-360 0S840-10 720 20 480 50 360 20 120-10 0 20z" fill="#fff8ee"/></svg>
+    <h2 class="revela">Faça parte dessa corrente</h2>
+    <p class="revela d2">Um brinquedo parado na sua casa pode ser o presente favorito de alguém.</p>
+    <a class="botao destaque revela d3" href="doacao.html">Quero doar</a>
+</div>
 <footer class="rodape">
     <div class="rodape-conteudo">
         <div>
-            <strong>♥ Infância Viva</strong>
-            <p>Pequenos gestos podem transformar grandes histórias.</p>
+            <strong><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4 52 21H12z" fill="#2f7a80"/><rect x="21" y="19" width="22" height="7" fill="#2f7a80"/><path fill="#f5a524" fill-rule="evenodd" d="M13 26h38a4 4 0 0 1 4 4v26a4 4 0 0 1-4 4H13a4 4 0 0 1-4-4V30a4 4 0 0 1 4-4zM25 60V46a7 7 0 0 1 14 0v14z"/></svg> Infância Viva</strong>
+            <p>Doar brinquedos. Transformar infâncias.</p>
         </div>
         <div>
             <strong>Contato</strong>
@@ -102,6 +127,6 @@
     </div>
     <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC</p>
 </footer>
-<script src="script.js?v=4"></script>
+<script src="script.js?v=5"></script>
 </body>
 </html>

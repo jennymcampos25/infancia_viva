@@ -54,7 +54,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <title>Atualizar banco</title>
-    <link rel="stylesheet" href="estilo.css?v=2">
+    <link rel="stylesheet" href="estilo.css?v=3">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 <body>

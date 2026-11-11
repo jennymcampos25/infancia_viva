@@ -201,6 +201,20 @@ function iniciarPerfil(sessao) {
     topo.insertBefore(perfil, document.getElementById("menuBotao"));
 }
 
+/* ===== Número que "conta" de 0 até o valor (faixa de números da página inicial) ===== */
+function contarAte(elemento, valorFinal) {
+    var parado = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (parado || valorFinal === 0) { elemento.textContent = valorFinal.toLocaleString("pt-BR"); return; }
+    var inicio = null;
+    function passo(agora) {
+        if (!inicio) inicio = agora;
+        var p = Math.min(1, (agora - inicio) / 1500);
+        elemento.textContent = Math.round(valorFinal * (1 - Math.pow(1 - p, 3))).toLocaleString("pt-BR");
+        if (p < 1) requestAnimationFrame(passo);
+    }
+    requestAnimationFrame(passo);
+}
+
 /* ===== Inicialização ===== */
 document.addEventListener("DOMContentLoaded", function () {
     // Menu: destaca o link da página atual
@@ -249,36 +263,66 @@ document.addEventListener("DOMContentLoaded", function () {
     if (q.get("foto") === "ok") aviso("Foto atualizada!", true);
     if (q.get("cadastro") === "ok") aviso("Cadastro realizado! Agora é só entrar.", true);
 
-    // Slideshow do banner: fotos da pasta "imagens".
-    // O "?v=2" no fim do nome obriga o navegador a baixar a foto de novo; aumente quando trocar uma foto
-    // mantendo o mesmo nome de arquivo.
-    // "foco" diz qual parte da foto fica visível quando o banner corta as bordas
-    // (horizontal vertical; ex.: "50% 25%" = centro na largura, mais para cima na altura).
-    var slide = document.getElementById("slide");
-    if (slide) {
-        var imagens = [
-            { src: "imagens/foto1.jpg?v=2", foco: "50% 22%" },   // roda de crianças olhando para baixo
-            { src: "imagens/foto2.jpg?v=2", foco: "50% 55%" },   // mãos com carinhas desenhadas
-            { src: "imagens/foto3.jpg?v=2", foco: "50% 20%" }    // crianças correndo na grama
-        ];
-        var i = 0;
-        function mostrar() {
-            slide.style.objectPosition = imagens[i].foco;
-            slide.src = imagens[i].src;
-        }
-        // Se alguma foto não existir na pasta, ela sai da lista e o slideshow segue com as outras
-        slide.onerror = function () {
-            imagens.splice(i, 1);
-            if (imagens.length === 0) return;
-            i = i % imagens.length;
-            mostrar();
-        };
-        mostrar();
+    // Fotos da abertura (página inicial): trocam a cada 4 segundos, com um esmaecer.
+    // As fotos ficam no index.html, dentro de <div class="moldura">.
+    var fotos = document.querySelectorAll(".moldura img");
+    if (fotos.length > 1) {
+        var atual = 0;
         setInterval(function () {
-            if (imagens.length < 2) return;
-            i = (i + 1) % imagens.length;
-            mostrar();
+            fotos[atual].classList.remove("visivel");
+            atual = (atual + 1) % fotos.length;
+            fotos[atual].classList.add("visivel");
         }, 4000);
+    }
+
+    // Cartões de todas as páginas também aparecem ao rolar
+    var cartoes = document.querySelectorAll(".cartao:not(.revela)");
+    for (var k = 0; k < cartoes.length; k++) cartoes[k].classList.add("revela");
+
+    // Elementos com a classe "revela" aparecem quando chegam na tela
+    var revelar = document.querySelectorAll(".revela");
+    if ("IntersectionObserver" in window) {
+        var observador = new IntersectionObserver(function (itens) {
+            itens.forEach(function (item) {
+                if (item.isIntersecting) {
+                    item.target.classList.add("visivel");
+                    observador.unobserve(item.target);
+                }
+            });
+        }, { threshold: 0.15 });
+        for (var r = 0; r < revelar.length; r++) observador.observe(revelar[r]);
+    } else {
+        for (var r2 = 0; r2 < revelar.length; r2++) revelar[r2].classList.add("visivel");
+    }
+
+    // Faixa de números (página inicial): busca os totais no banco e "conta" até eles
+    var numeros = document.querySelectorAll("[data-numero]");
+    if (numeros.length) {
+        fetch("numeros.php", { credentials: "same-origin" })
+            .then(function (r) { return r.json(); })
+            .then(function (dados) {
+                for (var n = 0; n < numeros.length; n++) {
+                    var chave = numeros[n].getAttribute("data-numero");
+                    if (typeof dados[chave] === "number") contarAte(numeros[n], dados[chave]);
+                }
+            })
+            .catch(function () {});
+    }
+
+    // Confete caindo nas faixas com data-confete
+    var faixas = document.querySelectorAll("[data-confete]");
+    var coresConfete = ["#f5a524", "#4f8a3a", "#2f7a80", "#ffffff"];
+    for (var f = 0; f < faixas.length; f++) {
+        for (var c = 0; c < 18; c++) {
+            var pedaco = document.createElement("span");
+            pedaco.className = "confete";
+            pedaco.setAttribute("aria-hidden", "true");
+            pedaco.style.left = (c * 5.6 + Math.random() * 3) + "%";
+            pedaco.style.background = coresConfete[c % coresConfete.length];
+            pedaco.style.animationDelay = (-Math.random() * 7) + "s";
+            pedaco.style.animationDuration = (5 + Math.random() * 4) + "s";
+            faixas[f].appendChild(pedaco);
+        }
     }
 
     iniciarPagamento();
