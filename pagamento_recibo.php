@@ -21,7 +21,7 @@ etapas_pagamento(4);
     <div class="confirmado-icone" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
     <h1>Pagamento confirmado!</h1>
     <p>Obrigado, <?= h(strtok($p["nome"], " ")) ?>! A sua doação de <strong><?= dinheiro($p["valor"]) ?></strong>
-       vai virar material para as oficinas e brinquedos para as crianças.</p>
+       vai ajudar a levar brinquedos até as crianças.</p>
     <?php if ($p["recibo_enviado"]): ?>
         <p class="confirmado-email">Enviamos uma cópia do recibo para <strong><?= h($p["email"]) ?></strong>.</p>
     <?php endif; ?>

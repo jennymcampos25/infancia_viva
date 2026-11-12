@@ -126,3 +126,5 @@ index.html, doacao.html, sobre.html, faq.html, contato.html, login.html, cadastr
 - Público-alvo: crianças em vulnerabilidade social, principalmente de instituições de acolhimento (Início, Sobre, FAQ).
 - FAQ: livros infantis e jogos educativos, critérios de avaliação, parcerias com escolas/empresas, transparência.
 - Contato: cartão da sede (NEAC, Rua Cantor Emílio Santiago, 118, Campo Grande), cidade no rodapé; tipo de local "Comércio ou empresa".
+
+- Removidas as oficinas de brinquedos reciclados (não estão na documentação). O dinheiro agora "ajuda no transporte, nas embalagens e na divulgação das campanhas" (documentação 6.5). Como trabalhamos: coletas e campanhas, avaliação e separação, entrega.
