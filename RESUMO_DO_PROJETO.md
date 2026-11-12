@@ -122,6 +122,7 @@ index.html, doacao.html, sobre.html, faq.html, contato.html, login.html, cadastr
 
 ## Alinhamento com a documentação do TCC
 - Sobre: foto nova no topo (sobre_maos_dadas.jpg), seção "Brincar é um direito" (ECA art. 16 e Constituição art. 227) com sobre_blocos.jpg, missão/visão com o texto da documentação, 6 valores da documentação (Solidariedade, Empatia, Respeito, Responsabilidade social, Inclusão, Compromisso com as crianças), seção "Nossos compromissos" (Transparência e Proteção das crianças), campanhas no Dia das Crianças e no Natal, avaliação dos brinquedos por segurança e faixa etária.
+- Removido o tema "tirar as crianças das telas" (não está na documentação); no lugar, o desenvolvimento pelo brincar.
 - Público-alvo: crianças em vulnerabilidade social, principalmente de instituições de acolhimento (Início, Sobre, FAQ).
 - FAQ: livros infantis e jogos educativos, critérios de avaliação, parcerias com escolas/empresas, transparência.
 - Contato: cartão da sede (NEAC, Rua Cantor Emílio Santiago, 118, Campo Grande), cidade no rodapé; tipo de local "Comércio ou empresa".
