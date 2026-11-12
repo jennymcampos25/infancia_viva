@@ -299,9 +299,22 @@ tr:hover td { background:#fff1dc; }
 .rodape strong { color:#fff; font-family:"Quicksand", sans-serif; font-size:1.1rem; display:flex; align-items:center; gap:8px; }
 .rodape strong svg { width:32px; height:32px; }
 .rodape p { margin:8px 0 0; }
-.rodape a { color:#c7cfd3; font-weight:600; }
+.rodape a { color:#c7cfd3; font-weight:600; overflow-wrap:anywhere; }
 .rodape a:hover { color:var(--amarelo); }
 .rodape-final { text-align:center; border-top:1px solid rgba(255,255,255,.1); padding:14px; margin:20px 0 0 !important; font-size:.85rem; }
+
+/* ===== Contato: canais (e-mail, telefone, Instagram) ===== */
+.canais { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin:16px 0 8px; }
+.canal {
+    display:flex; flex-direction:column; align-items:center; gap:4px; text-align:center; background:#fff;
+    border-radius:var(--raio); padding:22px 16px; box-shadow:var(--sombra); border-bottom:5px solid var(--cor);
+    color:var(--texto); text-decoration:none; font-weight:600; transition:transform .25s, box-shadow .25s;
+}
+.canal:hover { transform:translateY(-5px); box-shadow:0 14px 32px rgba(36,45,50,.13); color:var(--texto); }
+.canal .icone { width:52px; height:52px; border-radius:16px; background:var(--cor); color:#fff; display:flex; align-items:center; justify-content:center; margin-bottom:6px; }
+.canal .icone svg { width:26px; height:26px; }
+.canal strong { color:var(--escuro); font-family:"Quicksand", sans-serif; font-size:1.1rem; }
+.canal span:last-child { overflow-wrap:anywhere; font-size:.95rem; }
 
 /* ===== Doação: escolha entre brinquedo e dinheiro ===== */
 .escolha-doacao { display:grid; grid-template-columns:1fr 1fr; gap:22px; margin:28px 0; }
@@ -689,7 +702,7 @@ a.pessoa img { width:28px; height:28px; border-radius:50%; object-fit:cover; }
     .proposito { font-size:1.15rem; padding:24px 22px 22px 56px; }
     .proposito::before { left:12px; font-size:4rem; }
     .missao-visao { grid-template-columns:1fr; }
-    .escolha-doacao { grid-template-columns:1fr; }
+    .escolha-doacao, .canais { grid-template-columns:1fr; }
     .abas-doacao a { padding:10px 8px; font-size:.9rem; white-space:nowrap; }
     .abas-doacao a svg { display:none; }
     .galeria figure { height:230px; }

@@ -10,7 +10,7 @@ $locais = locais_ativos();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Doe um brinquedo - Infância Viva</title>
-    <link rel="stylesheet" href="estilo.css?v=8">
+    <link rel="stylesheet" href="estilo.css?v=9">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
@@ -117,7 +117,7 @@ $locais = locais_ativos();
         </div>
         <div>
             <strong>Contato</strong>
-            <p>E-mail: *<br>Telefone: *<br>Instagram: *</p>
+            <p>E-mail: <a href="mailto:infanciavivaong8@gmail.com">infanciavivaong8@gmail.com</a><br>Telefone: <a href="tel:+5521955553333">(21) 95555-3333</a><br>Instagram: <a href="https://www.instagram.com/onginfanciaviva_/" target="_blank" rel="noopener">@onginfanciaviva_</a></p>
         </div>
         <div>
             <strong>Como ajudar</strong>
