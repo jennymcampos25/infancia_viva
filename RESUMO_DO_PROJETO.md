@@ -91,3 +91,10 @@ index.html, doacao.html, sobre.html, faq.html, contato.html, login.html, cadastr
 - Painel: "+ Novo", "Editar" e "Apagar" em usuários, doações, pagamentos, mensagens e avaliações (registros_config() em funcoes.php define os campos; admin_registro.php é o formulário; admin_salvar.php grava/apaga com a chave_admin()). Regras: o admin não pode apagar nem tirar o acesso de admin da própria conta; o site sempre fica com pelo menos um admin; e-mail de conta não pode repetir; apagar uma conta mantém as doações/mensagens dela como "Visitantes sem conta". Busca também nas mensagens e avaliações.
 - Versões: estilo.css?v=5 e script.js?v=7.
 
+## Confirmação de e-mail no cadastro
+- Envio por SMTP com a biblioteca PHPMailer 6.12 (só os arquivos necessários, em lib/PHPMailer, licença LGPL). Dados do e-mail da ONG nas variáveis do Coolify (recurso infancia_viva): SMTP_HOST=smtp.gmail.com, SMTP_PORTA=587, SMTP_USUARIO, SMTP_SENHA (senha de app do Google, nunca no código), SMTP_NOME, SITE_URL=https://infanciaviva.artgenial.com.br. Opcional: SMTP_SEGURANCA (ssl, tls ou nenhuma).
+- Cadastro novo nasce com email_confirmado=0 e recebe um link (confirmar.php?codigo=..., vale 24 h; no banco fica só o hash do código). O login recusa conta não confirmada e a tela de login mostra "Reenviar link" (reenviar_confirmacao.php, no máximo um e-mail por minuto, resposta igual exista a conta ou não).
+- Contas antigas e contas criadas pelo admin já valem como confirmadas (coluna com padrão 1); o admin pode mudar em Editar. Na lista de usuários aparece a etiqueta "não confirmado".
+- Sem as variáveis SMTP (ex.: EasyPHP), as contas já nascem confirmadas. As colunas são criadas sozinhas (garantir_colunas_confirmacao()).
+- Versões: estilo.css?v=6 e script.js?v=8.
+

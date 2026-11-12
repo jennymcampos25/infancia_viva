@@ -18,6 +18,9 @@ CREATE TABLE IF NOT EXISTS usuarios (
     tipo        ENUM('doador','admin') NOT NULL DEFAULT 'doador',
     foto        VARCHAR(30) NULL,       -- NULL = sem foto; avatar1..avatar6 = foto pronta; upload:... = foto enviada
     foto_dados  MEDIUMBLOB NULL,        -- a foto enviada (já reduzida para 256x256)
+    email_confirmado  TINYINT(1) NOT NULL DEFAULT 1,   -- 0 = criou a conta mas ainda não clicou no link do e-mail
+    token_confirmacao CHAR(64) NULL,                   -- hash do código do link de confirmação
+    token_expira      DATETIME NULL,
     criado_em   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

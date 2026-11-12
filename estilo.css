@@ -409,10 +409,11 @@ button.acao.perigo:hover { background:var(--erro); color:#fff; transform:none; }
 .atalhos a:hover { background:#fff1dc; color:var(--vermelho); }
 .atalhos svg { width:20px; height:20px; }
 /* pessoas, etiquetas e ficha */
-a.pessoa { display:inline-flex; align-items:center; gap:8px; }
+a.pessoa { display:inline-flex; align-items:center; gap:8px; white-space:nowrap; }
 a.pessoa img { width:28px; height:28px; border-radius:50%; object-fit:cover; }
 .etiqueta { display:inline-block; padding:1px 10px; border-radius:99px; background:#e7f1f2; color:var(--azul); font-size:.8rem; font-weight:800; }
 .etiqueta.et-admin { background:#fde8e1; color:var(--vermelho); }
+.etiqueta.et-pendente { background:#fff1dc; color:var(--amarelo-texto); }
 .ficha { display:flex; align-items:center; gap:18px; }
 .ficha img { width:72px; height:72px; border-radius:50%; object-fit:cover; border:3px solid var(--amarelo); }
 .ficha strong { font-family:"Quicksand", sans-serif; font-size:1.4rem; color:var(--escuro); }

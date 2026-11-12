@@ -57,6 +57,7 @@ painel_inicio(($id ? "Editar " : "Incluir ") . $conf["nome"], $tabela, $admin);
         <?php foreach ($conf["campos"] as $campo => $c):
             list($rotulo, $tipo, $obrigatorio) = $c;
             $v = valor($valores, $campo);
+            if ($v === "" && !$id && $campo === "email_confirmado") $v = "1";   // conta criada pelo admin já vale
             $req = $obrigatorio ? " required" : "";
             ?>
             <label for="c_<?= $campo ?>"><?= h($rotulo) ?><?= $obrigatorio ? "" : ' <small>(opcional)</small>' ?></label>

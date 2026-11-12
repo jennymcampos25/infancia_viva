@@ -126,6 +126,109 @@ function dominio_recebe_email($dominio) {
     return @checkdnsrr($dominio, "A");
 }
 
+// ---- ENVIO DE E-MAIL (confirmação de conta) ----
+// Os dados do e-mail da ONG ficam nas variáveis do Coolify (SMTP_HOST, SMTP_PORTA, SMTP_USUARIO,
+// SMTP_SENHA, SMTP_NOME e SITE_URL), nunca no código: o repositório no GitHub é público.
+
+function email_configurado() {
+    return getenv("SMTP_HOST") && getenv("SMTP_USUARIO") && getenv("SMTP_SENHA");
+}
+
+// Endereço do site, para montar links nos e-mails (ex.: https://infanciaviva.artgenial.com.br)
+function endereco_site() {
+    if (getenv("SITE_URL")) return rtrim(getenv("SITE_URL"), "/");
+    $pasta = rtrim(str_replace("\\", "/", dirname($_SERVER["SCRIPT_NAME"])), "/");
+    return (site_em_https() ? "https://" : "http://") . $_SERVER["HTTP_HOST"] . $pasta;
+}
+
+// Envia um e-mail em HTML. Devolve true se o servidor de e-mail aceitou.
+function enviar_email($para, $nome, $assunto, $html, $texto) {
+    if (!email_configurado()) return false;
+    require_once __DIR__ . "/lib/PHPMailer/Exception.php";
+    require_once __DIR__ . "/lib/PHPMailer/PHPMailer.php";
+    require_once __DIR__ . "/lib/PHPMailer/SMTP.php";
+
+    $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+    try {
+        $porta = getenv("SMTP_PORTA") ? (int) getenv("SMTP_PORTA") : 587;
+        $mail->isSMTP();
+        $mail->Host     = getenv("SMTP_HOST");
+        $mail->Port     = $porta;
+        $mail->SMTPAuth = true;
+        $mail->Username = getenv("SMTP_USUARIO");
+        $mail->Password = getenv("SMTP_SENHA");
+        // Porta 465 usa SSL direto; as outras (587) começam sem e trocam para TLS (STARTTLS)
+        $seguranca = getenv("SMTP_SEGURANCA") ? getenv("SMTP_SEGURANCA") : ($porta === 465 ? "ssl" : "tls");
+        if ($seguranca === "nenhuma") {        // só para testes com servidor de e-mail local
+            $mail->SMTPSecure = "";
+            $mail->SMTPAutoTLS = false;
+        } else {
+            $mail->SMTPSecure = $seguranca === "ssl" ? PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS
+                                                     : PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+        }
+        $mail->Timeout  = 15;
+        $mail->getSMTPInstance()->Timelimit = 20;   // nunca deixa a página esperando mais que alguns segundos
+        $mail->CharSet  = "UTF-8";
+        $mail->setFrom(getenv("SMTP_USUARIO"), getenv("SMTP_NOME") ? getenv("SMTP_NOME") : "Infância Viva");
+        $mail->addAddress($para, $nome);
+        $mail->isHTML(true);
+        $mail->Subject = $assunto;
+        $mail->Body    = $html;
+        $mail->AltBody = $texto;
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        error_log("Falha ao enviar e-mail: " . $mail->ErrorInfo);
+        return false;
+    }
+}
+
+// ---- CONFIRMAÇÃO DE E-MAIL DA CONTA ----
+// Colunas em usuarios: email_confirmado (1 = confirmado; contas antigas e criadas pelo admin já valem 1),
+// token_confirmacao (guardado como hash, o link leva o código original) e token_expira.
+
+// Cria as colunas na primeira vez (banco antigo), sem precisar rodar o atualizar_banco.php
+function garantir_colunas_confirmacao() {
+    global $pdo;
+    static $feito = false;
+    if ($feito) return;
+    if (!$pdo->query("SHOW COLUMNS FROM usuarios LIKE 'email_confirmado'")->fetch()) {
+        $pdo->exec("ALTER TABLE usuarios
+                    ADD COLUMN email_confirmado  TINYINT(1) NOT NULL DEFAULT 1 AFTER foto_dados,
+                    ADD COLUMN token_confirmacao CHAR(64) NULL AFTER email_confirmado,
+                    ADD COLUMN token_expira      DATETIME NULL AFTER token_confirmacao");
+    }
+    $feito = true;
+}
+
+function codigo_aleatorio() {
+    if (function_exists("random_bytes")) return bin2hex(random_bytes(32));
+    return bin2hex(openssl_random_pseudo_bytes(32));
+}
+
+// Gera um link novo (válido por 24 h) e envia o e-mail. Devolve true se o e-mail foi enviado.
+function enviar_confirmacao($usuario_id, $nome, $email) {
+    global $pdo;
+    $codigo = codigo_aleatorio();
+    $st = $pdo->prepare("UPDATE usuarios SET token_confirmacao = ?, token_expira = DATE_ADD(NOW(), INTERVAL 24 HOUR)
+                         WHERE id = ?");
+    $st->execute(array(hash("sha256", $codigo), $usuario_id));
+
+    $link = endereco_site() . "/confirmar.php?codigo=" . $codigo;
+    $primeiro = h(strtok($nome, " "));
+    $html = '<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;color:#3a4248">'
+          . '<h2 style="color:#242d32">Olá, ' . $primeiro . '!</h2>'
+          . '<p>Falta só um passo para ativar sua conta na <strong>Infância Viva</strong>: confirme que este e-mail é seu.</p>'
+          . '<p style="text-align:center;margin:28px 0"><a href="' . h($link) . '" style="background:#e8572a;color:#fff;'
+          . 'padding:14px 28px;border-radius:99px;text-decoration:none;font-weight:bold">Confirmar meu e-mail</a></p>'
+          . '<p style="font-size:13px;color:#6b7378">O link vale por 24 horas. Se o botão não funcionar, copie este endereço no navegador:<br>'
+          . h($link) . '</p>'
+          . '<p style="font-size:13px;color:#6b7378">Se você não criou uma conta, é só ignorar este e-mail.</p></div>';
+    $texto = "Olá, " . strtok($nome, " ") . "!\n\nConfirme seu e-mail para ativar sua conta na Infância Viva:\n"
+           . $link . "\n\nO link vale por 24 horas. Se você não criou uma conta, ignore este e-mail.";
+    return enviar_email($email, $nome, "Confirme seu e-mail - Infância Viva", $html, $texto);
+}
+
 // h() protege a tela contra HTML/JS digitado nos formulários
 function h($v) { return htmlspecialchars((string) $v, ENT_QUOTES, "UTF-8"); }
 
@@ -182,6 +285,7 @@ function usuario_logado_id() {
 
 // Só deixa passar o administrador (o tipo é conferido no banco, não na sessão)
 function exigir_admin() {
+    garantir_colunas_confirmacao();
     $u = exigir_login();
     if ($u["tipo"] !== "admin") {
         header("Location: index.html");
@@ -264,7 +368,7 @@ function painel_inicio($titulo, $ativo, $admin) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= h($titulo) ?> - Painel - Infância Viva</title>
-    <link rel="stylesheet" href="estilo.css?v=5">
+    <link rel="stylesheet" href="estilo.css?v=6">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
@@ -301,7 +405,7 @@ function painel_fim() {
     ?>
     </main>
 </div>
-<script src="script.js?v=7"></script>
+<script src="script.js?v=8"></script>
 </body>
 </html>
     <?php
@@ -354,6 +458,7 @@ function registros_config() {
             "nome"  => array("Nome", "texto", true),
             "email" => array("E-mail", "email", true),
             "tipo"  => array("Tipo de conta", "lista", true, array("doador" => "Doador", "admin" => "Administrador")),
+            "email_confirmado" => array("E-mail confirmado?", "lista", true, array("1" => "Sim", "0" => "Não, ainda não confirmou")),
             "senha" => array("Senha", "senha", false),
         )),
     );

@@ -11,13 +11,20 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 $email = isset($_POST["email"]) ? strtolower(trim($_POST["email"])) : "";
 $senha = isset($_POST["senha"]) ? $_POST["senha"] : "";
 
-$st = $pdo->prepare("SELECT id, nome, email, senha_hash, tipo FROM usuarios WHERE email = ?");
+garantir_colunas_confirmacao();
+$st = $pdo->prepare("SELECT id, nome, email, senha_hash, tipo, email_confirmado FROM usuarios WHERE email = ?");
 $st->execute(array($email));
 $u = $st->fetch();
 
 // Mesma mensagem para "e-mail não existe" e "senha errada" (não ajuda quem tenta adivinhar)
 if (!$u || !password_verify($senha, $u["senha_hash"])) {
     header("Location: login.html?erro=login");
+    exit;
+}
+
+// Senha certa, mas o e-mail ainda não foi confirmado: não entra
+if (!$u["email_confirmado"]) {
+    header("Location: login.html?erro=nao_confirmado&email=" . urlencode($u["email"]));
     exit;
 }
 

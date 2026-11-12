@@ -38,15 +38,26 @@ if ($foto === false) voltar("foto");
 // A senha NUNCA é guardada pura: vira um hash que não dá para desfazer
 $hash = password_hash($senha, PASSWORD_DEFAULT);
 
+// Com o envio de e-mails configurado (Coolify), a conta só entra depois de confirmar o e-mail.
+// Sem ele (ex.: EasyPHP no computador), a conta já nasce confirmada.
+garantir_colunas_confirmacao();
+$precisa_confirmar = email_configurado();
+
 try {
-    $st = $pdo->prepare("INSERT INTO usuarios (nome, email, senha_hash, tipo) VALUES (?, ?, ?, 'doador')");
-    $st->execute(array($nome, $email, $hash));
+    $st = $pdo->prepare("INSERT INTO usuarios (nome, email, senha_hash, tipo, email_confirmado) VALUES (?, ?, ?, 'doador', ?)");
+    $st->execute(array($nome, $email, $hash, $precisa_confirmar ? 0 : 1));
+    $novo_id = $pdo->lastInsertId();
     if ($foto !== null) {
-        salvar_foto($pdo->lastInsertId(), $foto);
+        salvar_foto($novo_id, $foto);
     }
 } catch (PDOException $e) {
     voltar("erro");
 }
 
-header("Location: login.html?cadastro=ok");
+if (!$precisa_confirmar) {
+    header("Location: login.html?cadastro=ok");
+    exit;
+}
+$enviado = enviar_confirmacao($novo_id, $nome, $email);
+header("Location: login.html?cadastro=" . ($enviado ? "confirme" : "falha_email") . "&email=" . urlencode($email));
 exit;

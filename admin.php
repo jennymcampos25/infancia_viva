@@ -26,6 +26,17 @@ function contar($tabela) {
     return (int) $pdo->query("SELECT COUNT(*) FROM $tabela")->fetchColumn();
 }
 
+// "2 doações · 1 mensagem" (ou "—" se a pessoa não fez nada ainda)
+function resumo_atividade($l) {
+    $partes = array();
+    foreach (array("n_doacoes" => array("doação", "doações"), "n_pagamentos" => array("pagamento", "pagamentos"),
+                   "n_mensagens" => array("mensagem", "mensagens"), "n_avaliacoes" => array("avaliação", "avaliações")) as $k => $nomes) {
+        $n = (int) $l[$k];
+        if ($n) $partes[] = $n . " " . ($n === 1 ? $nomes[0] : $nomes[1]);
+    }
+    return $partes ? implode(" · ", $partes) : "—";
+}
+
 function estrelas($nota) {
     return $nota ? str_repeat("★", (int) $nota) . str_repeat("☆", 5 - (int) $nota) : "sem nota";
 }
@@ -138,7 +149,7 @@ if ($pagina === "geral"):
 // =====================================================================
 elseif ($pagina === "usuarios"):
     $usuarios = $pdo->query(
-        "SELECT u.id, u.nome, u.email, u.tipo, u.foto, DATE_FORMAT(u.criado_em, '%d/%m/%Y') AS desde,
+        "SELECT u.id, u.nome, u.email, u.tipo, u.foto, u.email_confirmado, DATE_FORMAT(u.criado_em, '%d/%m/%Y') AS desde,
                 (SELECT COUNT(*) FROM doacoes    WHERE usuario_id = u.id) AS n_doacoes,
                 (SELECT COUNT(*) FROM pagamentos WHERE usuario_id = u.id) AS n_pagamentos,
                 (SELECT COUNT(*) FROM mensagens  WHERE usuario_id = u.id) AS n_mensagens,
@@ -161,29 +172,21 @@ elseif ($pagina === "usuarios"):
         </div>
         <div class="tabela"><table id="tabela-usuarios">
             <tr>
-                <th>Nome</th><th>E-mail</th><th>Tipo</th><th>Cadastro</th>
-                <th>Doações</th><th>Pagamentos</th><th>Mensagens</th><th>Avaliações</th><th>Ações</th>
+                <th>Nome</th><th>E-mail</th><th>Cadastro</th><th>Atividade</th><th>Ações</th>
             </tr>
             <?php foreach ($usuarios as $u): ?>
             <tr>
-                <td><a class="pessoa" href="admin_usuario.php?id=<?= (int) $u["id"] ?>"><img src="<?= h(foto_url($u["id"], $u["foto"])) ?>" alt=""><?= h($u["nome"]) ?></a></td>
-                <td><?= h($u["email"]) ?></td>
-                <td><span class="etiqueta <?= $u["tipo"] === "admin" ? "et-admin" : "" ?>"><?= h($u["tipo"]) ?></span></td>
+                <td><a class="pessoa" href="admin_usuario.php?id=<?= (int) $u["id"] ?>"><img src="<?= h(foto_url($u["id"], $u["foto"])) ?>" alt=""><?= h($u["nome"]) ?></a><?php if ($u["tipo"] === "admin"): ?> <span class="etiqueta et-admin">admin</span><?php endif; ?></td>
+                <td><?= h($u["email"]) ?><?php if (!$u["email_confirmado"]): ?> <span class="etiqueta et-pendente">não confirmado</span><?php endif; ?></td>
                 <td><?= h($u["desde"]) ?></td>
-                <td><?= (int) $u["n_doacoes"] ?></td>
-                <td><?= (int) $u["n_pagamentos"] ?></td>
-                <td><?= (int) $u["n_mensagens"] ?></td>
-                <td><?= (int) $u["n_avaliacoes"] ?></td>
+                <td><?= h(resumo_atividade($u)) ?></td>
                 <td><?= acoes_registro("usuarios", $u["id"], "usuário") ?></td>
             </tr>
             <?php endforeach; ?>
             <tr>
                 <td><a class="pessoa" href="admin_usuario.php?id=0"><img src="imagens/avatares/padrao.svg" alt=""><em>Visitantes sem conta</em></a></td>
-                <td>—</td><td>—</td><td>—</td>
-                <td><?= (int) $visitantes["n_doacoes"] ?></td>
-                <td><?= (int) $visitantes["n_pagamentos"] ?></td>
-                <td><?= (int) $visitantes["n_mensagens"] ?></td>
-                <td><?= (int) $visitantes["n_avaliacoes"] ?></td>
+                <td>—</td><td>—</td>
+                <td><?= h(resumo_atividade($visitantes)) ?></td>
                 <td></td>
             </tr>
         </table></div>

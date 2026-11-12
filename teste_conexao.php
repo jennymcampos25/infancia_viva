@@ -10,7 +10,7 @@ $esperadas = array("usuarios", "doacoes", "pagamentos", "mensagens", "avaliacoes
 <head>
     <meta charset="UTF-8">
     <title>Teste de conexão</title>
-    <link rel="stylesheet" href="estilo.css?v=5">
+    <link rel="stylesheet" href="estilo.css?v=6">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 <body>

@@ -43,6 +43,10 @@ try {
                                          ADD COLUMN foto_dados MEDIUMBLOB NULL AFTER foto");
         $relatorio[] = "usuarios: colunas da foto de perfil criadas.";
     }
+    // Confirmação de e-mail das contas (as contas que já existem ficam como confirmadas)
+    $tinha = (bool) $pdo->query("SHOW COLUMNS FROM usuarios LIKE 'email_confirmado'")->fetch();
+    garantir_colunas_confirmacao();
+    $relatorio[] = $tinha ? "usuarios: colunas da confirmação de e-mail já existiam." : "usuarios: colunas da confirmação de e-mail criadas.";
     $ok = true;
 } catch (PDOException $e) {
     $ok = false;
@@ -54,7 +58,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <title>Atualizar banco</title>
-    <link rel="stylesheet" href="estilo.css?v=5">
+    <link rel="stylesheet" href="estilo.css?v=6">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 <body>

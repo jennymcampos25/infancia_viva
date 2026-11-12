@@ -251,6 +251,8 @@ document.addEventListener("DOMContentLoaded", function () {
         campos: "Preencha todos os campos.",
         email_invalido: "E-mail inválido.",
         email_inexistente: "Esse e-mail não parece existir. Confira se digitou certo.",
+        nao_confirmado: "Você ainda não confirmou seu e-mail. Abra o link que enviamos para entrar.",
+        link_invalido: "Esse link de confirmação não vale mais. Peça um link novo abaixo.",
         senha_curta: "A senha deve ter pelo menos 6 caracteres.",
         senhas_diferentes: "As senhas não conferem.",
         email_existe: "Este e-mail já está cadastrado.",
@@ -263,6 +265,24 @@ document.addEventListener("DOMContentLoaded", function () {
     if (q.get("pagamento") === "ok") aviso("Pagamento registrado! Obrigado!", true);
     if (q.get("foto") === "ok") aviso("Foto atualizada!", true);
     if (q.get("cadastro") === "ok") aviso("Cadastro realizado! Agora é só entrar.", true);
+    if (q.get("cadastro") === "confirme") aviso("Conta criada! Enviamos um link para o seu e-mail. Confirme para poder entrar.", true);
+    if (q.get("cadastro") === "falha_email") aviso("Conta criada, mas não conseguimos enviar o e-mail de confirmação. Tente reenviar abaixo.", false);
+    if (q.get("confirmado") === "ok") aviso("E-mail confirmado! Agora é só entrar.", true);
+    if (q.get("reenvio") === "ok") aviso("Se esse e-mail tiver uma conta sem confirmação, enviamos um link novo. Confira a caixa de entrada e o spam.", true);
+    if (q.get("reenvio") === "falha") aviso("Não conseguimos enviar o e-mail agora. Tente de novo em alguns minutos.", false);
+
+    // Tela de login: mostra o "Reenviar link" quando a pessoa precisa confirmar o e-mail
+    var reenviar = document.getElementById("formReenviar");
+    var precisaConfirmar = ["nao_confirmado", "link_invalido"].indexOf(q.get("erro")) !== -1
+                        || ["confirme", "falha_email"].indexOf(q.get("cadastro")) !== -1;
+    if (reenviar && precisaConfirmar) {
+        reenviar.hidden = false;
+        if (q.get("email")) {
+            reenviar.email.value = q.get("email");
+            var campoLogin = document.querySelector("#formLogin input[name=email]");
+            if (campoLogin) campoLogin.value = q.get("email");
+        }
+    }
 
     // Fotos da abertura (página inicial): trocam a cada 4 segundos, com um esmaecer.
     // As fotos ficam no index.html, dentro de <div class="moldura">.
