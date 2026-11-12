@@ -188,6 +188,9 @@ button:hover, .botao:hover { background:#cf4519; color:#fff; transform:translate
     background:#fff; border-radius:var(--raio); padding:26px; box-shadow:var(--sombra);
     flex:0 1 280px; position:relative; overflow:hidden; transition:transform .3s, box-shadow .3s;
 }
+/* Grupo de 4 cartões: os 4 na mesma linha (2 + 2 no tablet), para não sobrar 1 sozinho embaixo */
+.cartoes.quatro { display:grid; grid-template-columns:repeat(4, 1fr); }
+.cartoes.quatro .cartao { padding:24px 22px; }
 .cartao::before { content:""; position:absolute; left:0; top:0; right:0; height:6px; background:var(--cor); }
 .cartao:nth-child(4n+2) { --cor:var(--amarelo); --cor-texto:var(--amarelo-texto); }
 .cartao:nth-child(4n+3) { --cor:var(--verde); }
@@ -667,6 +670,7 @@ a.pessoa img { width:28px; height:28px; border-radius:50%; object-fit:cover; }
 
 /* ===== Celular e telas estreitas ===== */
 @media (max-width: 1100px) {
+    .cartoes.quatro { grid-template-columns:repeat(2, 1fr); }
     .menu-botao { display:block; }
     .topo { flex-wrap:wrap; padding:10px 16px; gap:10px; }
     .logo { margin-right:auto; }
@@ -715,6 +719,7 @@ a.pessoa img { width:28px; height:28px; border-radius:50%; object-fit:cover; }
     .logo { font-size:1.25rem; }
     .logo svg { width:36px; height:36px; }
     .cartao { flex-basis:100%; }
+    .cartoes.quatro { grid-template-columns:1fr; }
     form { padding:20px; }
     .etapas li { font-size:.72rem; }
     .valores-rapidos { grid-template-columns:repeat(2, 1fr); }
