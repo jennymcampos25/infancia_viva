@@ -304,6 +304,41 @@ tr:hover td { background:#fff1dc; }
 .rodape a:hover { color:var(--amarelo); }
 .rodape-final { text-align:center; border-top:1px solid rgba(255,255,255,.1); padding:14px; margin:20px 0 0 !important; font-size:.85rem; }
 
+/* ===== Doação: escolha entre brinquedo e dinheiro ===== */
+.escolha-doacao { display:grid; grid-template-columns:1fr 1fr; gap:22px; margin:28px 0; }
+.opcao-doacao {
+    display:block; background:#fff; border-radius:var(--raio); padding:30px 28px; box-shadow:var(--sombra);
+    border-top:8px solid var(--cor); color:var(--texto); text-decoration:none; font-weight:400;
+    transition:transform .3s, box-shadow .3s;
+}
+.opcao-doacao:hover { transform:translateY(-8px); box-shadow:0 18px 40px rgba(36,45,50,.14); color:var(--texto); }
+.opcao-doacao .icone {
+    display:flex; align-items:center; justify-content:center; width:68px; height:68px; border-radius:20px;
+    background:var(--cor); color:#fff; margin-bottom:14px;
+}
+.opcao-doacao .icone svg { width:36px; height:36px; }
+.opcao-doacao h2 { margin:0 0 8px; }
+.opcao-doacao .botao { background:var(--cor); box-shadow:none; }
+.dica-centro { text-align:center; color:var(--suave); }
+/* abas no topo de "Doe um brinquedo" e "Doe em dinheiro" */
+.abas-doacao { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:8px 0 18px; background:#fff; padding:6px; border-radius:999px; box-shadow:var(--sombra); }
+.abas-doacao a {
+    display:flex; align-items:center; justify-content:center; gap:10px; padding:12px 16px; border-radius:999px;
+    color:var(--escuro); text-decoration:none; font-weight:800;
+}
+.abas-doacao a svg { width:22px; height:22px; }
+.abas-doacao a:hover { background:var(--creme); color:var(--escuro); }
+.abas-doacao a.ativa { background:var(--vermelho); color:#fff; }
+/* locais de coleta */
+.locais { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:16px; margin:16px 0; }
+.local { background:#fff; border-radius:var(--raio); padding:20px 22px; box-shadow:var(--sombra); border-left:6px solid var(--azul); }
+.local h3 { margin:8px 0 6px; }
+.local p { margin:2px 0; font-size:.95rem; }
+.local-destaque { border-left-color:var(--verde); margin:18px 0; max-width:560px; }
+.passos-pequenos { margin:10px 0 0; }
+.passos-pequenos .num { width:58px; height:58px; font-size:1.5rem; }
+.passos-pequenos::before { top:29px; }
+
 /* ===== Página Sobre nós ===== */
 .rotulo-secao {
     display:inline-block; background:#fff; color:var(--vermelho); font-weight:800; font-size:.85rem;
@@ -492,6 +527,9 @@ a.pessoa img { width:28px; height:28px; border-radius:50%; object-fit:cover; }
     .proposito { font-size:1.15rem; padding:24px 22px 22px 56px; }
     .proposito::before { left:12px; font-size:4rem; }
     .missao-visao { grid-template-columns:1fr; }
+    .escolha-doacao { grid-template-columns:1fr; }
+    .abas-doacao a { padding:10px 8px; font-size:.9rem; white-space:nowrap; }
+    .abas-doacao a svg { display:none; }
     .galeria figure { height:230px; }
     .titulo-secao h2 { font-size:1.75rem; }
 }

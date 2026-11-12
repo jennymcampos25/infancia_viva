@@ -5,65 +5,6 @@ function aviso(msg, ok) {
     return false;
 }
 
-/* ===== Doação (código original mantido) ===== */
-function doar() {
-    alert("Obrigado por querer fazer parte da Infância Viva!");
-    window.location.href = "doacao.html";
-}
-
-function validarDoacao() {
-    var nome = document.getElementsByName("nome")[0].value;
-    var email = document.getElementsByName("email")[0].value;
-    var telefone = document.getElementsByName("telefone")[0].value;
-    var brinquedo = document.getElementsByName("brinquedo")[0].value;
-    var quantidade = document.getElementsByName("quantidade")[0].value;
-    var data = document.getElementsByName("data")[0].value;
-    var endereco = document.getElementsByName("endereco")[0].value;
-    var valor = document.getElementsByName("valor")[0].value;
-    var ponto = document.getElementsByName("ponto")[0].value;
-
-    if (nome == "" || email == "" || telefone == "" ||
-        brinquedo == "" || quantidade == "" || data == "" ||
-        endereco == "" || valor == "" || ponto == "") {
-        alert("Por favor, preencha todos os campos obrigatórios.");
-        return false;
-    }
-
-    // Escolheu "Outro valor": precisa digitar um valor maior que zero
-    if (valor == "outro") {
-        var outro = document.getElementById("campoOutroValor").value;
-        if (outro == "" || Number(outro) <= 0) {
-            alert("Digite o valor que deseja doar ou escolha outra opção.");
-            return false;
-        }
-    }
-
-    return true;
-}
-
-function mostrarOutroValor() {
-    var valor = document.getElementById("valor").value;
-    var outroValor = document.getElementById("outroValor");
-
-    if (valor == "outro") {
-        outroValor.innerHTML =
-            '<label>Digite o valor:</label>' +
-            '<input type="number" name="outroValor" id="campoOutroValor" step="0.01" min="0.01" onkeydown="confirmarValor(event)">';
-    } else {
-        outroValor.innerHTML = "";
-    }
-}
-
-function confirmarValor(event) {
-    if (event.key == "Enter") {
-        event.preventDefault();
-        var valor = document.getElementById("campoOutroValor").value;
-        if (valor != "") {
-            alert("Você escolheu doar R$ " + valor + ".");
-        }
-    }
-}
-
 /* ===== Login e cadastro =====
    Agora são feitos pelo PHP (login.php, cadastro.php, logout.php). */
 
@@ -217,8 +158,8 @@ function contarAte(elemento, valorFinal) {
 
 /* ===== Inicialização ===== */
 document.addEventListener("DOMContentLoaded", function () {
-    // Menu: destaca o link da página atual
-    var pagina = location.pathname.split("/").pop() || "index.html";
+    // Menu: destaca o link da página atual (as páginas de doação usam data-menu="doacao.html" no <body>)
+    var pagina = document.body.getAttribute("data-menu") || location.pathname.split("/").pop() || "index.html";
     var links = document.querySelectorAll("#menu a");
     for (var k = 0; k < links.length; k++) {
         if (links[k].getAttribute("href") === pagina) links[k].className = "ativo";

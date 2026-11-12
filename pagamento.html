@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Pagamento - Infância Viva</title>
-    <link rel="stylesheet" href="estilo.css?v=6">
+    <title>Doe em dinheiro - Infância Viva</title>
+    <link rel="stylesheet" href="estilo.css?v=7">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
 </head>
-<body>
+<body data-menu="doacao.html">
 <header class="topo">
     <a class="logo" href="index.html" aria-label="Infância Viva - página inicial"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4 52 21H12z" fill="#2f7a80"/><rect x="21" y="19" width="22" height="7" fill="#2f7a80"/><path fill="#f5a524" fill-rule="evenodd" d="M13 26h38a4 4 0 0 1 4 4v26a4 4 0 0 1-4 4H13a4 4 0 0 1-4-4V30a4 4 0 0 1 4-4zM25 60V46a7 7 0 0 1 14 0v14z"/></svg><span>Infância <span class="l1">V</span><span class="l2">i</span><span class="l3">v</span><span class="l4">a</span></span></a>
     <button type="button" class="menu-botao" id="menuBotao" aria-label="Abrir menu" aria-expanded="false">☰</button>
@@ -23,7 +23,25 @@
     </nav>
 </header>
 <main>
-<h1>Pagamento da doação</h1>
+<nav class="abas-doacao" aria-label="Tipo de doação">
+    <a href="doacao_brinquedo.php"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg><span>Doe um brinquedo</span></a>
+    <a href="pagamento.html" class="ativa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .8-3 2s1.3 1.7 3 2 3 .8 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6.5v1.5M12 16v1.5"/></svg><span>Doe em dinheiro</span></a>
+</nav>
+
+<h1>Doe em dinheiro</h1>
+<p>
+    Contribua com o valor que quiser. O dinheiro ajuda a comprar materiais para as oficinas
+    de brinquedos reciclados e a levar os brinquedos até as instituições de acolhimento.
+</p>
+
+<h2>Pix</h2>
+<div class="pix">
+    <img src="qrcode_infancia_viva.png" alt="QR Code para doação via Pix" width="220">
+    <p>Escaneie o QR Code com o app do seu banco.</p>
+    <p><strong>Chave Pix:</strong> *</p>
+</div>
+
+<h2>Contribuir online</h2>
 <p><strong>Ambiente de demonstração:</strong> nenhum pagamento real é realizado.</p>
 <form id="formPagamento" action="pagamento.php" method="post">
     <label>Nome completo</label>
@@ -37,8 +55,7 @@
     </select>
 
     <div id="boxPix">
-        <p><strong>Chave PIX:</strong> *</p>
-        <img src="qrcode_infancia_viva.png" alt="QR Code para doação via PIX" width="200">
+        <p>Depois de confirmar, use o QR Code ou a chave Pix acima.</p>
     </div>
 
     <div id="boxCartao" hidden>
@@ -53,6 +70,8 @@
     <button type="submit">Confirmar doação</button>
     <p id="aviso" class="aviso"></p>
 </form>
+
+<p>Tem um brinquedo para doar? <a href="doacao_brinquedo.php">Doe um brinquedo →</a></p>
 </main>
 <footer class="rodape">
     <div class="rodape-conteudo">
@@ -66,11 +85,11 @@
         </div>
         <div>
             <strong>Como ajudar</strong>
-            <p><a href="doacao.html">Doar brinquedos</a><br><a href="pagamento.html">Contribuir online</a><br><a href="faq.html">Perguntas frequentes</a></p>
+            <p><a href="doacao_brinquedo.php">Doar brinquedos</a><br><a href="pagamento.html">Contribuir online</a><br><a href="faq.html">Perguntas frequentes</a></p>
         </div>
     </div>
     <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC</p>
 </footer>
-<script src="script.js?v=8"></script>
+<script src="script.js?v=9"></script>
 </body>
 </html>

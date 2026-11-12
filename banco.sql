@@ -32,6 +32,24 @@ CREATE TABLE IF NOT EXISTS sessoes (
     INDEX (atualizado_em)
 ) ENGINE=InnoDB;
 
+-- Locais de coleta (escolas, centros de acolhimento...). O admin cadastra e edita no painel.
+CREATE TABLE IF NOT EXISTS locais (
+    id        INT AUTO_INCREMENT PRIMARY KEY,
+    nome      VARCHAR(120) NOT NULL,
+    tipo      VARCHAR(40)  NOT NULL,
+    endereco  VARCHAR(200) NOT NULL,
+    coleta    VARCHAR(200) NOT NULL,          -- dias e horários em que o local recebe brinquedos
+    ativo     TINYINT(1)   NOT NULL DEFAULT 1, -- 0 = escondido do site
+    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Locais iniciais (só entram se a tabela estiver vazia): troque pelos locais de verdade no painel
+INSERT INTO locais (nome, tipo, endereco, coleta)
+SELECT * FROM (SELECT 'Sede da Infância Viva' AS nome, 'Sede da ONG' AS tipo, 'Endereço a definir' AS endereco, 'Datas a definir' AS coleta
+               UNION ALL SELECT 'Escola parceira', 'Escola', 'Endereço a definir', 'Datas a definir'
+               UNION ALL SELECT 'Centro comunitário', 'Centro comunitário', 'Endereço a definir', 'Datas a definir') iniciais
+WHERE NOT EXISTS (SELECT 1 FROM locais);
+
 -- Formulário da página Doação (brinquedos)
 CREATE TABLE IF NOT EXISTS doacoes (
     id           INT AUTO_INCREMENT PRIMARY KEY,

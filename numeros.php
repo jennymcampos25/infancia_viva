@@ -2,7 +2,7 @@
 // Totais mostrados na faixa de números da página inicial (lidos no banco, nada inventado).
 header("Content-Type: application/json; charset=UTF-8");
 header("Cache-Control: no-store");
-require "conexao.php";
+require "funcoes.php";
 
 try {
     $d = $pdo->query("SELECT COALESCE(SUM(quantidade), 0) AS brinquedos,
@@ -13,7 +13,7 @@ try {
         "brinquedos" => (int) $d["brinquedos"],
         "doacoes"    => (int) $d["doacoes"],
         "doadores"   => (int) $d["doadores"],
-        "pontos"     => 3   // Sede, Escola parceira e Centro comunitário (lista do doacao.php)
+        "pontos"     => count(locais_ativos())   // locais de coleta cadastrados no painel
     ));
 } catch (PDOException $e) {
     http_response_code(500);

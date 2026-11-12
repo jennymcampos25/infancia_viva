@@ -194,6 +194,37 @@ elseif ($pagina === "usuarios"):
 <?php
 
 // =====================================================================
+elseif ($pagina === "locais"):
+    $locais = $pdo->query("SELECT l.id, l.nome, l.tipo, l.endereco, l.coleta, l.ativo,
+                                  (SELECT COUNT(*) FROM doacoes d WHERE d.ponto = l.nome) AS n_doacoes
+                           FROM locais l ORDER BY l.ativo DESC, l.nome")->fetchAll();
+    ?>
+    <section class="painel-caixa">
+        <div class="painel-caixa-topo">
+            <p>Os locais ativos aparecem na página "Doe um brinquedo" e no formulário de doação.</p>
+            <div class="painel-ferramentas"><?php busca_tabela("tabela-locais", "Buscar local"); ?><?= botao_novo("locais") ?></div>
+        </div>
+        <?php if (!$locais): ?>
+            <p class="vazio">Nenhum local cadastrado. Sem locais, o formulário de doação não pode ser enviado.</p>
+        <?php else: ?>
+        <div class="tabela"><table id="tabela-locais">
+            <tr><th>Local</th><th>Tipo</th><th>Endereço</th><th>Quando</th><th>Doações</th><th>Ações</th></tr>
+            <?php foreach ($locais as $l): ?>
+            <tr>
+                <td><strong><?= h($l["nome"]) ?></strong><?php if (!$l["ativo"]): ?> <span class="etiqueta et-pendente">escondido</span><?php endif; ?></td>
+                <td><?= h($l["tipo"]) ?></td>
+                <td><?= h($l["endereco"]) ?></td>
+                <td><?= h($l["coleta"]) ?></td>
+                <td><?= (int) $l["n_doacoes"] ?></td>
+                <td><?= acoes_registro("locais", $l["id"], "local") ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </table></div>
+        <?php endif; ?>
+    </section>
+<?php
+
+// =====================================================================
 elseif ($pagina === "doacoes"):
     $doacoes = $pdo->query("SELECT id, nome, email, telefone, brinquedo, quantidade, ponto, valor, observacoes,
                                    DATE_FORMAT(data_doacao, '%d/%m/%Y') AS dia, $dh

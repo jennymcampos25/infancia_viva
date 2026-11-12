@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Doação - Infância Viva</title>
-    <link rel="stylesheet" href="estilo.css?v=6">
+    <link rel="stylesheet" href="estilo.css?v=7">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
@@ -29,161 +29,30 @@
 <main>
 
 <h1>Faça uma doação</h1>
-
-<p>
-    Um brinquedo que já não é usado na sua casa pode virar a lembrança
-    favorita de uma criança que vive em uma instituição de acolhimento.
+<p class="slogan">
+    Um brinquedo que já não é usado na sua casa pode virar a lembrança favorita de uma
+    criança que vive em uma instituição de acolhimento. Escolha como você quer ajudar:
 </p>
 
-<h2>Como funciona a coleta</h2>
-<div class="cartoes">
-    <div class="cartao">
-        <span class="icone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10 12 5l9 5-9 5z"/><path d="M7 12.5V17c3 2 7 2 10 0v-4.5"/></svg></span>
-        <h3>1. Datas de coleta</h3>
-        <p>Recebemos os brinquedos em datas específicas, em escolas parceiras.</p>
-    </div>
-    <div class="cartao">
+<div class="escolha-doacao">
+    <a class="opcao-doacao" href="doacao_brinquedo.php" style="--cor:var(--vermelho)">
         <span class="icone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg></span>
-        <h3>2. Registre aqui</h3>
-        <p>Preencha o formulário abaixo com o brinquedo e o local onde vai entregar.</p>
-    </div>
-    <div class="cartao">
-        <span class="icone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M12 18s-3-1.8-3-4a1.6 1.6 0 0 1 3-.8 1.6 1.6 0 0 1 3 .8c0 2.2-3 4-3 4z"/></svg></span>
-        <h3>3. Até as crianças</h3>
-        <p>Conferimos, organizamos e levamos os brinquedos às instituições parceiras.</p>
-    </div>
+        <h2>Doe um brinquedo</h2>
+        <p>Registre sua doação e leve o brinquedo a um dos nossos locais de coleta, na data marcada.</p>
+        <span class="botao">Quero doar um brinquedo</span>
+    </a>
+    <a class="opcao-doacao" href="pagamento.html" style="--cor:var(--azul)">
+        <span class="icone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .8-3 2s1.3 1.7 3 2 3 .8 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6.5v1.5M12 16v1.5"/></svg></span>
+        <h2>Doe em dinheiro</h2>
+        <p>Contribua por Pix ou online. O valor ajuda nas oficinas de brinquedos reciclados e nas entregas.</p>
+        <span class="botao">Quero doar em dinheiro</span>
+    </a>
 </div>
 
-<p>
-    <strong>Que brinquedo doar?</strong> Brinquedos limpos, em bom estado e sem
-    peças faltando. Brinquedos quebrados não podem ser entregues às crianças.
+<p class="dica-centro">
+    Tem conta? <a href="login.html">Entre</a> antes de doar para acompanhar suas doações em "Minha conta".
+    Não tem? Você pode doar mesmo assim.
 </p>
-
-<h2>Dados para a doação</h2>
-
-<p>
-    Tem conta? <a href="login.html">Entre</a> antes de doar para acompanhar
-    suas doações em "Minha conta". Não tem? Você pode doar mesmo assim.
-</p>
-
-<form action="doacao.php" method="post" onsubmit="return validarDoacao()">
-
-    <label>Nome completo:</label>
-    <input type="text" name="nome" required>
-
-    <br><br>
-
-    <label>E-mail:</label>
-    <input type="email" name="email" required>
-
-    <br><br>
-
-    <label>Telefone:</label>
-    <input type="text" name="telefone" required>
-
-    <br><br>
-
-    <label>Brinquedo:</label>
-    <input type="text" name="brinquedo" required>
-
-    <br><br>
-
-    <label>Quantidade:</label>
-    <input type="number" name="quantidade" min="1" required>
-
-    <br><br>
-
-    <label>Data da doação:</label>
-    <input type="date" name="data" required>
-
-    <br><br>
-
-    <label>Endereço:</label>
-    <input type="text" name="endereco" required>
-
-    <br><br>
-
-    <label>Observações:</label>
-    <input type="text" name="observacoes">
-
-    <br><br>
-
-    <h3>Contribua com a nossa causa</h3>
-
-    <p>
-        Se quiser, contribua também com dinheiro. O valor ajuda nas oficinas
-        de brinquedos reciclados e a levar os brinquedos até as crianças.
-    </p>
-
-    <label>Deseja contribuir também com dinheiro?</label>
-
-    <select name="valor" id="valor" onchange="mostrarOutroValor()" required>
-
-        <option value="">Selecione uma opção</option>
-        <option value="0">Não, quero doar só o brinquedo</option>
-        <option value="10">R$ 10,00</option>
-        <option value="20">R$ 20,00</option>
-        <option value="50">R$ 50,00</option>
-        <option value="100">R$ 100,00</option>
-        <option value="outro">Outro valor</option>
-
-    </select>
-
-    <div id="outroValor"></div>
-
-    <h3>Onde você vai entregar?</h3>
-
-    <p>
-        Escolha o local onde vai levar o brinquedo na data da coleta.
-    </p>
-
-    <label>Escolha o ponto de arrecadação:</label>
-
-    <select name="ponto" id="ponto" required>
-
-        <option value="">Selecione um local</option>
-        <option value="sede">Sede da Infância Viva</option>
-        <option value="escola">Escola parceira</option>
-        <option value="centro">Centro comunitário</option>
-
-    </select>
-
-    <br><br>
-
-    <button type="submit">Enviar doação</button>
-
-</form>
-
-<h2>Outras formas de ajudar</h2>
-
-<p><a class="botao" href="pagamento.html">Contribuir online agora →</a></p>
-
-<p>
-    Não tem um brinquedo para doar agora? Você também pode ajudar com dinheiro.
-</p>
-
-<h3>Doação em dinheiro</h3>
-
-<p>
-    Contribua com o valor que quiser. Ele ajuda a comprar materiais para as
-    oficinas e a fazer as entregas nas instituições.
-</p>
-
-<h3>Doação por PIX</h3>
-
-<p>
-    Rápido e simples: use o QR Code ou a chave PIX abaixo.
-</p>
-
-<div class="pix">
-    <img src="qrcode_infancia_viva.png"
-         alt="QR Code para doação via PIX"
-         width="250">
-    <p>Escaneie o QR Code acima para fazer sua doação via PIX.</p>
-    <p><strong>Chave PIX:</strong> *</p>
-</div>
-
-<script src="script.js?v=8"></script>
 
 </main>
 <footer class="rodape">
@@ -198,11 +67,11 @@
         </div>
         <div>
             <strong>Como ajudar</strong>
-            <p><a href="doacao.html">Doar brinquedos</a><br><a href="pagamento.html">Contribuir online</a><br><a href="faq.html">Perguntas frequentes</a></p>
+            <p><a href="doacao_brinquedo.php">Doar brinquedos</a><br><a href="pagamento.html">Contribuir online</a><br><a href="faq.html">Perguntas frequentes</a></p>
         </div>
     </div>
     <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC</p>
 </footer>
+<script src="script.js?v=9"></script>
 </body>
-
 </html>

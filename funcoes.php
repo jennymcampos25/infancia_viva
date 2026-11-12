@@ -229,6 +229,41 @@ function enviar_confirmacao($usuario_id, $nome, $email) {
     return enviar_email($email, $nome, "Confirme seu e-mail - Infância Viva", $html, $texto);
 }
 
+// ---- LOCAIS DE COLETA ----
+// Escolas, centros de acolhimento etc. onde as pessoas entregam os brinquedos. O admin cadastra no painel.
+$TIPOS_LOCAL = array("Escola" => "Escola", "Centro de acolhimento" => "Centro de acolhimento",
+                     "Centro comunitário" => "Centro comunitário", "Sede da ONG" => "Sede da ONG", "Outro" => "Outro");
+
+// Cria a tabela na primeira vez. Começa com os 3 locais que o formulário antigo tinha, para o admin editar.
+function garantir_tabela_locais() {
+    global $pdo;
+    static $feito = false;
+    if ($feito) return;
+    $feito = true;
+    if ($pdo->query("SHOW TABLES LIKE 'locais'")->fetch()) return;
+    $pdo->exec("CREATE TABLE locais (
+                    id        INT AUTO_INCREMENT PRIMARY KEY,
+                    nome      VARCHAR(120) NOT NULL,
+                    tipo      VARCHAR(40)  NOT NULL,
+                    endereco  VARCHAR(200) NOT NULL,
+                    coleta    VARCHAR(200) NOT NULL,
+                    ativo     TINYINT(1)   NOT NULL DEFAULT 1,
+                    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    $st = $pdo->prepare("INSERT INTO locais (nome, tipo, endereco, coleta) VALUES (?, ?, 'Endereço a definir', 'Datas a definir')");
+    foreach (array(array("Sede da Infância Viva", "Sede da ONG"), array("Escola parceira", "Escola"),
+                   array("Centro comunitário", "Centro comunitário")) as $l) {
+        $st->execute($l);
+    }
+}
+
+// Locais que aparecem no site (o admin pode desativar um local sem apagar)
+function locais_ativos() {
+    global $pdo;
+    garantir_tabela_locais();
+    return $pdo->query("SELECT id, nome, tipo, endereco, coleta FROM locais WHERE ativo = 1 ORDER BY nome")->fetchAll();
+}
+
 // h() protege a tela contra HTML/JS digitado nos formulários
 function h($v) { return htmlspecialchars((string) $v, ENT_QUOTES, "UTF-8"); }
 
@@ -286,6 +321,7 @@ function usuario_logado_id() {
 // Só deixa passar o administrador (o tipo é conferido no banco, não na sessão)
 function exigir_admin() {
     garantir_colunas_confirmacao();
+    garantir_tabela_locais();
     $u = exigir_login();
     if ($u["tipo"] !== "admin") {
         header("Location: index.html");
@@ -347,6 +383,7 @@ function salvar_foto($usuario_id, $escolha) {
 $PAINEL_MENU = array(
     "geral"      => array("Visão geral", '<path d="M3 13h8V3H3zM13 21h8V11h-8zM13 3v6h8V3zM3 21h8v-6H3z"/>'),
     "usuarios"   => array("Usuários", '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>'),
+    "locais"     => array("Locais de coleta", '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>'),
     "doacoes"    => array("Doações", '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/>'),
     "pagamentos" => array("Pagamentos", '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>'),
     "mensagens"  => array("Mensagens", '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'),
@@ -368,7 +405,7 @@ function painel_inicio($titulo, $ativo, $admin) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= h($titulo) ?> - Painel - Infância Viva</title>
-    <link rel="stylesheet" href="estilo.css?v=6">
+    <link rel="stylesheet" href="estilo.css?v=7">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
@@ -405,7 +442,7 @@ function painel_fim() {
     ?>
     </main>
 </div>
-<script src="script.js?v=8"></script>
+<script src="script.js?v=9"></script>
 </body>
 </html>
     <?php
@@ -420,9 +457,15 @@ function busca_tabela($id_tabela, $texto) {
 // Cada tabela que o admin pode editar e os campos do formulário.
 // Tipos: texto, email, numero, data, dinheiro, lista, textarea, senha, conta (usuário dono do registro)
 function registros_config() {
-    $pontos = array("Sede da Infância Viva" => "Sede da Infância Viva", "Escola parceira" => "Escola parceira",
-                    "Centro comunitário" => "Centro comunitário");
+    global $TIPOS_LOCAL;
     return array(
+        "locais" => array("nome" => "local", "novo" => "Novo local", "campos" => array(
+            "nome"     => array("Nome do local", "texto", true),
+            "tipo"     => array("Tipo", "lista", true, $TIPOS_LOCAL),
+            "endereco" => array("Endereço", "texto", true),
+            "coleta"   => array("Quando recebe os brinquedos (dias e horários)", "texto", true),
+            "ativo"    => array("Aparece no site?", "lista", true, array("1" => "Sim", "0" => "Não (escondido)")),
+        )),
         "doacoes" => array("nome" => "doação", "novo" => "Nova doação", "campos" => array(
             "usuario_id"  => array("Conta do doador", "conta", false),
             "nome"        => array("Nome do doador", "texto", true),
@@ -432,7 +475,7 @@ function registros_config() {
             "quantidade"  => array("Quantidade", "numero", true),
             "data_doacao" => array("Data da entrega", "data", true),
             "endereco"    => array("Endereço", "texto", true),
-            "ponto"       => array("Local de entrega", "lista", true, $pontos),
+            "ponto"       => array("Local de entrega", "texto", true),
             "valor"       => array("Valor em dinheiro (R$)", "dinheiro", false),
             "observacoes" => array("Observações", "textarea", false),
         )),
