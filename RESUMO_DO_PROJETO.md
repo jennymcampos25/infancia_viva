@@ -98,3 +98,10 @@ index.html, doacao.html, sobre.html, faq.html, contato.html, login.html, cadastr
 - Sem as variáveis SMTP (ex.: EasyPHP), as contas já nascem confirmadas. As colunas são criadas sozinhas (garantir_colunas_confirmacao()).
 - Versões: estilo.css?v=6 e script.js?v=8.
 
+## Doação separada: brinquedo e dinheiro (pedido do professor Anderson)
+- doacao.html virou a página de escolha, com dois cartões: "Doe um brinquedo" (doacao_brinquedo.php) e "Doe em dinheiro" (pagamento.html, com o Pix e o pagamento online de demonstração). As duas páginas têm abas no topo para trocar de uma para a outra; o menu continua marcando "Doação" (atributo data-menu no <body>).
+- O formulário de brinquedo não pede mais dinheiro. O local de entrega vem da tabela `locais` (nome, tipo, endereço, dias de coleta, ativo), que o admin cadastra em Painel → Locais de coleta. A tabela é criada sozinha com 3 locais iniciais ("a definir") para serem trocados pelos de verdade. doacao.php confere o local no banco e grava o nome dele em doacoes.ponto.
+- A faixa de números da página inicial conta os locais ativos. Textos trocados de "escolas parceiras" para "locais de coleta".
+- Pendente: a data de entrega ainda é livre (o ideal seria escolher entre os dias de coleta do local); o endereço do doador continua obrigatório. Ideia para depois: aba "Oficina" com vídeos de brinquedos reciclados.
+- Versões: estilo.css?v=7 e script.js?v=9.
+
