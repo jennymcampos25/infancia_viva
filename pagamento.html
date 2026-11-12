@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Doe em dinheiro - Infância Viva</title>
-    <link rel="stylesheet" href="estilo.css?v=7">
+    <link rel="stylesheet" href="estilo.css?v=8">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
@@ -28,47 +28,65 @@
     <a href="pagamento.html" class="ativa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .8-3 2s1.3 1.7 3 2 3 .8 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6.5v1.5M12 16v1.5"/></svg><span>Doe em dinheiro</span></a>
 </nav>
 
+<ol class="etapas" aria-label="Etapas da doação">
+    <li class="atual" aria-current="step"><span>1</span>Valor e forma</li>
+    <li><span>2</span>Pagamento</li>
+    <li><span>3</span>Confirmação</li>
+    <li><span>4</span>Recibo</li>
+</ol>
+
 <h1>Doe em dinheiro</h1>
 <p>
     Contribua com o valor que quiser. O dinheiro ajuda a comprar materiais para as oficinas
     de brinquedos reciclados e a levar os brinquedos até as instituições de acolhimento.
 </p>
 
-<h2>Pix</h2>
-<div class="pix">
-    <img src="qrcode_infancia_viva.png" alt="QR Code para doação via Pix" width="220">
-    <p>Escaneie o QR Code com o app do seu banco.</p>
-    <p><strong>Chave Pix:</strong> *</p>
-</div>
+<form id="formPagamento" class="form-pedido" action="pagamento.php" method="post">
+    <fieldset>
+        <legend>Quanto você quer doar?</legend>
+        <div class="valores-rapidos">
+            <button type="button" data-valor="20">R$ 20</button>
+            <button type="button" data-valor="50">R$ 50</button>
+            <button type="button" data-valor="100">R$ 100</button>
+            <button type="button" data-valor="200">R$ 200</button>
+        </div>
+        <label for="valorDoacao">Outro valor (R$)</label>
+        <input type="number" id="valorDoacao" name="valor" min="1" max="100000" step="0.01" placeholder="0,00" required>
+    </fieldset>
 
-<h2>Contribuir online</h2>
-<p><strong>Ambiente de demonstração:</strong> nenhum pagamento real é realizado.</p>
-<form id="formPagamento" action="pagamento.php" method="post">
-    <label>Nome completo</label>
-    <input type="text" name="nome" required>
-    <label>Valor da doação (R$)</label>
-    <input type="number" name="valor" min="1" step="0.01" required>
-    <label>Forma de pagamento</label>
-    <select name="metodo">
-        <option value="pix">Pix</option>
-        <option value="cartao">Cartão de crédito</option>
-    </select>
+    <fieldset>
+        <legend>Como você quer pagar?</legend>
+        <div class="formas-pagamento">
+            <label class="forma">
+                <input type="radio" name="metodo" value="pix" checked>
+                <span class="forma-caixa">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l4 4-4 4-4-4z"/><path d="M12 13.5l4 4-4 4-4-4z"/><path d="M2.5 12l4-4 4 4-4 4z"/><path d="M13.5 12l4-4 4 4-4 4z"/></svg>
+                    <strong>Pix</strong>
+                    <small>QR Code ou copia e cola, na hora</small>
+                </span>
+            </label>
+            <label class="forma">
+                <input type="radio" name="metodo" value="cartao">
+                <span class="forma-caixa">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
+                    <strong>Cartão de crédito</strong>
+                    <small>Visa, Mastercard, Elo e outros</small>
+                </span>
+            </label>
+        </div>
+    </fieldset>
 
-    <div id="boxPix">
-        <p>Depois de confirmar, use o QR Code ou a chave Pix acima.</p>
-    </div>
+    <fieldset>
+        <legend>Seus dados</legend>
+        <label for="nomePagamento">Nome completo</label>
+        <input type="text" id="nomePagamento" name="nome" maxlength="100" autocomplete="name" required>
+        <label for="emailPagamento">E-mail <small>(opcional, para receber o recibo)</small></label>
+        <input type="email" id="emailPagamento" name="email" maxlength="150" autocomplete="email">
+    </fieldset>
 
-    <div id="boxCartao" hidden>
-        <label>Número do cartão</label>
-        <input type="text" inputmode="numeric" maxlength="19" placeholder="0000 0000 0000 0000">
-        <label>Validade</label>
-        <input type="text" maxlength="5" placeholder="MM/AA">
-        <label>CVV</label>
-        <input type="text" inputmode="numeric" maxlength="4" placeholder="000">
-    </div>
-
-    <button type="submit">Confirmar doação</button>
     <p id="aviso" class="aviso"></p>
+    <button type="submit">Continuar para o pagamento</button>
+    <p class="demo-nota">Ambiente de demonstração: nenhum valor é cobrado de verdade.</p>
 </form>
 
 <p>Tem um brinquedo para doar? <a href="doacao_brinquedo.php">Doe um brinquedo →</a></p>
@@ -90,6 +108,6 @@
     </div>
     <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC</p>
 </footer>
-<script src="script.js?v=9"></script>
+<script src="script.js?v=10"></script>
 </body>
 </html>

@@ -68,15 +68,24 @@ CREATE TABLE IF NOT EXISTS doacoes (
     CONSTRAINT fk_doacoes_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Página de pagamento (simulado)
+-- Doação em dinheiro (simulada): cada linha é um pedido.
+-- status: Aguardando -> Pago (ou Expirado / Cancelado). "Simulado" e "Confirmado" são do formato antigo.
+-- Do cartão só ficam a bandeira e os 4 últimos dígitos (coluna detalhe), nunca o número inteiro.
 CREATE TABLE IF NOT EXISTS pagamentos (
-    id          INT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id  INT NULL,
-    nome        VARCHAR(100) NOT NULL,
-    valor       DECIMAL(10,2) NOT NULL,
-    metodo      VARCHAR(20)  NOT NULL,
-    status      VARCHAR(20)  NOT NULL DEFAULT 'Simulado',
-    criado_em   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    id             INT AUTO_INCREMENT PRIMARY KEY,
+    codigo         VARCHAR(40)  NULL,
+    usuario_id     INT NULL,
+    nome           VARCHAR(100) NOT NULL,
+    email          VARCHAR(150) NULL,
+    valor          DECIMAL(10,2) NOT NULL,
+    metodo         VARCHAR(20)  NOT NULL,
+    detalhe        VARCHAR(60)  NULL,
+    status         VARCHAR(20)  NOT NULL DEFAULT 'Simulado',
+    expira_em      DATETIME     NULL,
+    pago_em        DATETIME     NULL,
+    recibo_enviado TINYINT(1)   NOT NULL DEFAULT 0,
+    criado_em      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_pagamentos_codigo (codigo),
     CONSTRAINT fk_pagamentos_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

@@ -264,6 +264,213 @@ function locais_ativos() {
     return $pdo->query("SELECT id, nome, tipo, endereco, coleta FROM locais WHERE ativo = 1 ORDER BY nome")->fetchAll();
 }
 
+// ---- DOAÇÃO EM DINHEIRO (SIMULADA) ----
+// O fluxo imita um pagamento de verdade: pedido -> Pix (QR Code) ou cartão -> confirmação -> recibo.
+// Nenhum banco é chamado e nenhum valor é cobrado. Do cartão, o servidor só recebe a bandeira e os 4
+// últimos dígitos (o número inteiro e o CVV nunca saem do navegador).
+// Situações: Aguardando, Pago, Expirado, Cancelado. "Simulado" e "Confirmado" são do formato antigo.
+$SITUACOES_PAGO = array("Pago", "Simulado", "Confirmado");
+define("MINUTOS_PEDIDO", 15);
+
+// Cria as colunas novas na primeira vez (banco antigo), sem precisar rodar o atualizar_banco.php
+function garantir_colunas_pagamento() {
+    global $pdo;
+    static $feito = false;
+    if ($feito) return;
+    $feito = true;
+    if ($pdo->query("SHOW COLUMNS FROM pagamentos LIKE 'codigo'")->fetch()) return;
+    $pdo->exec("ALTER TABLE pagamentos
+                ADD COLUMN codigo         VARCHAR(40)  NULL AFTER id,
+                ADD COLUMN email          VARCHAR(150) NULL AFTER nome,
+                ADD COLUMN detalhe        VARCHAR(60)  NULL AFTER metodo,
+                ADD COLUMN expira_em      DATETIME     NULL AFTER status,
+                ADD COLUMN pago_em        DATETIME     NULL AFTER expira_em,
+                ADD COLUMN recibo_enviado TINYINT(1)   NOT NULL DEFAULT 0 AFTER pago_em,
+                ADD UNIQUE KEY uk_pagamentos_codigo (codigo)");
+}
+
+// Número do pedido que aparece para a pessoa (ex.: IV-000042)
+function numero_pedido($id) { return "IV-" . str_pad((string) $id, 6, "0", STR_PAD_LEFT); }
+
+// Busca o pedido pelo código do endereço. Se o prazo acabou, já marca como Expirado.
+function buscar_pedido($codigo) {
+    global $pdo;
+    garantir_colunas_pagamento();
+    if (!preg_match('/^[a-f0-9]{24}$/', (string) $codigo)) return null;
+    $pdo->prepare("UPDATE pagamentos SET status = 'Expirado'
+                   WHERE codigo = ? AND status = 'Aguardando' AND expira_em < NOW()")->execute(array($codigo));
+    $st = $pdo->prepare("SELECT *, GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), expira_em)) AS segundos_restantes,
+                                DATE_FORMAT(pago_em, '%d/%m/%Y às %H:%i') AS pago_quando
+                         FROM pagamentos WHERE codigo = ?");
+    $st->execute(array($codigo));
+    $p = $st->fetch();
+    return $p ? $p : null;
+}
+
+// Marca o pedido como pago (só se ainda estava aguardando) e manda o recibo por e-mail, se houver.
+function confirmar_pagamento($p, $detalhe) {
+    global $pdo;
+    $st = $pdo->prepare("UPDATE pagamentos SET status = 'Pago', pago_em = NOW(), detalhe = ?
+                         WHERE id = ? AND status = 'Aguardando' AND expira_em >= NOW()");
+    $st->execute(array($detalhe, $p["id"]));
+    if (!$st->rowCount()) return false;
+
+    if ($p["email"]) {
+        $p = buscar_pedido($p["codigo"]);
+        if (enviar_recibo($p)) {
+            $pdo->prepare("UPDATE pagamentos SET recibo_enviado = 1 WHERE id = ?")->execute(array($p["id"]));
+        }
+    }
+    return true;
+}
+
+function enviar_recibo($p) {
+    $link = endereco_site() . "/pagamento_recibo.php?c=" . $p["codigo"];
+    $html = '<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;color:#3a4248">'
+          . '<h2 style="color:#242d32">Obrigado pela sua doação, ' . h(strtok($p["nome"], " ")) . '!</h2>'
+          . '<p>Recebemos a sua contribuição para a <strong>Infância Viva</strong>.</p>'
+          . '<table style="width:100%;border-collapse:collapse;margin:18px 0">'
+          . '<tr><td style="padding:6px 0;color:#6b7378">Pedido</td><td style="text-align:right"><strong>' . numero_pedido($p["id"]) . '</strong></td></tr>'
+          . '<tr><td style="padding:6px 0;color:#6b7378">Valor</td><td style="text-align:right"><strong>' . dinheiro($p["valor"]) . '</strong></td></tr>'
+          . '<tr><td style="padding:6px 0;color:#6b7378">Forma</td><td style="text-align:right">' . h(forma_pagamento($p)) . '</td></tr>'
+          . '<tr><td style="padding:6px 0;color:#6b7378">Data</td><td style="text-align:right">' . h($p["pago_quando"]) . '</td></tr></table>'
+          . '<p style="text-align:center;margin:28px 0"><a href="' . h($link) . '" style="background:#e8572a;color:#fff;'
+          . 'padding:14px 28px;border-radius:99px;text-decoration:none;font-weight:bold">Ver e imprimir o recibo</a></p>'
+          . '<p style="font-size:13px;color:#6b7378">Pagamento feito no ambiente de demonstração do site (projeto de TCC): nenhum valor foi cobrado.</p></div>';
+    $texto = "Obrigado pela sua doação!\n\nPedido: " . numero_pedido($p["id"]) . "\nValor: " . dinheiro($p["valor"])
+           . "\nForma: " . forma_pagamento($p) . "\nData: " . $p["pago_quando"] . "\n\nRecibo: " . $link
+           . "\n\nPagamento feito no ambiente de demonstração do site (projeto de TCC): nenhum valor foi cobrado.";
+    return enviar_email($p["email"], $p["nome"], "Recibo da sua doação - Infância Viva", $html, $texto);
+}
+
+// "Pix" ou "Cartão Visa final 1111"
+function forma_pagamento($p) {
+    return $p["detalhe"] ? $p["metodo"] . " " . $p["detalhe"] : $p["metodo"];
+}
+
+// Código de autenticação do recibo (sai sempre igual para o mesmo pedido)
+function autenticacao_recibo($p) {
+    return strtoupper(implode("-", str_split(substr(hash("sha256", "recibo" . $p["codigo"] . $p["pago_em"]), 0, 20), 5)));
+}
+
+// Código "Pix copia e cola" no padrão do Banco Central (BR Code), com uma chave FICTÍCIA:
+// se alguém colar no app do banco, a chave não existe e nada é pago.
+function pix_copia_e_cola($valor, $pedido) {
+    $campo = function ($id, $v) { return $id . str_pad((string) strlen($v), 2, "0", STR_PAD_LEFT) . $v; };
+    $conta = $campo("00", "br.gov.bcb.pix") . $campo("01", "7f3e2a10-5c4b-4d8e-9a61-2b0c4f8e1d37");
+    $txid  = preg_replace('/[^A-Z0-9]/', "", strtoupper($pedido));
+    $c = $campo("00", "01") . $campo("26", $conta) . $campo("52", "0000") . $campo("53", "986")
+       . $campo("54", number_format((float) $valor, 2, ".", "")) . $campo("58", "BR")
+       . $campo("59", "INFANCIA VIVA") . $campo("60", "SAO PAULO") . $campo("62", $campo("05", $txid)) . "6304";
+    // CRC16-CCITT, exigido no fim do código
+    $crc = 0xFFFF;
+    for ($i = 0; $i < strlen($c); $i++) {
+        $crc ^= ord($c[$i]) << 8;
+        for ($b = 0; $b < 8; $b++) $crc = ($crc & 0x8000) ? (($crc << 1) ^ 0x1021) & 0xFFFF : ($crc << 1) & 0xFFFF;
+    }
+    return $c . sprintf("%04X", $crc);
+}
+
+// Valor por extenso para o recibo (ex.: 1250.50 -> "mil, duzentos e cinquenta reais e cinquenta centavos")
+function por_extenso($valor) {
+    $u = array("", "um", "dois", "três", "quatro", "cinco", "seis", "sete", "oito", "nove", "dez", "onze", "doze",
+               "treze", "quatorze", "quinze", "dezesseis", "dezessete", "dezoito", "dezenove");
+    $d = array("", "", "vinte", "trinta", "quarenta", "cinquenta", "sessenta", "setenta", "oitenta", "noventa");
+    $c = array("", "cento", "duzentos", "trezentos", "quatrocentos", "quinhentos", "seiscentos", "setecentos",
+               "oitocentos", "novecentos");
+    $ate999 = function ($n) use ($u, $d, $c) {
+        if ($n == 100) return "cem";
+        $p = array();
+        if ($n >= 100) { $p[] = $c[(int) floor($n / 100)]; $n %= 100; }
+        if ($n >= 20) { $p[] = $d[(int) floor($n / 10)]; $n %= 10; }
+        if ($n > 0) $p[] = $u[$n];
+        return implode(" e ", $p);
+    };
+    $centavos = (int) round($valor * 100);
+    $reais = (int) floor($centavos / 100);
+    $cent = $centavos % 100;
+    $partes = array();
+    if ($reais > 0) {
+        $mil = (int) floor($reais / 1000);
+        $resto = $reais % 1000;
+        $t = array();
+        if ($mil) $t[] = ($mil == 1 ? "" : $ate999($mil) . " ") . "mil";
+        if ($resto) $t[] = $ate999($resto);
+        $texto = implode(($mil && $resto && ($resto < 100 || $resto % 100 == 0)) ? " e " : " ", $t);
+        $partes[] = trim($texto) . ($reais == 1 ? " real" : " reais");
+    }
+    if ($cent > 0) $partes[] = $ate999($cent) . ($cent == 1 ? " centavo" : " centavos");
+    return $partes ? implode(" e ", $partes) : "zero real";
+}
+
+// Topo e rodapé das páginas do site feitas em PHP (iguais aos das páginas .html)
+function site_inicio($titulo, $menu) {
+    ?><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><?= h($titulo) ?> - Infância Viva</title>
+    <link rel="stylesheet" href="estilo.css?v=8">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
+</head>
+<body data-menu="<?= h($menu) ?>">
+<header class="topo">
+    <a class="logo" href="index.html" aria-label="Infância Viva - página inicial"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4 52 21H12z" fill="#2f7a80"/><rect x="21" y="19" width="22" height="7" fill="#2f7a80"/><path fill="#f5a524" fill-rule="evenodd" d="M13 26h38a4 4 0 0 1 4 4v26a4 4 0 0 1-4 4H13a4 4 0 0 1-4-4V30a4 4 0 0 1 4-4zM25 60V46a7 7 0 0 1 14 0v14z"/></svg><span>Infância <span class="l1">V</span><span class="l2">i</span><span class="l3">v</span><span class="l4">a</span></span></a>
+    <button type="button" class="menu-botao" id="menuBotao" aria-label="Abrir menu" aria-expanded="false">☰</button>
+    <nav id="menu">
+        <a href="index.html">Início</a>
+        <a href="doacao.html">Doação</a>
+        <a href="sobre.html">Sobre nós</a>
+        <a href="faq.html">Perguntas frequentes</a>
+        <a href="contato.html">Contato</a>
+        <a href="login.html" id="linkLogin">Login</a>
+    </nav>
+</header>
+<main>
+<?php
+}
+
+function site_fim($scripts = array()) {
+    ?>
+</main>
+<footer class="rodape">
+    <div class="rodape-conteudo">
+        <div>
+            <strong><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4 52 21H12z" fill="#2f7a80"/><rect x="21" y="19" width="22" height="7" fill="#2f7a80"/><path fill="#f5a524" fill-rule="evenodd" d="M13 26h38a4 4 0 0 1 4 4v26a4 4 0 0 1-4 4H13a4 4 0 0 1-4-4V30a4 4 0 0 1 4-4zM25 60V46a7 7 0 0 1 14 0v14z"/></svg> Infância Viva</strong>
+            <p>Doar brinquedos. Transformar infâncias.</p>
+        </div>
+        <div>
+            <strong>Contato</strong>
+            <p>E-mail: *<br>Telefone: *<br>Instagram: *</p>
+        </div>
+        <div>
+            <strong>Como ajudar</strong>
+            <p><a href="doacao_brinquedo.php">Doar brinquedos</a><br><a href="pagamento.html">Contribuir online</a><br><a href="faq.html">Perguntas frequentes</a></p>
+        </div>
+    </div>
+    <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC</p>
+</footer>
+<?php foreach ($scripts as $s): ?><script src="<?= h($s) ?>"></script>
+<?php endforeach; ?><script src="script.js?v=10"></script>
+</body>
+</html>
+<?php
+}
+
+// Barra com as 4 etapas da doação em dinheiro ($atual = 1 a 4)
+function etapas_pagamento($atual) {
+    $nomes = array(1 => "Valor e forma", 2 => "Pagamento", 3 => "Confirmação", 4 => "Recibo");
+    echo '<ol class="etapas" aria-label="Etapas da doação">';
+    foreach ($nomes as $n => $nome) {
+        $classe = $n < $atual ? "feita" : ($n == $atual ? "atual" : "");
+        echo '<li class="' . $classe . '"' . ($n == $atual ? ' aria-current="step"' : '') . '><span>' . $n . '</span>' . $nome . '</li>';
+    }
+    echo '</ol>';
+}
+
 // h() protege a tela contra HTML/JS digitado nos formulários
 function h($v) { return htmlspecialchars((string) $v, ENT_QUOTES, "UTF-8"); }
 
@@ -322,6 +529,7 @@ function usuario_logado_id() {
 function exigir_admin() {
     garantir_colunas_confirmacao();
     garantir_tabela_locais();
+    garantir_colunas_pagamento();
     $u = exigir_login();
     if ($u["tipo"] !== "admin") {
         header("Location: index.html");
@@ -405,7 +613,7 @@ function painel_inicio($titulo, $ativo, $admin) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= h($titulo) ?> - Painel - Infância Viva</title>
-    <link rel="stylesheet" href="estilo.css?v=7">
+    <link rel="stylesheet" href="estilo.css?v=8">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
@@ -442,7 +650,7 @@ function painel_fim() {
     ?>
     </main>
 </div>
-<script src="script.js?v=9"></script>
+<script src="script.js?v=10"></script>
 </body>
 </html>
     <?php
@@ -482,9 +690,12 @@ function registros_config() {
         "pagamentos" => array("nome" => "pagamento", "novo" => "Novo pagamento", "campos" => array(
             "usuario_id" => array("Conta de quem pagou", "conta", false),
             "nome"       => array("Nome", "texto", true),
+            "email"      => array("E-mail para o recibo", "email", false),
             "valor"      => array("Valor (R$)", "dinheiro", true),
             "metodo"     => array("Forma", "lista", true, array("Pix" => "Pix", "Cartão" => "Cartão")),
-            "status"     => array("Situação", "lista", true, array("Simulado" => "Simulado", "Confirmado" => "Confirmado", "Cancelado" => "Cancelado")),
+            "status"     => array("Situação", "lista", true, array("Pago" => "Pago", "Aguardando" => "Aguardando pagamento",
+                                    "Expirado" => "Expirado", "Cancelado" => "Cancelado",
+                                    "Simulado" => "Simulado (formato antigo)", "Confirmado" => "Confirmado (formato antigo)")),
         )),
         "mensagens" => array("nome" => "mensagem", "novo" => "Nova mensagem", "campos" => array(
             "usuario_id" => array("Conta de quem enviou", "conta", false),
@@ -560,6 +771,7 @@ function tabela($colunas, $linhas, $id = "", $acoes = "") {
 // $usuario_id = número do usuário, ou null para "visitantes sem conta"
 function buscar_historico($usuario_id) {
     global $pdo;
+    garantir_colunas_pagamento();
 
     if ($usuario_id === null) {
         $onde = "usuario_id IS NULL";
@@ -574,7 +786,7 @@ function buscar_historico($usuario_id) {
         "doacoes"    => "SELECT nome, email, telefone, brinquedo, quantidade, endereco, ponto, valor, observacoes,
                                 DATE_FORMAT(data_doacao, '%d/%m/%Y') AS dia, $dh
                          FROM doacoes WHERE $onde ORDER BY id DESC",
-        "pagamentos" => "SELECT nome, valor, metodo, status, $dh FROM pagamentos WHERE $onde ORDER BY id DESC",
+        "pagamentos" => "SELECT id, nome, valor, metodo, detalhe, status, $dh FROM pagamentos WHERE $onde ORDER BY id DESC",
         "mensagens"  => "SELECT nome, email, mensagem, $dh FROM mensagens WHERE $onde ORDER BY id DESC",
         "avaliacoes" => "SELECT nota, comentario, $dh FROM avaliacoes WHERE $onde ORDER BY id DESC"
     );
@@ -593,9 +805,11 @@ function buscar_historico($usuario_id) {
         $brinquedos += (int) $d["quantidade"];
         $prometido  += (float) $d["valor"];
     }
+    // Só soma o que foi pago (pedidos cancelados, expirados ou aguardando não contam)
+    global $SITUACOES_PAGO;
     $pago = 0;
     foreach ($hist["pagamentos"] as $p) {
-        $pago += (float) $p["valor"];
+        if (in_array($p["status"], $SITUACOES_PAGO, true)) $pago += (float) $p["valor"];
     }
     $hist["totais"] = array("brinquedos" => $brinquedos, "prometido" => $prometido, "pago" => $pago);
 
@@ -605,7 +819,9 @@ function buscar_historico($usuario_id) {
     }
     unset($d);
     foreach ($hist["pagamentos"] as &$p) {
-        $p["valor"] = dinheiro($p["valor"]);
+        $p["valor"]  = dinheiro($p["valor"]);
+        $p["pedido"] = numero_pedido($p["id"]);
+        $p["metodo"] = forma_pagamento($p);
     }
     unset($p);
     foreach ($hist["avaliacoes"] as &$a) {
@@ -625,7 +841,7 @@ function mostrar_historico($hist, $com_contato) {
         <div class="stat"><strong><?= count($hist["doacoes"]) ?></strong>doações de brinquedos</div>
         <div class="stat"><strong><?= $t["brinquedos"] ?></strong>brinquedos</div>
         <div class="stat"><strong><?= count($hist["pagamentos"]) ?></strong>pagamentos</div>
-        <div class="stat"><strong><?= dinheiro($t["pago"]) ?></strong>pago (simulado)</div>
+        <div class="stat"><strong><?= dinheiro($t["pago"]) ?></strong>doado em dinheiro (simulado)</div>
         <div class="stat"><strong><?= count($hist["mensagens"]) ?></strong>mensagens</div>
         <div class="stat"><strong><?= count($hist["avaliacoes"]) ?></strong>avaliações</div>
     </div>
@@ -646,7 +862,7 @@ function mostrar_historico($hist, $com_contato) {
     tabela($doacao, $hist["doacoes"]);
 
     echo "<h2>Pagamentos</h2>";
-    tabela(array("Quando" => "quando", "Nome" => "nome", "Valor" => "valor", "Forma" => "metodo", "Status" => "status"),
+    tabela(array("Quando" => "quando", "Pedido" => "pedido", "Nome" => "nome", "Valor" => "valor", "Forma" => "metodo", "Situação" => "status"),
            $hist["pagamentos"]);
 
     echo "<h2>Mensagens enviadas</h2>";

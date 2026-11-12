@@ -8,20 +8,167 @@ function aviso(msg, ok) {
 /* ===== Login e cadastro =====
    Agora são feitos pelo PHP (login.php, cadastro.php, logout.php). */
 
-/* ===== Pagamento (simulado) ===== */
+/* ===== Doação em dinheiro (simulada) =====
+   Etapa 1 (pagamento.html): valores rápidos e dados da conta.
+   Etapa 2 (pagamento_pedido.php): QR Code + prazo + conferência do Pix, ou formulário do cartão.
+   Etapa 4 (pagamento_recibo.php): botão de imprimir. */
 function iniciarPagamento() {
     var f = document.getElementById("formPagamento");
     if (!f) return;
-    var v = new URLSearchParams(location.search).get("valor");
-    if (v && !isNaN(v)) f.valor.value = v;
-
-    var m = f.metodo;
-    function alternar() {
-        document.getElementById("boxPix").hidden = m.value !== "pix";
-        document.getElementById("boxCartao").hidden = m.value !== "cartao";
+    var campo = f.valor;
+    var botoes = f.querySelectorAll("[data-valor]");
+    function marcar() {
+        for (var i = 0; i < botoes.length; i++) {
+            botoes[i].classList.toggle("escolhido", Number(botoes[i].getAttribute("data-valor")) === Number(campo.value));
+        }
     }
-    m.addEventListener("change", alternar);
-    alternar();
+    for (var i = 0; i < botoes.length; i++) {
+        botoes[i].addEventListener("click", function () { campo.value = this.getAttribute("data-valor"); marcar(); });
+    }
+    campo.addEventListener("input", marcar);
+
+    var v = new URLSearchParams(location.search).get("valor");
+    if (v && !isNaN(v)) campo.value = Number(v);
+    marcar();
+
+    // Quem está logado já encontra o nome e o e-mail preenchidos
+    fetch("sessao.php", { credentials: "same-origin" })
+        .then(function (r) { return r.json(); })
+        .then(function (s) {
+            if (!s.logado) return;
+            if (!f.nome.value) f.nome.value = s.nome;
+            if (!f.email.value && s.email) f.email.value = s.email;
+        })
+        .catch(function () {});
+}
+
+function iniciarPix() {
+    var caixa = document.getElementById("pixPagar");
+    if (!caixa) return;
+    var codigo = caixa.getAttribute("data-codigo");
+    var restam = Number(caixa.getAttribute("data-segundos"));
+
+    // Desenha o QR Code (biblioteca lib/qrcode/qrcode.js)
+    var qrCaixa = document.getElementById("pixQr");
+    if (window.qrcode) {
+        var qr = qrcode(0, "M");
+        qr.addData(qrCaixa.getAttribute("data-qr"));
+        qr.make();
+        qrCaixa.innerHTML = qr.createSvgTag({ cellSize: 6, margin: 2, scalable: true });
+    }
+
+    // Copiar o "copia e cola"
+    var campo = document.getElementById("pixCodigo");
+    var copiar = document.getElementById("pixCopiar");
+    copiar.addEventListener("click", function () {
+        campo.select();
+        var feito = function () {
+            copiar.textContent = "Copiado!";
+            setTimeout(function () { copiar.textContent = "Copiar"; }, 2000);
+        };
+        if (navigator.clipboard) navigator.clipboard.writeText(campo.value).then(feito, function () { document.execCommand("copy"); feito(); });
+        else { document.execCommand("copy"); feito(); }
+    });
+
+    // Prazo para pagar
+    var tempo = document.getElementById("pixTempo");
+    function mostrarTempo() {
+        var m = Math.floor(restam / 60), s = restam % 60;
+        tempo.textContent = (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+    }
+    mostrarTempo();
+    var relogio = setInterval(function () {
+        restam = Math.max(0, restam - 1);
+        mostrarTempo();
+        if (restam === 0) { clearInterval(relogio); location.reload(); }
+    }, 1000);
+
+    // Pergunta ao servidor, a cada 3 segundos, se o pagamento chegou
+    var status = document.getElementById("pixStatus");
+    setInterval(function () {
+        fetch("pagamento_status.php?c=" + encodeURIComponent(codigo), { cache: "no-store" })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (d.status === "Pago") {
+                    status.className = "status-pedido pago";
+                    status.textContent = "Pagamento recebido! Abrindo o recibo…";
+                    setTimeout(function () { location.href = "pagamento_recibo.php?c=" + codigo; }, 1200);
+                } else if (d.status !== "Aguardando") {
+                    location.reload();
+                }
+            })
+            .catch(function () {});
+    }, 3000);
+}
+
+// Bandeira pelo começo do número
+function bandeiraCartao(n) {
+    if (/^(4011|4312|4389|4514|4576|5041|5066|5067|509|6277|6362|6363|650|6516|6550)/.test(n)) return "Elo";
+    if (/^(606282|3841)/.test(n)) return "Hipercard";
+    if (/^3[47]/.test(n)) return "American Express";
+    if (/^4/.test(n)) return "Visa";
+    if (/^(5[1-5]|2[2-7])/.test(n)) return "Mastercard";
+    return "";
+}
+
+// Confere o dígito verificador do cartão (algoritmo de Luhn)
+function cartaoValido(n) {
+    var soma = 0, dobra = false;
+    for (var i = n.length - 1; i >= 0; i--) {
+        var d = Number(n.charAt(i));
+        if (dobra) { d *= 2; if (d > 9) d -= 9; }
+        soma += d;
+        dobra = !dobra;
+    }
+    return n.length >= 13 && n.length <= 19 && soma % 10 === 0;
+}
+
+function iniciarCartao() {
+    var f = document.getElementById("formCartao");
+    if (!f) return;
+    var numero = document.getElementById("cartaoNumero");
+    var nome = document.getElementById("cartaoNome");
+    var validade = document.getElementById("cartaoValidade");
+    var cvv = document.getElementById("cartaoCvv");
+    var rotulo = document.getElementById("cartaoBandeira");
+
+    numero.addEventListener("input", function () {
+        var n = numero.value.replace(/\D/g, "").slice(0, 19);
+        numero.value = n.replace(/(\d{4})(?=\d)/g, "$1 ");
+        rotulo.textContent = bandeiraCartao(n);
+    });
+    validade.addEventListener("input", function () {
+        var v = validade.value.replace(/\D/g, "").slice(0, 4);
+        validade.value = v.length > 2 ? v.slice(0, 2) + "/" + v.slice(2) : v;
+    });
+    cvv.addEventListener("input", function () { cvv.value = cvv.value.replace(/\D/g, "").slice(0, 4); });
+
+    f.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var n = numero.value.replace(/\D/g, "");
+        var bandeira = bandeiraCartao(n);
+        var mv = validade.value.match(/^(\d{2})\/(\d{2})$/);
+        var hoje = new Date();
+        var vencido = !mv || Number(mv[1]) < 1 || Number(mv[1]) > 12
+            || new Date(2000 + Number(mv[2]), Number(mv[1]), 1) <= hoje;   // vale até o fim do mês
+
+        if (!cartaoValido(n) || !bandeira) { aviso("Número do cartão inválido. Confira os dígitos.", false); numero.focus(); return; }
+        if (nome.value.trim().length < 3) { aviso("Escreva o nome como está no cartão.", false); nome.focus(); return; }
+        if (vencido) { aviso("Validade inválida ou cartão vencido.", false); validade.focus(); return; }
+        if (!/^\d{3,4}$/.test(cvv.value)) { aviso("O CVV tem 3 dígitos (4 no American Express).", false); cvv.focus(); return; }
+        aviso("", true);
+
+        // Só a bandeira e os 4 últimos dígitos vão para o servidor
+        f.bandeira.value = bandeira;
+        f.final.value = n.slice(-4);
+        document.getElementById("processando").hidden = false;
+        setTimeout(function () { f.submit(); }, 2200);
+    });
+}
+
+function iniciarRecibo() {
+    var b = document.getElementById("imprimirRecibo");
+    if (b) b.addEventListener("click", function () { window.print(); });
 }
 
 /* ===== Foto de perfil (cadastro e Minha conta) =====
@@ -199,11 +346,12 @@ document.addEventListener("DOMContentLoaded", function () {
         email_existe: "Este e-mail já está cadastrado.",
         login: "E-mail ou senha incorretos.",
         foto: "Não foi possível usar essa foto. Tente outra imagem.",
-        pagamento: "Confira o nome, o valor e a forma de pagamento.",
+        pagamento: "Confira o nome, o valor (mínimo R$ 1,00) e a forma de pagamento.",
+        pedido: "Não encontramos esse pedido. Faça um novo.",
         erro: "Ocorreu um erro. Tente novamente."
     };
     if (q.get("erro")) aviso(erros[q.get("erro")] || erros.erro, false);
-    if (q.get("pagamento") === "ok") aviso("Pagamento registrado! Obrigado!", true);
+    if (q.get("pedido") === "cancelado") aviso("Pedido cancelado. Nenhum valor foi cobrado.", true);
     if (q.get("foto") === "ok") aviso("Foto atualizada!", true);
     if (q.get("cadastro") === "ok") aviso("Cadastro realizado! Agora é só entrar.", true);
     if (q.get("cadastro") === "confirme") aviso("Conta criada! Enviamos um link para o seu e-mail. Confirme para poder entrar.", true);
@@ -304,4 +452,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     iniciarPagamento();
+    iniciarPix();
+    iniciarCartao();
+    iniciarRecibo();
 });

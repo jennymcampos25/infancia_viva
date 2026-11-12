@@ -58,7 +58,7 @@ if ($aviso_limpeza) {
 
 // =====================================================================
 if ($pagina === "geral"):
-    $total      = (float) $pdo->query("SELECT COALESCE(SUM(valor), 0) FROM pagamentos")->fetchColumn();
+    $total      = (float) $pdo->query("SELECT COALESCE(SUM(valor), 0) FROM pagamentos WHERE status IN ('Pago', 'Simulado', 'Confirmado')")->fetchColumn();
     $brinquedos = (int) $pdo->query("SELECT COALESCE(SUM(quantidade), 0) FROM doacoes")->fetchColumn();
     $media      = $pdo->query("SELECT AVG(nota) FROM avaliacoes")->fetchColumn();
     $doadores   = (int) $pdo->query("SELECT COUNT(*) FROM usuarios WHERE tipo <> 'admin'")->fetchColumn();
@@ -68,7 +68,8 @@ if ($pagina === "geral"):
     foreach ($pdo->query("SELECT nome, quantidade, brinquedo, criado_em FROM doacoes ORDER BY id DESC LIMIT 8") as $r) {
         $eventos[] = array($r["criado_em"], "doacao", $r["nome"], "doou " . (int) $r["quantidade"] . " × " . $r["brinquedo"]);
     }
-    foreach ($pdo->query("SELECT nome, valor, metodo, criado_em FROM pagamentos ORDER BY id DESC LIMIT 8") as $r) {
+    foreach ($pdo->query("SELECT nome, valor, metodo, criado_em FROM pagamentos WHERE status IN ('Pago', 'Simulado', 'Confirmado')
+                          ORDER BY id DESC LIMIT 8") as $r) {
         $eventos[] = array($r["criado_em"], "pagamento", $r["nome"], "contribuiu com " . dinheiro($r["valor"]) . " (" . $r["metodo"] . ")");
     }
     foreach ($pdo->query("SELECT nome, criado_em FROM mensagens ORDER BY id DESC LIMIT 8") as $r) {
@@ -256,24 +257,33 @@ elseif ($pagina === "doacoes"):
 
 // =====================================================================
 elseif ($pagina === "pagamentos"):
-    $pagamentos = $pdo->query("SELECT id, nome, valor, metodo, status, $dh FROM pagamentos ORDER BY id DESC LIMIT 300")->fetchAll();
+    garantir_colunas_pagamento();
+    $pagamentos = $pdo->query("SELECT id, nome, email, valor, metodo, detalhe, status, $dh FROM pagamentos ORDER BY id DESC LIMIT 300")->fetchAll();
     $total = 0;
+    $n_pagos = 0;
+    $n_aguardando = 0;
     foreach ($pagamentos as &$p) {
-        $total += (float) $p["valor"];
-        $p["valor"] = dinheiro($p["valor"]);
+        if (in_array($p["status"], $SITUACOES_PAGO, true)) { $total += (float) $p["valor"]; $n_pagos++; }
+        if ($p["status"] === "Aguardando") $n_aguardando++;
+        $p["valor"]  = dinheiro($p["valor"]);
+        $p["pedido"] = numero_pedido($p["id"]);
+        $p["metodo"] = forma_pagamento($p);
     }
     unset($p);
     ?>
     <div class="stats">
-        <div class="stat"><strong><?= dinheiro($total) ?></strong>total (pagamentos simulados)</div>
-        <div class="stat"><strong><?= count($pagamentos) ?></strong>pagamentos</div>
+        <div class="stat"><strong><?= dinheiro($total) ?></strong>arrecadado (simulado)</div>
+        <div class="stat"><strong><?= $n_pagos ?></strong>pagos</div>
+        <div class="stat"><strong><?= $n_aguardando ?></strong>aguardando pagamento</div>
+        <div class="stat"><strong><?= count($pagamentos) ?></strong>pedidos no total</div>
     </div>
     <section class="painel-caixa">
         <div class="painel-caixa-topo">
-            <p>O pagamento do site é uma demonstração: nenhum valor é cobrado de verdade.</p>
-            <div class="painel-ferramentas"><?php busca_tabela("tabela-pagamentos", "Buscar por nome ou forma"); ?><?= botao_novo("pagamentos") ?></div>
+            <p>O pagamento do site é uma demonstração: nenhum valor é cobrado de verdade. Só os pedidos pagos entram no total.</p>
+            <div class="painel-ferramentas"><?php busca_tabela("tabela-pagamentos", "Buscar por nome, pedido ou forma"); ?><?= botao_novo("pagamentos") ?></div>
         </div>
-        <?php tabela(array("Quando" => "quando", "Nome" => "nome", "Valor" => "valor", "Forma" => "metodo", "Status" => "status"),
+        <?php tabela(array("Quando" => "quando", "Pedido" => "pedido", "Nome" => "nome", "Valor" => "valor",
+                           "Forma" => "metodo", "Situação" => "status"),
                      $pagamentos, "tabela-pagamentos", "pagamentos"); ?>
     </section>
 <?php

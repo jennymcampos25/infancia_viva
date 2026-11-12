@@ -263,7 +263,6 @@ details[open] summary::after { transform:rotate(45deg); }
 details p { margin-bottom:0; }
 
 /* ===== Pix ===== */
-.pix { text-align:center; background:#fff; border-radius:var(--raio); padding:20px; box-shadow:var(--sombra); }
 
 /* ===== Painel do administrador e Minha conta ===== */
 .stats { display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:14px; margin:20px 0; }
@@ -338,6 +337,169 @@ tr:hover td { background:#fff1dc; }
 .passos-pequenos { margin:10px 0 0; }
 .passos-pequenos .num { width:58px; height:58px; font-size:1.5rem; }
 .passos-pequenos::before { top:29px; }
+
+/* ===== Doação em dinheiro: etapas, Pix, cartão e recibo ===== */
+.etapas { list-style:none; display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; margin:6px 0 22px; padding:0; counter-reset:none; }
+.etapas li {
+    position:relative; display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center;
+    font-size:.85rem; font-weight:800; color:var(--suave);
+}
+.etapas li::before { content:""; position:absolute; top:17px; left:-50%; width:100%; height:4px; background:var(--borda); z-index:0; }
+.etapas li:first-child::before { display:none; }
+.etapas li span {
+    position:relative; z-index:1; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:#fff; border:3px solid var(--borda); color:var(--suave); font-family:"Quicksand", sans-serif; font-size:1rem;
+}
+.etapas li.feita, .etapas li.atual { color:var(--escuro); }
+.etapas li.feita::before, .etapas li.atual::before { background:var(--verde); }
+.etapas li.feita span { background:var(--verde); border-color:var(--verde); color:#fff; }
+.etapas li.atual span { background:var(--vermelho); border-color:var(--vermelho); color:#fff; box-shadow:0 0 0 5px rgba(232,87,42,.18); }
+
+/* etapa 1: pedido */
+.form-pedido fieldset { border:none; padding:0; margin:0 0 22px; min-width:0; }
+.form-pedido legend { font-family:"Quicksand", sans-serif; font-weight:700; font-size:1.2rem; color:var(--escuro); padding:0; margin-bottom:4px; }
+.valores-rapidos { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-top:10px; }
+.valores-rapidos button {
+    margin:0; padding:14px 6px; background:#fffdf9; color:var(--escuro); border:2px solid var(--borda); box-shadow:none;
+    border-radius:14px; font-size:1.1rem;
+}
+.valores-rapidos button:hover { background:var(--creme); color:var(--escuro); transform:translateY(-2px); }
+.valores-rapidos button.escolhido { background:var(--amarelo); border-color:var(--amarelo); color:var(--escuro); }
+.formas-pagamento { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px; }
+.forma { margin:0; cursor:pointer; font-weight:400; }
+.forma input { position:absolute; opacity:0; width:1px; height:1px; }
+.forma-caixa {
+    display:grid; grid-template-columns:auto 1fr; column-gap:12px; align-items:center; height:100%;
+    padding:16px; border:2px solid var(--borda); border-radius:16px; background:#fffdf9; transition:border-color .2s, box-shadow .2s;
+}
+.forma-caixa svg { grid-row:span 2; width:32px; height:32px; color:var(--azul); }
+.forma-caixa strong { color:var(--escuro); }
+.forma-caixa small { color:var(--suave); }
+.forma input:checked + .forma-caixa { border-color:var(--azul); background:#eef6f6; box-shadow:0 0 0 4px rgba(47,122,128,.15); }
+.forma input:focus-visible + .forma-caixa { outline:3px solid var(--azul); outline-offset:2px; }
+.demo-nota { font-size:.85rem; color:var(--suave); margin:10px 0 0; }
+
+/* etapa 2: pagamento */
+.pedido-resumo {
+    display:grid; grid-template-columns:repeat(4, auto); justify-content:space-between; gap:12px 20px;
+    background:#fff; border-radius:var(--raio); padding:18px 22px; box-shadow:var(--sombra); margin:16px 0;
+}
+.pedido-resumo span { display:block; font-size:.8rem; color:var(--suave); text-transform:uppercase; letter-spacing:.04em; font-weight:800; }
+.pedido-resumo strong { color:var(--escuro); overflow-wrap:anywhere; }
+.pedido-valor strong { font-family:"Quicksand", sans-serif; font-size:1.5rem; color:var(--vermelho); }
+.pix-pagar {
+    display:grid; grid-template-columns:260px 1fr; gap:28px; align-items:start;
+    background:#fff; border-radius:var(--raio); padding:24px; box-shadow:var(--sombra);
+}
+.pix-qr { text-align:center; }
+#pixQr { width:240px; height:240px; margin:0 auto; border:2px solid var(--borda); border-radius:16px; padding:6px; background:#fff; }
+#pixQr svg { width:100%; height:100%; display:block; }
+.pix-prazo { margin:10px 0 0; color:var(--suave); }
+.pix-prazo strong { color:var(--escuro); font-variant-numeric:tabular-nums; }
+.pix-instrucoes ol { margin:0 0 6px; padding-left:22px; }
+.pix-instrucoes li { margin-bottom:8px; }
+.copia-cola { display:flex; gap:8px; }
+.copia-cola input { font-family:monospace; font-size:.85rem; }
+.botao-secundario {
+    margin:6px 0 0; padding:10px 18px; background:var(--azul); box-shadow:none; white-space:nowrap;
+}
+.botao-secundario:hover { background:#24636a; }
+.status-pedido { display:flex; align-items:center; gap:10px; font-weight:800; color:var(--amarelo-texto); margin:18px 0 0; }
+.status-pedido.pago { color:var(--certo); }
+.girando {
+    width:20px; height:20px; border-radius:50%; border:3px solid rgba(0,0,0,.12); border-top-color:currentColor;
+    animation:girar .9s linear infinite; flex:none;
+}
+@keyframes girar { to { transform:rotate(360deg); } }
+.demo-caixa {
+    background:#fff7e3; border:2px dashed #ecc77a; border-radius:var(--raio); padding:18px 22px; margin:20px 0;
+}
+.demo-caixa strong:first-child { color:var(--amarelo-texto); }
+.demo-caixa p { margin:6px 0; }
+.demo-caixa ul { margin:6px 0; padding-left:20px; }
+.demo-caixa form { background:none; box-shadow:none; padding:0; margin:0; }
+.demo-caixa button { margin-top:8px; background:var(--verde); box-shadow:none; }
+.demo-caixa button:hover { background:#3d6e2c; }
+.cartao-grade { display:grid; grid-template-columns:minmax(0, 1.2fr) minmax(0, 1fr); gap:22px; align-items:start; }
+.cartao-grade .form-cartao, .cartao-grade .demo-caixa { margin:0; }
+.campo-cartao { position:relative; }
+.campo-cartao input { padding-right:140px; font-variant-numeric:tabular-nums; letter-spacing:.04em; }
+.bandeira { position:absolute; right:14px; top:50%; transform:translateY(-35%); font-weight:800; color:var(--azul); font-size:.9rem; }
+.cartao-linha { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.processando {
+    position:fixed; inset:0; background:rgba(36,45,50,.55); display:flex; align-items:center; justify-content:center; z-index:50;
+}
+.processando > div { background:#fff; border-radius:var(--raio); padding:30px 36px; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,.25); }
+.processando .girando { width:44px; height:44px; border-width:5px; margin:0 auto 14px; color:var(--vermelho); }
+.processando p { margin:6px 0 0; color:var(--suave); }
+.cancelar-pedido { background:none; box-shadow:none; padding:0; margin:10px 0; text-align:center; }
+.botao-link {
+    background:none; color:var(--suave); box-shadow:none; padding:4px 8px; margin:0; font-weight:700; text-decoration:underline;
+}
+.botao-link:hover { background:none; color:var(--erro); transform:none; }
+.pedido-fim { text-align:center; background:#fff; border-radius:var(--raio); padding:30px 24px; box-shadow:var(--sombra); }
+
+/* tela de teste que faz o papel do app do banco (aberta pelo QR Code) */
+.banco-teste {
+    max-width:420px; margin:10px auto; background:#fff; border-radius:28px; padding:26px 24px 30px; text-align:center;
+    box-shadow:0 18px 44px rgba(36,45,50,.16); border-top:10px solid var(--azul);
+}
+.banco-teste-topo { margin:0 0 16px; font-weight:800; color:var(--azul); text-transform:uppercase; letter-spacing:.06em; font-size:.8rem; }
+.banco-valor { font-family:"Quicksand", sans-serif; font-size:2.4rem; font-weight:700; color:var(--escuro); margin:4px 0 12px; }
+.banco-dados { display:grid; grid-template-columns:auto 1fr; gap:8px 16px; text-align:left; background:var(--creme); border-radius:14px; padding:14px 16px; margin:0; }
+.banco-dados dt { color:var(--suave); font-weight:700; }
+.banco-dados dd { margin:0; font-weight:800; color:var(--escuro); text-align:right; overflow-wrap:anywhere; }
+.banco-teste form { background:none; box-shadow:none; padding:0; margin:10px 0 0; }
+.banco-teste form button { width:100%; background:var(--azul); box-shadow:none; padding:15px; }
+.banco-nota { font-size:.85rem; color:var(--suave); margin:14px 0 0; }
+.banco-ok {
+    width:78px; height:78px; margin:0 auto 8px; border-radius:50%; background:var(--verde); color:#fff;
+    font-size:2.6rem; line-height:78px; font-weight:800;
+}
+
+/* etapas 3 e 4: confirmação e recibo */
+.confirmado { text-align:center; margin:6px 0 24px; }
+.confirmado h1 { margin:10px 0 6px; }
+.confirmado p { max-width:560px; margin:6px auto; }
+.confirmado-icone {
+    width:84px; height:84px; margin:0 auto; border-radius:50%; background:var(--verde); color:#fff;
+    display:flex; align-items:center; justify-content:center; animation:aparecer .5s ease-out;
+    box-shadow:0 0 0 10px rgba(79,138,58,.15);
+}
+.confirmado-icone svg { width:46px; height:46px; }
+@keyframes aparecer { from { transform:scale(.4); opacity:0; } to { transform:scale(1); opacity:1; } }
+.confirmado-email { color:var(--suave); font-size:.95rem; }
+.recibo {
+    max-width:640px; margin:0 auto; background:#fff; border-radius:var(--raio); padding:30px 34px; box-shadow:var(--sombra);
+    border-top:8px solid var(--amarelo);
+}
+.recibo-topo { display:flex; justify-content:space-between; align-items:center; gap:16px; border-bottom:2px dashed var(--borda); padding-bottom:16px; }
+.recibo-marca img { display:block; height:auto; }
+.recibo-numero { text-align:right; }
+.recibo-numero span { display:block; font-size:.8rem; text-transform:uppercase; letter-spacing:.05em; color:var(--suave); font-weight:800; }
+.recibo-numero strong { font-family:"Quicksand", sans-serif; font-size:1.5rem; color:var(--escuro); }
+.recibo-texto { font-size:1.05rem; line-height:1.7; margin:20px 0; }
+.recibo-dados { display:grid; grid-template-columns:1fr 1fr; gap:14px 24px; margin:0; }
+.recibo-dados dt { font-size:.8rem; text-transform:uppercase; letter-spacing:.04em; color:var(--suave); font-weight:800; }
+.recibo-dados dd { margin:2px 0 0; font-weight:700; color:var(--escuro); overflow-wrap:anywhere; }
+.recibo-dados code { font-size:.85rem; }
+.recibo-assinatura { margin:34px auto 0; width:260px; max-width:100%; border-top:2px solid var(--escuro); padding-top:8px; text-align:center; }
+.recibo-assinatura span { display:block; font-family:"Quicksand", sans-serif; font-weight:700; color:var(--escuro); }
+.recibo-assinatura small { color:var(--suave); }
+.recibo-aviso { font-size:.8rem; color:var(--suave); text-align:center; margin:24px 0 0; }
+.recibo-botoes { display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:12px; margin:22px 0 6px; }
+.recibo-botoes button, .recibo-botoes .botao { margin:0; display:inline-flex; align-items:center; gap:8px; }
+.recibo-botoes svg { width:20px; height:20px; }
+.centro { text-align:center; }
+
+/* Na impressão, só o recibo aparece */
+@media print {
+    body { background:#fff; }
+    .topo, .rodape, .etapas, .confirmado, .recibo-botoes, .centro, .perfil { display:none !important; }
+    main { padding:0; margin:0; max-width:none; }
+    .recibo { box-shadow:none; border:1px solid #ccc; border-top:8px solid var(--amarelo); max-width:none; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+}
+
 
 /* ===== Página Sobre nós ===== */
 .rotulo-secao {
@@ -541,4 +703,16 @@ a.pessoa img { width:28px; height:28px; border-radius:50%; object-fit:cover; }
     .logo svg { width:36px; height:36px; }
     .cartao { flex-basis:100%; }
     form { padding:20px; }
+    .etapas li { font-size:.72rem; }
+    .valores-rapidos { grid-template-columns:repeat(2, 1fr); }
+    .formas-pagamento { grid-template-columns:1fr; }
+    .pedido-resumo { grid-template-columns:1fr 1fr; }
+    .pix-pagar, .cartao-grade { grid-template-columns:1fr; }
+    .pix-pagar { padding:18px; }
+    #pixQr { width:220px; height:220px; }
+    .copia-cola { flex-direction:column; }
+    .recibo { padding:22px 18px; }
+    .recibo-topo { flex-direction:column; align-items:flex-start; }
+    .recibo-numero { text-align:left; }
+    .recibo-dados { grid-template-columns:1fr; }
 }

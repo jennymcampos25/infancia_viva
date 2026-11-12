@@ -22,7 +22,7 @@
 - **Slideshow:** fotos locais `imagens/foto1.jpg` a `foto8.jpg` (Unsplash, licença livre; links em FOTOS.txt). Foto que não existir é pulada.
 - **Doação:** o valor em dinheiro é opcional (opção "Não, quero doar só o brinquedo"); "Outro valor" vazio é bloqueado no JavaScript.
 - **Visual (v1 do upgrade, aguardando o usuário dizer o que mudar):** estilo.css compartilhado; cores em variáveis no topo (roxo #403f9c, amarelo #ffc145, rosa #ff6f91, fundo #f7f6fb); fonte Nunito do Google Fonts (sem internet cai para Segoe UI/Arial). Topo fixo com logo + menu (link da página atual destacado; abaixo de 1100px vira botão ☰), rodapé com contato em todas as páginas, banner com botões, cartões no Início e no Sobre (Valores e Como ajudar), estrelas clicáveis no Contato, FAQ com +, quadro do Pix, tabelas listradas, páginas de admin/Minha conta mais largas (main.largo). favicon.svg resolve o erro do favicon. Emojis foram trocados por ícones de linha em SVG embutidos no HTML (classe .icone, sem dependência externa); estrelas da avaliação usam o símbolo ★; títulos e avisos ficaram sem emoji. Símbolos simples mantidos: ♥ no logo, ☰, ←, →, ✔/✘ nas páginas internas.
-- **Pagamento é simulado:** nenhum gateway; os campos de cartão não têm `name`, então nada de cartão é enviado ou guardado. O ponto para um gateway futuro está comentado em pagamento.php.
+- **Pagamento é simulado:** nenhum gateway nem banco. Do cartão, só a bandeira e os 4 últimos dígitos chegam ao servidor (os campos do número e do CVV não têm `name`). Fluxo completo descrito em "Doação em dinheiro em 4 etapas" abaixo.
 - O localStorage foi totalmente removido; o site só usa o banco.
 
 ## Atualização do banco (versão com usuario_id)
@@ -104,4 +104,15 @@ index.html, doacao.html, sobre.html, faq.html, contato.html, login.html, cadastr
 - A faixa de números da página inicial conta os locais ativos. Textos trocados de "escolas parceiras" para "locais de coleta".
 - Pendente: a data de entrega ainda é livre (o ideal seria escolher entre os dias de coleta do local); o endereço do doador continua obrigatório. Ideia para depois: aba "Oficina" com vídeos de brinquedos reciclados.
 - Versões: estilo.css?v=7 e script.js?v=9.
+
+## Doação em dinheiro em 4 etapas (simulada)
+- **1. Valor e forma (pagamento.html → pagamento.php):** botões R$ 20/50/100/200 ou outro valor, Pix ou cartão, nome e e-mail (opcional, para o recibo; já vêm preenchidos se a pessoa estiver logada, via sessao.php). Cria um PEDIDO na tabela pagamentos com status "Aguardando", um `codigo` aleatório (vai no endereço das próximas páginas) e prazo de 15 minutos (`expira_em`).
+- **2. Pagamento (pagamento_pedido.php?c=...):** número do pedido (IV-000001), resumo e:
+  - **Pix:** QR Code (desenhado pela biblioteca lib/qrcode/qrcode.js, licença MIT), "Pix copia e cola" no padrão do Banco Central (com chave FICTÍCIA, então não cobra nada se alguém colar no banco), contagem do prazo e conferência automática a cada 3 s (pagamento_status.php). O QR Code abre pagamento_simular.php no celular, uma tela de teste que faz o papel do app do banco; ao confirmar lá, a tela do computador vai sozinha para o recibo. Também há o botão "Simular pagamento recebido".
+  - **Cartão:** número (com bandeira e espaços automáticos, conferido pelo algoritmo de Luhn), nome, validade e CVV. Tela "Processando pagamento…". Cartões de teste: 4111 1111 1111 1111 aprovado, 4000 0000 0000 0002 recusado.
+  - "Cancelar pedido" muda o status para Cancelado. Passado o prazo, o pedido vira Expirado.
+- **3 e 4. Confirmação e recibo (pagamento_recibo.php?c=...):** "Pagamento confirmado!" e o recibo (número, valor por extenso, data, forma, código de autenticação, aviso de demonstração sem valor fiscal). "Imprimir recibo" imprime só o recibo (@media print) e "Voltar para o início". Se a pessoa deu e-mail, o recibo também é enviado por e-mail.
+- **Banco:** colunas novas em pagamentos (codigo, email, detalhe, expira_em, pago_em, recibo_enviado), criadas sozinhas pelo garantir_colunas_pagamento() em funcoes.php. Status: Aguardando, Pago, Expirado, Cancelado ("Simulado"/"Confirmado" são do formato antigo e contam como pagos).
+- **Painel e Minha conta:** mostram o número do pedido, a forma (ex.: "Cartão Visa final 1111") e a situação; os totais somam só os pedidos pagos.
+- Topo e rodapé das páginas PHP novas vêm de site_inicio()/site_fim() em funcoes.php.
 

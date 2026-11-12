@@ -7,7 +7,11 @@ header("Cache-Control: no-store");
 
 if (isset($_SESSION["usuario_id"])) {
     $foto = null;
+    $email = null;
     try {
+        $st = $pdo->prepare("SELECT email FROM usuarios WHERE id = ?");
+        $st->execute(array($_SESSION["usuario_id"]));
+        $email = $st->fetchColumn();
         $st = $pdo->prepare("SELECT foto FROM usuarios WHERE id = ?");
         $st->execute(array($_SESSION["usuario_id"]));
         $foto = $st->fetchColumn();
@@ -18,6 +22,7 @@ if (isset($_SESSION["usuario_id"])) {
         "logado" => true,
         "nome"   => $_SESSION["usuario_nome"],
         "tipo"   => $_SESSION["usuario_tipo"],
+        "email"  => $email ? $email : null,
         "foto"   => foto_url($_SESSION["usuario_id"], $foto)
     ));
 } else {
