@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS locais (
 
 -- Locais iniciais (só entram se a tabela estiver vazia): troque pelos locais de verdade no painel
 INSERT INTO locais (nome, tipo, endereco, coleta)
-SELECT * FROM (SELECT 'Sede da Infância Viva' AS nome, 'Sede da ONG' AS tipo, 'Endereço a definir' AS endereco, 'Datas a definir' AS coleta
+SELECT * FROM (SELECT 'Sede da Infância Viva (NEAC)' AS nome, 'Sede da ONG' AS tipo, 'Rua Cantor Emílio Santiago, 118 - Campo Grande, Rio de Janeiro - RJ' AS endereco, 'Datas a definir' AS coleta
                UNION ALL SELECT 'Escola parceira', 'Escola', 'Endereço a definir', 'Datas a definir'
                UNION ALL SELECT 'Centro comunitário', 'Centro comunitário', 'Endereço a definir', 'Datas a definir') iniciais
 WHERE NOT EXISTS (SELECT 1 FROM locais);

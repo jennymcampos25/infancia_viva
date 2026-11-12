@@ -232,7 +232,8 @@ function enviar_confirmacao($usuario_id, $nome, $email) {
 // ---- LOCAIS DE COLETA ----
 // Escolas, centros de acolhimento etc. onde as pessoas entregam os brinquedos. O admin cadastra no painel.
 $TIPOS_LOCAL = array("Escola" => "Escola", "Centro de acolhimento" => "Centro de acolhimento",
-                     "Centro comunitário" => "Centro comunitário", "Sede da ONG" => "Sede da ONG", "Outro" => "Outro");
+                     "Centro comunitário" => "Centro comunitário", "Comércio ou empresa" => "Comércio ou empresa",
+                     "Sede da ONG" => "Sede da ONG", "Outro" => "Outro");
 
 // Cria a tabela na primeira vez. Começa com os 3 locais que o formulário antigo tinha, para o admin editar.
 function garantir_tabela_locais() {
@@ -250,9 +251,10 @@ function garantir_tabela_locais() {
                     ativo     TINYINT(1)   NOT NULL DEFAULT 1,
                     criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-    $st = $pdo->prepare("INSERT INTO locais (nome, tipo, endereco, coleta) VALUES (?, ?, 'Endereço a definir', 'Datas a definir')");
-    foreach (array(array("Sede da Infância Viva", "Sede da ONG"), array("Escola parceira", "Escola"),
-                   array("Centro comunitário", "Centro comunitário")) as $l) {
+    $st = $pdo->prepare("INSERT INTO locais (nome, tipo, endereco, coleta) VALUES (?, ?, ?, 'Datas a definir')");
+    foreach (array(array("Sede da Infância Viva (NEAC)", "Sede da ONG", "Rua Cantor Emílio Santiago, 118 - Campo Grande, Rio de Janeiro - RJ"),
+                   array("Escola parceira", "Escola", "Endereço a definir"),
+                   array("Centro comunitário", "Centro comunitário", "Endereço a definir")) as $l) {
         $st->execute($l);
     }
 }
@@ -411,7 +413,7 @@ function site_inicio($titulo, $menu) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= h($titulo) ?> - Infância Viva</title>
-    <link rel="stylesheet" href="estilo.css?v=10">
+    <link rel="stylesheet" href="estilo.css?v=11">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
@@ -444,7 +446,7 @@ function site_fim($scripts = array()) {
         </div>
         <div>
             <strong>Contato</strong>
-            <p>E-mail: <a href="mailto:infanciavivaong8@gmail.com">infanciavivaong8@gmail.com</a><br>Telefone: <a href="tel:+5521955553333">(21) 95555-3333</a><br>Instagram: <a href="https://www.instagram.com/onginfanciaviva_/" target="_blank" rel="noopener">@onginfanciaviva_</a></p>
+            <p>E-mail: <a href="mailto:infanciavivaong8@gmail.com">infanciavivaong8@gmail.com</a><br>Telefone: <a href="tel:+5521955553333">(21) 95555-3333</a><br>Instagram: <a href="https://www.instagram.com/onginfanciaviva_/" target="_blank" rel="noopener">@onginfanciaviva_</a><br>Campo Grande, Rio de Janeiro – RJ</p>
         </div>
         <div>
             <strong>Como ajudar</strong>
@@ -613,7 +615,7 @@ function painel_inicio($titulo, $ativo, $admin) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= h($titulo) ?> - Painel - Infância Viva</title>
-    <link rel="stylesheet" href="estilo.css?v=10">
+    <link rel="stylesheet" href="estilo.css?v=11">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
