@@ -273,15 +273,24 @@ elseif ($pagina === "estoque"):
     $por_faixa = $pdo->query("SELECT faixa_etaria, SUM(quantidade) AS q FROM estoque WHERE situacao = 'Em estoque'
                               GROUP BY faixa_etaria ORDER BY faixa_etaria")->fetchAll();
 
-    $filtro = isset($_GET["situacao"]) && isset($SITUACOES_ESTOQUE[$_GET["situacao"]]) ? $_GET["situacao"] : "";
+    $filtro = isset($_GET["situacao"]) && (isset($SITUACOES_ESTOQUE[$_GET["situacao"]]) || $_GET["situacao"] === "aguardando")
+              ? $_GET["situacao"] : "";
+
+    // Doações feitas pelo site que ainda não foram recebidas no estoque (a pessoa ainda vai levar o brinquedo)
+    $aguardando = $pdo->query("SELECT id, nome, brinquedo, quantidade, ponto, DATE_FORMAT(data_doacao, '%d/%m/%Y') AS dia
+                               FROM doacoes d WHERE NOT EXISTS (SELECT 1 FROM estoque e WHERE e.doacao_id = d.id)
+                               ORDER BY data_doacao, id")->fetchAll();
+    $qtd_aguardando = 0;
+    foreach ($aguardando as $a) $qtd_aguardando += (int) $a["quantidade"];
     $sql = "SELECT id, brinquedo, categoria, quantidade, faixa_etaria, situacao, doador, instituicao,
                    DATE_FORMAT(recebido_em, '%d/%m/%Y') AS recebido, DATE_FORMAT(entregue_em, '%d/%m/%Y') AS entregue
-            FROM estoque" . ($filtro ? " WHERE situacao = ?" : "") . " ORDER BY FIELD(situacao, 'Em avaliação', 'Em estoque', 'Entregue', 'Descartado'), recebido_em DESC, id DESC";
+            FROM estoque" . ($filtro && $filtro !== "aguardando" ? " WHERE situacao = ?" : "") . " ORDER BY FIELD(situacao, 'Em avaliação', 'Em estoque', 'Entregue', 'Descartado'), recebido_em DESC, id DESC";
     $st = $pdo->prepare($sql);
-    $st->execute($filtro ? array($filtro) : array());
-    $itens = $st->fetchAll();
+    $st->execute($filtro && $filtro !== "aguardando" ? array($filtro) : array());
+    $itens = $filtro === "aguardando" ? array() : $st->fetchAll();
     ?>
     <div class="stats">
+        <div class="stat"><strong><?= $qtd_aguardando ?></strong>aguardando chegada (<?= count($aguardando) ?> doações)</div>
         <div class="stat"><strong><?= $totais["Em estoque"] ?></strong>em estoque (prontos para entregar)</div>
         <div class="stat"><strong><?= $totais["Em avaliação"] ?></strong>em avaliação</div>
         <div class="stat"><strong><?= $totais["Entregue"] ?></strong>já entregues</div>
@@ -296,13 +305,27 @@ elseif ($pagina === "estoque"):
         <div class="painel-caixa-topo">
             <nav class="filtros" aria-label="Filtrar por situação">
                 <a href="admin.php?pagina=estoque"<?= $filtro === "" ? ' class="ativo"' : "" ?>>Todos</a>
+                <a href="admin.php?pagina=estoque&amp;situacao=aguardando"<?= $filtro === "aguardando" ? ' class="ativo"' : "" ?>>Aguardando chegada</a>
                 <?php foreach ($SITUACOES_ESTOQUE as $sit => $nome): ?>
                     <a href="admin.php?pagina=estoque&amp;situacao=<?= urlencode($sit) ?>"<?= $filtro === $sit ? ' class="ativo"' : "" ?>><?= h($sit) ?></a>
                 <?php endforeach; ?>
             </nav>
             <div class="painel-ferramentas"><?php busca_tabela("tabela-estoque", "Buscar brinquedo, doador ou instituição"); ?><?= botao_novo("estoque") ?></div>
         </div>
-        <?php if (!$itens): ?>
+        <?php if (($filtro === "" || $filtro === "aguardando") && $aguardando): ?>
+            <h2 class="sub-titulo">Aguardando chegada <small>(<?= count($aguardando) ?>)</small></h2>
+            <p class="dica">Doações registradas no site cujo brinquedo ainda não chegou. Quando chegar, clique em "Receber no estoque".</p>
+            <?php foreach ($aguardando as &$a) {
+                $a["_acao_extra"] = '<a class="acao acao-receber" href="admin_registro.php?tabela=estoque&amp;de=' . (int) $a["id"] . '">Receber no estoque</a> ';
+            }
+            unset($a);
+            tabela(array("Entrega prevista" => "dia", "Doador" => "nome", "Brinquedo" => "brinquedo", "Qtd" => "quantidade", "Local" => "ponto"),
+                   $aguardando, "tabela-aguardando", "doacoes"); ?>
+            <?php if ($filtro === ""): ?><h2 class="sub-titulo">No estoque</h2><?php endif; ?>
+        <?php endif; ?>
+        <?php if ($filtro === "aguardando"): ?>
+            <?php if (!$aguardando): ?><p class="vazio">Nenhuma doação aguardando chegada: todas já foram recebidas.</p><?php endif; ?>
+        <?php elseif (!$itens): ?>
             <p class="vazio"><?= $filtro ? "Nenhum brinquedo com essa situação." : "Nenhum brinquedo registrado ainda. Use \"Receber no estoque\" na página Doações ou \"+ Registrar brinquedo\"." ?></p>
         <?php else: ?>
         <div class="tabela"><table id="tabela-estoque">

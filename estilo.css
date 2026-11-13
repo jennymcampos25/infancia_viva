@@ -663,6 +663,8 @@ a.pessoa img { width:28px; height:28px; border-radius:50%; object-fit:cover; }
 .filtros a:hover { background:#fff1dc; }
 .filtros a.ativo { background:var(--escuro); color:#fff; }
 .faixas { color:var(--suave); margin:0 0 8px; }
+.painel-caixa h2.sub-titulo { margin:18px 0 4px; font-size:1.1rem; }
+.painel-caixa h2.sub-titulo small { color:var(--suave); font-weight:600; }
 td small.sub { display:block; color:var(--suave); font-size:.8rem; }
 a.acao.acao-receber { background:#e6f2e1; color:var(--verde); }
 a.acao.acao-receber:hover { background:var(--verde); color:#fff; }
