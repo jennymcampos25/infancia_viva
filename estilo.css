@@ -242,6 +242,11 @@ label.lembrar input { margin:0; accent-color:var(--vermelho); width:18px; height
 .aviso.ok { color:var(--certo); background:#e7f4e3; }
 .aviso.erro { color:var(--erro); background:#fdecea; }
 .formulario-estreito { max-width:460px; margin:0 auto; }
+/* campos preenchidos com os dados da conta */
+.aviso-preenchido {
+    margin:0 0 6px; padding:10px 14px; border-radius:12px; background:#eef6f6; color:var(--azul); font-weight:700; font-size:.9rem;
+}
+input.preenchido { background:#f3f9f9; }
 .formulario-estreito.a-esquerda { margin:20px 0; }
 
 /* Estrelas da avaliação (página Contato) */
@@ -634,6 +639,33 @@ a.pessoa img { width:28px; height:28px; border-radius:50%; object-fit:cover; }
 .etiqueta { display:inline-block; padding:1px 10px; border-radius:99px; background:#e7f1f2; color:var(--azul); font-size:.8rem; font-weight:800; }
 .etiqueta.et-admin { background:#fde8e1; color:var(--vermelho); }
 .etiqueta.et-pendente { background:#fff1dc; color:var(--amarelo-texto); }
+.etiqueta.et-estoque { background:#e6f2e1; color:var(--verde); }
+.etiqueta.et-entregue { background:var(--azul); color:#fff; }
+/* pesquisa por categoria no topo do painel */
+.painel-pesquisa {
+    display:flex; align-items:center; flex:1; max-width:520px; margin:0 0 0 auto; padding:0; background:#f6f7f8;
+    border:1px solid #e3e6e8; border-radius:99px; box-shadow:none; overflow:hidden;
+}
+.painel-pesquisa select, .painel-pesquisa input { margin:0; border:none; border-radius:0; background:transparent; box-shadow:none; padding:9px 12px; font-size:.9rem; }
+.painel-pesquisa select { width:auto; max-width:46%; border-right:1px solid #e3e6e8; font-weight:700; color:var(--escuro); cursor:pointer; }
+.painel-pesquisa input { flex:1; min-width:0; }
+.painel-pesquisa input:focus, .painel-pesquisa select:focus { box-shadow:none; background:#fff; }
+.painel-pesquisa:focus-within { border-color:var(--azul); box-shadow:0 0 0 3px rgba(47,122,128,.15); }
+.painel-pesquisa button { margin:0; padding:8px 14px; border-radius:0; background:var(--escuro); box-shadow:none; display:flex; align-self:stretch; align-items:center; }
+.painel-pesquisa button:hover { background:var(--vermelho); transform:none; }
+.painel-pesquisa button svg { width:18px; height:18px; }
+.busca-resumo { color:var(--suave); margin:4px 0 0; }
+.painel-caixa-topo h2 { margin:0; }
+.painel-caixa-topo h2 small { color:var(--suave); font-weight:600; font-size:.9rem; }
+/* estoque */
+.filtros { display:flex; flex-wrap:wrap; gap:6px; }
+.filtros a { padding:6px 14px; border-radius:99px; background:#f6f7f8; color:var(--escuro); text-decoration:none; font-weight:700; font-size:.9rem; }
+.filtros a:hover { background:#fff1dc; }
+.filtros a.ativo { background:var(--escuro); color:#fff; }
+.faixas { color:var(--suave); margin:0 0 8px; }
+td small.sub { display:block; color:var(--suave); font-size:.8rem; }
+a.acao.acao-receber { background:#e6f2e1; color:var(--verde); }
+a.acao.acao-receber:hover { background:var(--verde); color:#fff; }
 .ficha { display:flex; align-items:center; gap:18px; }
 .ficha img { width:72px; height:72px; border-radius:50%; object-fit:cover; border:3px solid var(--amarelo); }
 .ficha strong { font-family:"Quicksand", sans-serif; font-size:1.4rem; color:var(--escuro); }
@@ -694,7 +726,8 @@ a.pessoa img { width:28px; height:28px; border-radius:50%; object-fit:cover; }
     .painel-menu, .painel-saidas { flex-direction:row; overflow-x:auto; }
     .painel-saidas { margin-top:4px; padding-top:6px; }
     .painel-lateral a { white-space:nowrap; padding:8px 10px; }
-    .painel-topo { padding:12px 16px; }
+    .painel-topo { padding:12px 16px; flex-wrap:wrap; }
+    .painel-pesquisa { order:3; flex-basis:100%; max-width:none; }
     .painel-topo h1 { font-size:1.25rem; }
     .painel-quem span { display:none; }
     .painel-principal { padding:16px; }

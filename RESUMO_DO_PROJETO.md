@@ -128,3 +128,9 @@ index.html, doacao.html, sobre.html, faq.html, contato.html, login.html, cadastr
 - Contato: cartão da sede (NEAC, Rua Cantor Emílio Santiago, 118, Campo Grande), cidade no rodapé; tipo de local "Comércio ou empresa".
 
 - Removidas as oficinas de brinquedos reciclados (não estão na documentação). O dinheiro agora "ajuda no transporte, nas embalagens e na divulgação das campanhas" (documentação 6.5). Como trabalhamos: coletas e campanhas, avaliação e separação, entrega.
+
+## Preenchimento automático, pesquisa do painel e estoque
+- Formulários com data-preencher (Doe um brinquedo, Doe em dinheiro, Contato): quem está logado recebe nome e e-mail da conta, e telefone e endereço da última doação (sessao.php devolve esses dados só para a própria pessoa). Só preenche campos vazios e mostra o aviso "Preenchemos com os dados da sua conta".
+- Painel: pesquisa no topo com categoria (Tudo, Doações de brinquedos, Estoque, Pagamentos, Mensagens, Avaliações, Usuários, Locais) em admin.php?pagina=busca&cat=...&q=... Categoria sem texto mostra tudo daquela categoria.
+- Estoque de brinquedos (admin.php?pagina=estoque, tabela estoque criada sozinha por garantir_tabela_estoque()): brinquedo, categoria, quantidade, faixa etária, situação (Em avaliação, Em estoque, Entregue, Descartado), doador, recebido em, instituição e data de entrega. Em Doações, o botão "Receber no estoque" cria o registro já preenchido e ligado à doação (doacao_id). O botão "Entregar" abre o registro com situação Entregue e a data de hoje; a instituição é obrigatória. Filtros por situação e contagem em estoque por faixa etária.
+- Minha conta: cada doação mostra a situação (Aguardando entrega no local, Recebida pela ONG, Entregue a uma instituição).

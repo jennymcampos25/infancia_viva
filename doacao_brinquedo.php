@@ -10,7 +10,7 @@ $locais = locais_ativos();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Doe um brinquedo - Infância Viva</title>
-    <link rel="stylesheet" href="estilo.css?v=11">
+    <link rel="stylesheet" href="estilo.css?v=12">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
@@ -69,7 +69,7 @@ $locais = locais_ativos();
     em "Minha conta". Não tem? Você pode doar mesmo assim.
 </p>
 
-<form action="doacao.php" method="post">
+<form action="doacao.php" method="post" data-preencher>
     <label for="nome">Nome completo</label>
     <input id="nome" type="text" name="nome" required>
 
@@ -126,6 +126,6 @@ $locais = locais_ativos();
     </div>
     <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC</p>
 </footer>
-<script src="script.js?v=10"></script>
+<script src="script.js?v=11"></script>
 </body>
 </html>

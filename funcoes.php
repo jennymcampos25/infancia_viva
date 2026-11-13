@@ -413,7 +413,7 @@ function site_inicio($titulo, $menu) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= h($titulo) ?> - Infância Viva</title>
-    <link rel="stylesheet" href="estilo.css?v=11">
+    <link rel="stylesheet" href="estilo.css?v=12">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
@@ -456,7 +456,7 @@ function site_fim($scripts = array()) {
     <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC</p>
 </footer>
 <?php foreach ($scripts as $s): ?><script src="<?= h($s) ?>"></script>
-<?php endforeach; ?><script src="script.js?v=10"></script>
+<?php endforeach; ?><script src="script.js?v=11"></script>
 </body>
 </html>
 <?php
@@ -471,6 +471,48 @@ function etapas_pagamento($atual) {
         echo '<li class="' . $classe . '"' . ($n == $atual ? ' aria-current="step"' : '') . '><span>' . $n . '</span>' . $nome . '</li>';
     }
     echo '</ol>';
+}
+
+// ---- ESTOQUE DE BRINQUEDOS (só o admin vê) ----
+// Cada linha é um brinquedo (ou um lote igual) que chegou à ONG. Segue a documentação do TCC:
+// o brinquedo é avaliado (limpeza, segurança, peças), separado por faixa etária e entregue a uma instituição.
+// Situações: Em avaliação -> Em estoque -> Entregue (ou Descartado, se não passou na avaliação).
+$CATEGORIAS_BRINQUEDO = array("Boneca" => "Boneca", "Carrinho" => "Carrinho", "Jogo educativo" => "Jogo educativo",
+    "Livro infantil" => "Livro infantil", "Bola" => "Bola", "Blocos de montar" => "Blocos de montar",
+    "Pelúcia" => "Pelúcia", "Quebra-cabeça" => "Quebra-cabeça", "Outro" => "Outro");
+$FAIXAS_ETARIAS = array("0 a 2 anos" => "0 a 2 anos", "3 a 5 anos" => "3 a 5 anos", "6 a 8 anos" => "6 a 8 anos",
+    "9 a 12 anos" => "9 a 12 anos", "Todas as idades" => "Todas as idades");
+$SITUACOES_ESTOQUE = array("Em avaliação" => "Em avaliação", "Em estoque" => "Em estoque",
+    "Entregue" => "Entregue", "Descartado" => "Descartado (não passou na avaliação)");
+
+// Cria a tabela na primeira vez (banco antigo), sem precisar rodar o atualizar_banco.php
+function garantir_tabela_estoque() {
+    global $pdo;
+    static $feito = false;
+    if ($feito) return;
+    $feito = true;
+    $pdo->exec("CREATE TABLE IF NOT EXISTS estoque (
+                    id            INT AUTO_INCREMENT PRIMARY KEY,
+                    doacao_id     INT NULL,
+                    brinquedo     VARCHAR(150) NOT NULL,
+                    categoria     VARCHAR(40)  NOT NULL,
+                    quantidade    INT          NOT NULL DEFAULT 1,
+                    faixa_etaria  VARCHAR(30)  NOT NULL,
+                    situacao      VARCHAR(20)  NOT NULL DEFAULT 'Em avaliação',
+                    doador        VARCHAR(100) NULL,
+                    recebido_em   DATE         NOT NULL,
+                    instituicao   VARCHAR(150) NULL,
+                    entregue_em   DATE         NULL,
+                    observacoes   TEXT         NULL,
+                    criado_em     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    CONSTRAINT fk_estoque_doacao FOREIGN KEY (doacao_id) REFERENCES doacoes(id) ON DELETE SET NULL
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+}
+
+// Etiqueta colorida da situação (painel)
+function etiqueta_situacao($situacao) {
+    $classes = array("Em avaliação" => "et-pendente", "Em estoque" => "et-estoque", "Entregue" => "et-entregue", "Descartado" => "et-admin");
+    return '<span class="etiqueta ' . (isset($classes[$situacao]) ? $classes[$situacao] : "") . '">' . h($situacao) . '</span>';
 }
 
 // h() protege a tela contra HTML/JS digitado nos formulários
@@ -532,6 +574,7 @@ function exigir_admin() {
     garantir_colunas_confirmacao();
     garantir_tabela_locais();
     garantir_colunas_pagamento();
+    garantir_tabela_estoque();
     $u = exigir_login();
     if ($u["tipo"] !== "admin") {
         header("Location: index.html");
@@ -595,6 +638,7 @@ $PAINEL_MENU = array(
     "usuarios"   => array("Usuários", '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>'),
     "locais"     => array("Locais de coleta", '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>'),
     "doacoes"    => array("Doações", '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/>'),
+    "estoque"    => array("Estoque de brinquedos", '<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>'),
     "pagamentos" => array("Pagamentos", '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>'),
     "mensagens"  => array("Mensagens", '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'),
     "avaliacoes" => array("Avaliações", '<path d="M12 2l2.9 6.1 6.6.8-4.9 4.6 1.3 6.5L12 16.8 6.1 20l1.3-6.5L2.5 8.9l6.6-.8z"/>'),
@@ -615,7 +659,7 @@ function painel_inicio($titulo, $ativo, $admin) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= h($titulo) ?> - Painel - Infância Viva</title>
-    <link rel="stylesheet" href="estilo.css?v=11">
+    <link rel="stylesheet" href="estilo.css?v=12">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
@@ -639,6 +683,17 @@ function painel_inicio($titulo, $ativo, $admin) {
 <div class="painel-conteudo">
     <header class="painel-topo">
         <h1><?= h($titulo) ?></h1>
+        <?php $cat_atual = isset($_GET["cat"]) ? $_GET["cat"] : ""; ?>
+        <form class="painel-pesquisa" action="admin.php" method="get" role="search">
+            <input type="hidden" name="pagina" value="busca">
+            <select name="cat" aria-label="Categoria">
+                <?php foreach (categorias_busca() as $c => $nome): ?>
+                    <option value="<?= h($c) ?>"<?= $c === $cat_atual ? " selected" : "" ?>><?= h($nome) ?></option>
+                <?php endforeach; ?>
+            </select>
+            <input type="search" name="q" value="<?= h(isset($_GET["q"]) ? $_GET["q"] : "") ?>" placeholder="Pesquisar no painel..." aria-label="Pesquisar">
+            <button type="submit" aria-label="Pesquisar"><?= icone_painel('<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>') ?></button>
+        </form>
         <div class="painel-quem">
             <img src="<?= h(foto_url($admin["id"], $admin["foto"])) ?>" alt="">
             <span><?= h($admin["nome"]) ?><small>Administrador</small></span>
@@ -648,11 +703,18 @@ function painel_inicio($titulo, $ativo, $admin) {
     <?php
 }
 
+// Categorias da pesquisa do topo do painel
+function categorias_busca() {
+    return array("" => "Tudo", "doacoes" => "Doações de brinquedos", "estoque" => "Estoque de brinquedos",
+                 "pagamentos" => "Pagamentos", "mensagens" => "Mensagens", "avaliacoes" => "Avaliações",
+                 "usuarios" => "Usuários", "locais" => "Locais de coleta");
+}
+
 function painel_fim() {
     ?>
     </main>
 </div>
-<script src="script.js?v=10"></script>
+<script src="script.js?v=11"></script>
 </body>
 </html>
     <?php
@@ -667,7 +729,7 @@ function busca_tabela($id_tabela, $texto) {
 // Cada tabela que o admin pode editar e os campos do formulário.
 // Tipos: texto, email, numero, data, dinheiro, lista, textarea, senha, conta (usuário dono do registro)
 function registros_config() {
-    global $TIPOS_LOCAL;
+    global $TIPOS_LOCAL, $CATEGORIAS_BRINQUEDO, $FAIXAS_ETARIAS, $SITUACOES_ESTOQUE;
     return array(
         "locais" => array("nome" => "local", "novo" => "Novo local", "campos" => array(
             "nome"     => array("Nome do local", "texto", true),
@@ -675,6 +737,19 @@ function registros_config() {
             "endereco" => array("Endereço", "texto", true),
             "coleta"   => array("Quando recebe os brinquedos (dias e horários)", "texto", true),
             "ativo"    => array("Aparece no site?", "lista", true, array("1" => "Sim", "0" => "Não (escondido)")),
+        )),
+        "estoque" => array("nome" => "brinquedo do estoque", "novo" => "Registrar brinquedo", "campos" => array(
+            "doacao_id"    => array("Doação de origem", "oculto", false),
+            "brinquedo"    => array("Brinquedo", "texto", true),
+            "categoria"    => array("Categoria", "lista", true, $CATEGORIAS_BRINQUEDO),
+            "quantidade"   => array("Quantidade", "numero", true),
+            "faixa_etaria" => array("Faixa etária", "lista", true, $FAIXAS_ETARIAS),
+            "situacao"     => array("Situação", "lista", true, $SITUACOES_ESTOQUE),
+            "doador"       => array("Doador", "texto", false),
+            "recebido_em"  => array("Recebido em", "data", true),
+            "instituicao"  => array("Entregue para (instituição)", "texto", false),
+            "entregue_em"  => array("Entregue em", "data", false),
+            "observacoes"  => array("Observações (estado, avaliação etc.)", "textarea", false),
         )),
         "doacoes" => array("nome" => "doação", "novo" => "Nova doação", "campos" => array(
             "usuario_id"  => array("Conta do doador", "conta", false),
@@ -762,7 +837,8 @@ function tabela($colunas, $linhas, $id = "", $acoes = "") {
         foreach ($colunas as $campo) {
             echo "<td>" . h(isset($l[$campo]) ? $l[$campo] : "") . "</td>";
         }
-        if ($acoes) echo "<td>" . acoes_registro($acoes, $l["id"], $cfg[$acoes]["nome"]) . "</td>";
+        if ($acoes) echo "<td>" . (isset($l["_acao_extra"]) ? $l["_acao_extra"] : "")
+                         . acoes_registro($acoes, $l["id"], $cfg[$acoes]["nome"]) . "</td>";
         echo "</tr>";
     }
     echo "</table></div>";
@@ -774,6 +850,7 @@ function tabela($colunas, $linhas, $id = "", $acoes = "") {
 function buscar_historico($usuario_id) {
     global $pdo;
     garantir_colunas_pagamento();
+    garantir_tabela_estoque();
 
     if ($usuario_id === null) {
         $onde = "usuario_id IS NULL";
@@ -786,7 +863,10 @@ function buscar_historico($usuario_id) {
 
     $consultas = array(
         "doacoes"    => "SELECT nome, email, telefone, brinquedo, quantidade, endereco, ponto, valor, observacoes,
-                                DATE_FORMAT(data_doacao, '%d/%m/%Y') AS dia, $dh
+                                DATE_FORMAT(data_doacao, '%d/%m/%Y') AS dia, $dh,
+                                (SELECT CASE WHEN SUM(e.situacao = 'Entregue') > 0 THEN 'Entregue a uma instituição'
+                                             WHEN COUNT(*) > 0 THEN 'Recebida pela ONG' END
+                                 FROM estoque e WHERE e.doacao_id = doacoes.id) AS situacao
                          FROM doacoes WHERE $onde ORDER BY id DESC",
         "pagamentos" => "SELECT id, nome, valor, metodo, detalhe, status, $dh FROM pagamentos WHERE $onde ORDER BY id DESC",
         "mensagens"  => "SELECT nome, email, mensagem, $dh FROM mensagens WHERE $onde ORDER BY id DESC",
@@ -818,6 +898,7 @@ function buscar_historico($usuario_id) {
     // Formata para exibir
     foreach ($hist["doacoes"] as &$d) {
         $d["valor"] = $d["valor"] === null ? "—" : dinheiro($d["valor"]);
+        if (!$d["situacao"]) $d["situacao"] = "Aguardando entrega no local";
     }
     unset($d);
     foreach ($hist["pagamentos"] as &$p) {
@@ -855,7 +936,7 @@ function mostrar_historico($hist, $com_contato) {
 
     $doacao = array_merge(array("Registrada em" => "quando"), $contato_doacao, array(
         "Brinquedo" => "brinquedo", "Qtd" => "quantidade", "Data da doação" => "dia",
-        "Ponto de entrega" => "ponto", "Endereço" => "endereco",
+        "Ponto de entrega" => "ponto", "Situação" => "situacao", "Endereço" => "endereco",
         "Valor escolhido" => "valor", "Observações" => "observacoes"
     ));
     $mensagem = array_merge(array("Quando" => "quando"), $contato_mensagem, array("Mensagem" => "mensagem"));

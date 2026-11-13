@@ -47,6 +47,7 @@ try {
     $tinha = (bool) $pdo->query("SHOW COLUMNS FROM usuarios LIKE 'email_confirmado'")->fetch();
     garantir_colunas_confirmacao();
     garantir_colunas_pagamento();
+    garantir_tabela_estoque();
     $relatorio[] = $tinha ? "usuarios: colunas da confirmação de e-mail já existiam." : "usuarios: colunas da confirmação de e-mail criadas.";
     $ok = true;
 } catch (PDOException $e) {
@@ -59,7 +60,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <title>Atualizar banco</title>
-    <link rel="stylesheet" href="estilo.css?v=11">
+    <link rel="stylesheet" href="estilo.css?v=12">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 <body>

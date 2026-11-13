@@ -109,3 +109,22 @@ CREATE TABLE IF NOT EXISTS avaliacoes (
     criado_em   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_avaliacoes_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Estoque de brinquedos (só o admin vê): o que chegou à ONG, a avaliação e para onde foi.
+-- situacao: Em avaliação -> Em estoque -> Entregue (ou Descartado, se não passou na avaliação).
+CREATE TABLE IF NOT EXISTS estoque (
+    id            INT AUTO_INCREMENT PRIMARY KEY,
+    doacao_id     INT NULL,
+    brinquedo     VARCHAR(150) NOT NULL,
+    categoria     VARCHAR(40)  NOT NULL,
+    quantidade    INT          NOT NULL DEFAULT 1,
+    faixa_etaria  VARCHAR(30)  NOT NULL,
+    situacao      VARCHAR(20)  NOT NULL DEFAULT 'Em avaliação',
+    doador        VARCHAR(100) NULL,
+    recebido_em   DATE         NOT NULL,
+    instituicao   VARCHAR(150) NULL,
+    entregue_em   DATE         NULL,
+    observacoes   TEXT         NULL,
+    criado_em     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_estoque_doacao FOREIGN KEY (doacao_id) REFERENCES doacoes(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

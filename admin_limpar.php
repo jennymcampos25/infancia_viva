@@ -70,7 +70,7 @@ try {
         $aviso = "Apagadas $r[0] conta(s) de doadores e $r[1] registro(s) delas.";
 
     } elseif ($acao === "tudo") {
-        $n = 0;
+        $n = $pdo->exec("DELETE FROM estoque");
         foreach ($registros as $t) {
             $n += $pdo->exec("DELETE FROM $t");
         }

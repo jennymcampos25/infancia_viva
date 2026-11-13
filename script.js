@@ -31,15 +31,34 @@ function iniciarPagamento() {
     if (v && !isNaN(v)) campo.value = Number(v);
     marcar();
 
-    // Quem está logado já encontra o nome e o e-mail preenchidos
-    fetch("sessao.php", { credentials: "same-origin" })
-        .then(function (r) { return r.json(); })
-        .then(function (s) {
-            if (!s.logado) return;
-            if (!f.nome.value) f.nome.value = s.nome;
-            if (!f.email.value && s.email) f.email.value = s.email;
-        })
-        .catch(function () {});
+    // O nome e o e-mail de quem está logado são preenchidos por preencherFormularios()
+}
+
+/* ===== Preenchimento automático =====
+   Formulários com o atributo data-preencher (doação de brinquedo, doação em dinheiro e contato)
+   recebem nome, e-mail, telefone e endereço de quem está logado. Telefone e endereço vêm da
+   última doação da pessoa. Só preenche campos vazios, e a pessoa pode mudar o que quiser. */
+function preencherFormularios(sessao) {
+    if (!sessao.logado) return;
+    var forms = document.querySelectorAll("form[data-preencher]");
+    for (var i = 0; i < forms.length; i++) {
+        var preencheu = false;
+        var campos = ["nome", "email", "telefone", "endereco"];
+        for (var c = 0; c < campos.length; c++) {
+            var el = forms[i].elements[campos[c]];
+            if (el && !el.value && sessao[campos[c]]) {
+                el.value = sessao[campos[c]];
+                el.classList.add("preenchido");
+                preencheu = true;
+            }
+        }
+        if (preencheu && !forms[i].querySelector(".aviso-preenchido")) {
+            var nota = document.createElement("p");
+            nota.className = "aviso-preenchido";
+            nota.textContent = "Preenchemos com os dados da sua conta. Confira e mude o que precisar.";
+            forms[i].insertBefore(nota, forms[i].firstChild);
+        }
+    }
 }
 
 function iniciarPix() {
@@ -326,7 +345,7 @@ document.addEventListener("DOMContentLoaded", function () {
     iniciarPerfil({ logado: false });
     fetch("sessao.php", { credentials: "same-origin" })
         .then(function (r) { return r.json(); })
-        .then(function (s) { if (s.logado) iniciarPerfil(s); })
+        .then(function (s) { if (s.logado) { iniciarPerfil(s); preencherFormularios(s); } })
         .catch(function () {});
 
     // Escolha da foto de perfil (cadastro e Minha conta)

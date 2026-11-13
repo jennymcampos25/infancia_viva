@@ -77,6 +77,17 @@ foreach ($conf["campos"] as $campo => $c) {
     list($rotulo, $tipo, $obrigatorio) = $c;
     $v = isset($_POST[$campo]) ? trim($_POST[$campo]) : "";
 
+    if ($tipo === "oculto") {                                 // doação de origem do estoque
+        $v = isset($_POST[$campo]) ? (int) $_POST[$campo] : 0;
+        $colunas[$campo] = null;
+        if ($v) {
+            $st = $pdo->prepare("SELECT id FROM doacoes WHERE id = ?");
+            $st->execute(array($v));
+            if ($st->fetch()) $colunas[$campo] = $v;
+        }
+        continue;
+    }
+
     if ($tipo === "senha") {
         if ($v === "" && $id) continue;                       // alterar sem mexer na senha
         if (strlen($v) < 6) erro_formulario($tabela, $id, "A senha precisa ter pelo menos 6 caracteres.");
@@ -121,6 +132,17 @@ foreach ($conf["campos"] as $campo => $c) {
 // Regras de cada tabela
 if ($tabela === "avaliacoes" && $colunas["nota"] === null && $colunas["comentario"] === null) {
     erro_formulario($tabela, $id, "Uma avaliação precisa de uma nota ou de um comentário.");
+}
+if ($tabela === "estoque") {
+    if ($colunas["situacao"] === "Entregue") {
+        if ($colunas["instituicao"] === null) erro_formulario($tabela, $id, "Diga para qual instituição o brinquedo foi entregue.");
+        if ($colunas["entregue_em"] === null) erro_formulario($tabela, $id, "Preencha a data em que o brinquedo foi entregue.");
+        if ($colunas["entregue_em"] < $colunas["recebido_em"]) erro_formulario($tabela, $id, "A entrega não pode ser antes do recebimento.");
+    } else {
+        // Ainda não foi entregue: não guarda instituição nem data de entrega
+        $colunas["instituicao"] = null;
+        $colunas["entregue_em"] = null;
+    }
 }
 if ($tabela === "usuarios") {
     $st = $pdo->prepare("SELECT id FROM usuarios WHERE email = ? AND id <> ?");

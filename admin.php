@@ -17,7 +17,7 @@ if (!$pdo->query("SHOW COLUMNS FROM doacoes LIKE 'usuario_id'")->fetch()
 }
 
 $pagina = isset($_GET["pagina"]) ? $_GET["pagina"] : "geral";
-if (!isset($PAINEL_MENU[$pagina])) $pagina = "geral";
+if (!isset($PAINEL_MENU[$pagina]) && $pagina !== "busca") $pagina = "geral";
 
 function contar($tabela) {
     global $pdo;
@@ -50,7 +50,7 @@ unset($_SESSION["aviso_admin"]);
 
 $dh = "DATE_FORMAT(criado_em, '%d/%m/%Y %H:%i') AS quando";
 
-painel_inicio($PAINEL_MENU[$pagina][0], $pagina, $admin);
+painel_inicio($pagina === "busca" ? "Pesquisa" : $PAINEL_MENU[$pagina][0], $pagina, $admin);
 
 if ($aviso_limpeza) {
     echo '<p class="aviso ok">' . h($aviso_limpeza) . '</p>';
@@ -62,6 +62,8 @@ if ($pagina === "geral"):
     $brinquedos = (int) $pdo->query("SELECT COALESCE(SUM(quantidade), 0) FROM doacoes")->fetchColumn();
     $media      = $pdo->query("SELECT AVG(nota) FROM avaliacoes")->fetchColumn();
     $doadores   = (int) $pdo->query("SELECT COUNT(*) FROM usuarios WHERE tipo <> 'admin'")->fetchColumn();
+    $em_estoque = (int) $pdo->query("SELECT COALESCE(SUM(quantidade), 0) FROM estoque WHERE situacao = 'Em estoque'")->fetchColumn();
+    $entregues  = (int) $pdo->query("SELECT COALESCE(SUM(quantidade), 0) FROM estoque WHERE situacao = 'Entregue'")->fetchColumn();
 
     // Atividade recente: as últimas coisas que aconteceram no site, de todas as tabelas
     $eventos = array();
@@ -90,7 +92,8 @@ if ($pagina === "geral"):
     ?>
     <div class="stats">
         <div class="stat"><strong><?= contar("doacoes") ?></strong>doações registradas</div>
-        <div class="stat"><strong><?= $brinquedos ?></strong>brinquedos</div>
+        <div class="stat"><strong><?= $brinquedos ?></strong>brinquedos prometidos</div>
+        <div class="stat"><strong><?= $em_estoque ?></strong>no estoque (<?= $entregues ?> já entregues)</div>
         <div class="stat"><strong><?= $doadores ?></strong>doadores com conta</div>
         <div class="stat"><strong><?= dinheiro($total) ?></strong>em pagamentos (simulados)</div>
         <div class="stat"><strong><?= contar("mensagens") ?></strong>mensagens</div>
@@ -228,10 +231,15 @@ elseif ($pagina === "locais"):
 // =====================================================================
 elseif ($pagina === "doacoes"):
     $doacoes = $pdo->query("SELECT id, nome, email, telefone, brinquedo, quantidade, ponto, valor, observacoes,
-                                   DATE_FORMAT(data_doacao, '%d/%m/%Y') AS dia, $dh
+                                   DATE_FORMAT(data_doacao, '%d/%m/%Y') AS dia, $dh,
+                                   (SELECT COUNT(*) FROM estoque e WHERE e.doacao_id = doacoes.id) AS no_estoque
                             FROM doacoes ORDER BY id DESC LIMIT 300")->fetchAll();
     foreach ($doacoes as &$d) {
         $d["valor"] = $d["valor"] === null ? "—" : dinheiro($d["valor"]);
+        $d["estoque"] = $d["no_estoque"] ? "Recebida" : "Aguardando";
+        if (!$d["no_estoque"]) {
+            $d["_acao_extra"] = '<a class="acao acao-receber" href="admin_registro.php?tabela=estoque&amp;de=' . (int) $d["id"] . '">Receber no estoque</a> ';
+        }
     }
     unset($d);
     $por_ponto = $pdo->query("SELECT ponto, COUNT(*) AS n, SUM(quantidade) AS q FROM doacoes GROUP BY ponto ORDER BY q DESC")->fetchAll();
@@ -245,14 +253,152 @@ elseif ($pagina === "doacoes"):
     <?php endif; ?>
     <section class="painel-caixa">
         <div class="painel-caixa-topo">
-            <p>As 300 doações mais recentes. E-mail, telefone e observações aparecem em "Editar".</p>
+            <p>As 300 doações mais recentes. Quando o brinquedo chegar, clique em "Receber no estoque".</p>
             <div class="painel-ferramentas"><?php busca_tabela("tabela-doacoes", "Buscar por doador, brinquedo ou local"); ?><?= botao_novo("doacoes") ?></div>
         </div>
         <?php tabela(array(
             "Registrada em" => "quando", "Doador" => "nome", "Brinquedo" => "brinquedo", "Qtd" => "quantidade",
-            "Entrega" => "dia", "Local" => "ponto", "Valor" => "valor"
+            "Entrega" => "dia", "Local" => "ponto", "Estoque" => "estoque"
         ), $doacoes, "tabela-doacoes", "doacoes"); ?>
     </section>
+<?php
+
+// =====================================================================
+elseif ($pagina === "estoque"):
+    // Totais por situação (somando a quantidade de cada registro)
+    $totais = array("Em avaliação" => 0, "Em estoque" => 0, "Entregue" => 0, "Descartado" => 0);
+    foreach ($pdo->query("SELECT situacao, SUM(quantidade) AS q FROM estoque GROUP BY situacao") as $r) {
+        $totais[$r["situacao"]] = (int) $r["q"];
+    }
+    $por_faixa = $pdo->query("SELECT faixa_etaria, SUM(quantidade) AS q FROM estoque WHERE situacao = 'Em estoque'
+                              GROUP BY faixa_etaria ORDER BY faixa_etaria")->fetchAll();
+
+    $filtro = isset($_GET["situacao"]) && isset($SITUACOES_ESTOQUE[$_GET["situacao"]]) ? $_GET["situacao"] : "";
+    $sql = "SELECT id, brinquedo, categoria, quantidade, faixa_etaria, situacao, doador, instituicao,
+                   DATE_FORMAT(recebido_em, '%d/%m/%Y') AS recebido, DATE_FORMAT(entregue_em, '%d/%m/%Y') AS entregue
+            FROM estoque" . ($filtro ? " WHERE situacao = ?" : "") . " ORDER BY FIELD(situacao, 'Em avaliação', 'Em estoque', 'Entregue', 'Descartado'), recebido_em DESC, id DESC";
+    $st = $pdo->prepare($sql);
+    $st->execute($filtro ? array($filtro) : array());
+    $itens = $st->fetchAll();
+    ?>
+    <div class="stats">
+        <div class="stat"><strong><?= $totais["Em estoque"] ?></strong>em estoque (prontos para entregar)</div>
+        <div class="stat"><strong><?= $totais["Em avaliação"] ?></strong>em avaliação</div>
+        <div class="stat"><strong><?= $totais["Entregue"] ?></strong>já entregues</div>
+        <div class="stat"><strong><?= $totais["Descartado"] ?></strong>descartados</div>
+    </div>
+    <?php if ($por_faixa): ?>
+        <p class="faixas">Em estoque por idade:
+            <?php foreach ($por_faixa as $f): ?><span class="etiqueta"><?= h($f["faixa_etaria"]) ?>: <?= (int) $f["q"] ?></span> <?php endforeach; ?>
+        </p>
+    <?php endif; ?>
+    <section class="painel-caixa">
+        <div class="painel-caixa-topo">
+            <nav class="filtros" aria-label="Filtrar por situação">
+                <a href="admin.php?pagina=estoque"<?= $filtro === "" ? ' class="ativo"' : "" ?>>Todos</a>
+                <?php foreach ($SITUACOES_ESTOQUE as $sit => $nome): ?>
+                    <a href="admin.php?pagina=estoque&amp;situacao=<?= urlencode($sit) ?>"<?= $filtro === $sit ? ' class="ativo"' : "" ?>><?= h($sit) ?></a>
+                <?php endforeach; ?>
+            </nav>
+            <div class="painel-ferramentas"><?php busca_tabela("tabela-estoque", "Buscar brinquedo, doador ou instituição"); ?><?= botao_novo("estoque") ?></div>
+        </div>
+        <?php if (!$itens): ?>
+            <p class="vazio"><?= $filtro ? "Nenhum brinquedo com essa situação." : "Nenhum brinquedo registrado ainda. Use \"Receber no estoque\" na página Doações ou \"+ Registrar brinquedo\"." ?></p>
+        <?php else: ?>
+        <div class="tabela"><table id="tabela-estoque">
+            <tr><th>Recebido</th><th>Brinquedo</th><th>Qtd</th><th>Idade</th><th>Situação</th><th>Destino</th><th>Ações</th></tr>
+            <?php foreach ($itens as $i): ?>
+            <tr>
+                <td><?= h($i["recebido"]) ?></td>
+                <td><strong><?= h($i["brinquedo"]) ?></strong><small class="sub"><?= h($i["categoria"]) ?><?= $i["doador"] ? " · doado por " . h($i["doador"]) : "" ?></small></td>
+                <td><?= (int) $i["quantidade"] ?></td>
+                <td><?= h($i["faixa_etaria"]) ?></td>
+                <td><?= etiqueta_situacao($i["situacao"]) ?></td>
+                <td><?= $i["situacao"] === "Entregue" ? h($i["instituicao"]) . '<small class="sub">em ' . h($i["entregue"]) . '</small>' : "—" ?></td>
+                <td><?php if (in_array($i["situacao"], array("Em avaliação", "Em estoque"))): ?><a class="acao acao-receber" href="admin_registro.php?tabela=estoque&amp;id=<?= (int) $i["id"] ?>&amp;entregar=1">Entregar</a> <?php endif; ?><?= acoes_registro("estoque", $i["id"], "brinquedo do estoque") ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </table></div>
+        <?php endif; ?>
+    </section>
+<?php
+
+// =====================================================================
+elseif ($pagina === "busca"):
+    $q = isset($_GET["q"]) ? trim($_GET["q"]) : "";
+    $cat = isset($_GET["cat"]) && array_key_exists($_GET["cat"], categorias_busca()) ? $_GET["cat"] : "";
+    $like = "%" . str_replace(array("\\", "%", "_"), array("\\\\", "\\%", "\\_"), $q) . "%";
+
+    // Cada categoria: [título, SQL (com um "?" para o texto), colunas da tabela]
+    $buscas = array(
+        "doacoes" => array("Doações de brinquedos",
+            "SELECT id, nome, brinquedo, quantidade, ponto, DATE_FORMAT(data_doacao, '%d/%m/%Y') AS dia, $dh FROM doacoes
+             WHERE CONCAT_WS(' ', nome, email, telefone, brinquedo, ponto, endereco, observacoes) LIKE ? ORDER BY id DESC LIMIT 100",
+            array("Registrada em" => "quando", "Doador" => "nome", "Brinquedo" => "brinquedo", "Qtd" => "quantidade", "Entrega" => "dia", "Local" => "ponto")),
+        "estoque" => array("Estoque de brinquedos",
+            "SELECT id, brinquedo, categoria, quantidade, faixa_etaria, situacao, instituicao, DATE_FORMAT(recebido_em, '%d/%m/%Y') AS recebido FROM estoque
+             WHERE CONCAT_WS(' ', brinquedo, categoria, faixa_etaria, situacao, doador, instituicao, observacoes) LIKE ? ORDER BY id DESC LIMIT 100",
+            array("Recebido" => "recebido", "Brinquedo" => "brinquedo", "Categoria" => "categoria", "Qtd" => "quantidade", "Idade" => "faixa_etaria", "Situação" => "situacao", "Destino" => "instituicao")),
+        "pagamentos" => array("Pagamentos",
+            "SELECT id, nome, valor, metodo, detalhe, status, $dh FROM pagamentos
+             WHERE CONCAT_WS(' ', nome, email, metodo, detalhe, status, CONCAT('IV-', LPAD(id, 6, '0'))) LIKE ? ORDER BY id DESC LIMIT 100",
+            array("Quando" => "quando", "Pedido" => "pedido", "Nome" => "nome", "Valor" => "valor", "Forma" => "metodo", "Situação" => "status")),
+        "mensagens" => array("Mensagens",
+            "SELECT id, nome, email, mensagem, $dh FROM mensagens WHERE CONCAT_WS(' ', nome, email, mensagem) LIKE ? ORDER BY id DESC LIMIT 100",
+            array("Quando" => "quando", "Nome" => "nome", "E-mail" => "email", "Mensagem" => "mensagem")),
+        "avaliacoes" => array("Avaliações",
+            "SELECT a.id, a.nota, a.comentario, DATE_FORMAT(a.criado_em, '%d/%m/%Y %H:%i') AS quando, COALESCE(u.nome, 'Visitante') AS quem
+             FROM avaliacoes a LEFT JOIN usuarios u ON u.id = a.usuario_id
+             WHERE CONCAT_WS(' ', a.comentario, u.nome, a.nota) LIKE ? ORDER BY a.id DESC LIMIT 100",
+            array("Quando" => "quando", "Quem" => "quem", "Nota" => "nota", "Comentário" => "comentario")),
+        "usuarios" => array("Usuários",
+            "SELECT id, nome, email, tipo, DATE_FORMAT(criado_em, '%d/%m/%Y') AS desde FROM usuarios
+             WHERE CONCAT_WS(' ', nome, email, tipo) LIKE ? ORDER BY nome LIMIT 100",
+            array("Nome" => "nome", "E-mail" => "email", "Tipo" => "tipo", "Cadastro" => "desde")),
+        "locais" => array("Locais de coleta",
+            "SELECT id, nome, tipo, endereco, coleta FROM locais WHERE CONCAT_WS(' ', nome, tipo, endereco, coleta) LIKE ? ORDER BY nome LIMIT 100",
+            array("Local" => "nome", "Tipo" => "tipo", "Endereço" => "endereco", "Quando" => "coleta")),
+    );
+    $mostrar = $cat ? array($cat => $buscas[$cat]) : $buscas;
+    $nomes_cat = categorias_busca();
+    ?>
+    <p class="busca-resumo">
+        <?php if ($q === "" && !$cat): ?>
+            Escolha uma categoria ou digite algo na pesquisa lá em cima.
+        <?php else: ?>
+            <?= $q !== "" ? 'Resultados para <strong>"' . h($q) . '"</strong>' : "Tudo" ?> em
+            <strong><?= h($nomes_cat[$cat]) ?></strong>.
+        <?php endif; ?>
+    </p>
+    <?php if ($q !== "" || $cat):
+        $achou = 0;
+        foreach ($mostrar as $chave => $b):
+            $st = $pdo->prepare($b[1]);
+            $st->execute(array($like));
+            $linhas = $st->fetchAll();
+            if (!$linhas && !$cat) continue;     // em "Tudo", esconde as categorias sem resultado
+            $achou += count($linhas);
+            if ($chave === "pagamentos") {
+                foreach ($linhas as &$l) { $l["valor"] = dinheiro($l["valor"]); $l["pedido"] = numero_pedido($l["id"]); $l["metodo"] = forma_pagamento($l); }
+                unset($l);
+            }
+            if ($chave === "avaliacoes") {
+                foreach ($linhas as &$l) { $l["nota"] = estrelas($l["nota"]); }
+                unset($l);
+            }
+            ?>
+            <section class="painel-caixa">
+                <div class="painel-caixa-topo">
+                    <h2><?= h($b[0]) ?> <small>(<?= count($linhas) ?><?= count($linhas) == 100 ? "+" : "" ?>)</small></h2>
+                    <a class="acao" href="admin.php?pagina=<?= $chave ?>">Abrir a página</a>
+                </div>
+                <?php tabela($b[2], $linhas, "", $chave); ?>
+            </section>
+        <?php endforeach;
+        if (!$achou && !$cat): ?>
+            <p class="vazio">Nada encontrado. Tente outra palavra ou escolha uma categoria.</p>
+        <?php endif;
+    endif; ?>
 <?php
 
 // =====================================================================
