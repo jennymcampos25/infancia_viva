@@ -48,6 +48,8 @@ try {
     garantir_colunas_confirmacao();
     garantir_colunas_pagamento();
     garantir_tabela_estoque();
+    garantir_colunas_senha();
+    garantir_colunas_doacoes();
     $relatorio[] = $tinha ? "usuarios: colunas da confirmação de e-mail já existiam." : "usuarios: colunas da confirmação de e-mail criadas.";
     $ok = true;
 } catch (PDOException $e) {
@@ -60,7 +62,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <title>Atualizar banco</title>
-    <link rel="stylesheet" href="estilo.css?v=13">
+    <link rel="stylesheet" href="estilo.css?v=14">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 <body>

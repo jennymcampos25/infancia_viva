@@ -21,6 +21,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
     email_confirmado  TINYINT(1) NOT NULL DEFAULT 1,   -- 0 = criou a conta mas ainda não clicou no link do e-mail
     token_confirmacao CHAR(64) NULL,                   -- hash do código do link de confirmação
     token_expira      DATETIME NULL,
+    token_senha        CHAR(64) NULL,
+    token_senha_expira DATETIME NULL,
     criado_em   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -60,9 +62,9 @@ CREATE TABLE IF NOT EXISTS doacoes (
     brinquedo    VARCHAR(150) NOT NULL,
     quantidade   INT NOT NULL,
     data_doacao  DATE NOT NULL,
-    endereco     VARCHAR(200) NOT NULL,
+    endereco     VARCHAR(200) NULL,          -- opcional (o doador leva o brinquedo ao local)
     observacoes  TEXT NULL,
-    ponto        VARCHAR(50)  NOT NULL,
+    ponto        VARCHAR(120) NOT NULL,
     valor        DECIMAL(10,2) NULL,
     criado_em    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_doacoes_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL

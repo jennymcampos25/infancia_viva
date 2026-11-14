@@ -17,6 +17,7 @@ function campo($k) { return isset($_POST[$k]) ? trim($_POST[$k]) : ""; }
 
 // Local de coleta escolhido (só vale um local ativo cadastrado pelo admin)
 garantir_tabela_locais();
+garantir_colunas_doacoes();
 $st = $pdo->prepare("SELECT id, nome, endereco, coleta FROM locais WHERE id = ? AND ativo = 1");
 $st->execute(array((int) (isset($_POST["local"]) ? $_POST["local"] : 0)));
 $local = $st->fetch();
@@ -27,11 +28,11 @@ $telefone    = campo("telefone");
 $brinquedo   = campo("brinquedo");
 $quantidade  = (int) campo("quantidade");
 $data        = campo("data");
-$endereco    = campo("endereco");
+$endereco    = campo("endereco");   // não está mais no formulário (o doador leva o brinquedo ao local)
 $observacoes = campo("observacoes");
 
 $erro = "";
-if ($nome == "" || $email == "" || $telefone == "" || $brinquedo == "" || $endereco == "") {
+if ($nome == "" || $email == "" || $telefone == "" || $brinquedo == "") {
     $erro = "Por favor, preencha todos os campos obrigatórios.";
 } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $erro = "E-mail inválido.";
@@ -39,8 +40,12 @@ if ($nome == "" || $email == "" || $telefone == "" || $brinquedo == "" || $ender
     $erro = "Esse e-mail não parece existir. Confira se digitou certo.";
 } elseif ($quantidade <= 0) {
     $erro = "A quantidade de brinquedos deve ser maior que zero.";
-} elseif (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $data)) {
+} elseif (!preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $data, $p) || !checkdate((int) $p[2], (int) $p[3], (int) $p[1])) {
     $erro = "Data inválida.";
+} elseif ($data < date("Y-m-d")) {
+    $erro = "A data de entrega não pode ser no passado.";
+} elseif ($data > date("Y-m-d", strtotime("+1 year"))) {
+    $erro = "Escolha uma data de entrega dentro dos próximos 12 meses.";
 } elseif (!$local) {
     $erro = "Escolha um dos locais de coleta da lista.";
 }
@@ -54,7 +59,7 @@ if ($erro == "") {
         );
         $st->execute(array(
             $usuario_id, $nome, $email, $telefone, $brinquedo, $quantidade, $data,
-            $endereco, $observacoes, $local["nome"]
+            $endereco === "" ? null : $endereco, $observacoes, $local["nome"]
         ));
     } catch (PDOException $e) {
         $erro = "Não foi possível registrar a doação agora. Tente novamente.";
@@ -67,7 +72,7 @@ if ($erro == "") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Doação - Infância Viva</title>
-    <link rel="stylesheet" href="estilo.css?v=13">
+    <link rel="stylesheet" href="estilo.css?v=14">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
@@ -124,8 +129,8 @@ if ($erro == "") {
             <p><a href="doacao_brinquedo.php">Doar brinquedos</a><br><a href="pagamento.html">Contribuir online</a><br><a href="faq.html">Perguntas frequentes</a></p>
         </div>
     </div>
-    <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC</p>
+    <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC · <a href="privacidade.html">Política de Privacidade</a></p>
 </footer>
-<script src="script.js?v=11"></script>
+<script src="script.js?v=12"></script>
 </body>
 </html>

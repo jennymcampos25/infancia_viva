@@ -2,6 +2,9 @@
 // Conexao com o MySQL - Infancia Viva
 // Configuracao via variaveis de ambiente do Coolify.
 
+// Datas e horas do PHP no horario de Brasilia (o servidor do Coolify usa UTC).
+date_default_timezone_set('America/Sao_Paulo');
+
 $host    = getenv('DB_HOST');
 $porta   = getenv('DB_PORT') ?: '3306';
 $banco   = getenv('DB_NAME');
@@ -29,6 +32,9 @@ try {
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_EMULATE_PREPARES => false,
     ]);
+
+    // Horario de Brasilia (o servidor usa UTC). O Brasil nao tem mais horario de verao desde 2019.
+    $pdo->exec("SET time_zone = '-03:00'");
 
 } catch (PDOException $e) {
     // Registra o erro nos logs sem expor detalhes ao visitante.

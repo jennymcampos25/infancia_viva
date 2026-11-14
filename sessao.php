@@ -21,12 +21,11 @@ if (isset($_SESSION["usuario_id"])) {
     $u = $st->fetch();
 
     if ($u) {
-        // Telefone e endereço não ficam na conta: vêm da última doação que a pessoa registrou
-        $st = $pdo->prepare("SELECT telefone, endereco FROM doacoes WHERE usuario_id = ? ORDER BY id DESC LIMIT 1");
+        // O telefone não fica na conta: vem da última doação que a pessoa registrou
+        $st = $pdo->prepare("SELECT telefone FROM doacoes WHERE usuario_id = ? ORDER BY id DESC LIMIT 1");
         $st->execute(array($_SESSION["usuario_id"]));
         $ultima = $st->fetch();
         $u["telefone"] = $ultima ? $ultima["telefone"] : null;
-        $u["endereco"] = $ultima ? $ultima["endereco"] : null;
 
         $_SESSION["usuario_nome"] = $u["nome"];
         $_SESSION["usuario_tipo"] = $u["tipo"];
@@ -44,7 +43,6 @@ if ($u) {
         "tipo"   => $u["tipo"],
         "email"  => $u["email"],
         "telefone" => $u["telefone"],
-        "endereco" => $u["endereco"],
         "foto"   => foto_url($_SESSION["usuario_id"], $u["foto"])
     ));
 } else {

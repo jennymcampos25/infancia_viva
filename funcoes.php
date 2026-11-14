@@ -229,6 +229,64 @@ function enviar_confirmacao($usuario_id, $nome, $email) {
     return enviar_email($email, $nome, "Confirme seu e-mail - Infância Viva", $html, $texto);
 }
 
+// ---- ESQUECI MINHA SENHA ----
+// Colunas em usuarios: token_senha (hash do código do link) e token_senha_expira (o link vale 1 hora).
+function garantir_colunas_senha() {
+    global $pdo;
+    static $feito = false;
+    if ($feito) return;
+    $feito = true;
+    garantir_colunas_confirmacao();
+    if (!$pdo->query("SHOW COLUMNS FROM usuarios LIKE 'token_senha'")->fetch()) {
+        $pdo->exec("ALTER TABLE usuarios
+                    ADD COLUMN token_senha        CHAR(64) NULL AFTER token_expira,
+                    ADD COLUMN token_senha_expira DATETIME NULL AFTER token_senha");
+    }
+}
+
+// Gera um link novo para criar outra senha e manda por e-mail. Devolve true se o e-mail foi enviado.
+function enviar_redefinicao($usuario_id, $nome, $email) {
+    global $pdo;
+    garantir_colunas_senha();
+    $codigo = codigo_aleatorio();
+    $st = $pdo->prepare("UPDATE usuarios SET token_senha = ?, token_senha_expira = DATE_ADD(NOW(), INTERVAL 1 HOUR) WHERE id = ?");
+    $st->execute(array(hash("sha256", $codigo), $usuario_id));
+
+    $link = endereco_site() . "/redefinir_senha.php?codigo=" . $codigo;
+    $html = '<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;color:#3a4248">'
+          . '<h2 style="color:#242d32">Olá, ' . h(strtok($nome, " ")) . '!</h2>'
+          . '<p>Recebemos um pedido para criar uma senha nova para a sua conta na <strong>Infância Viva</strong>.</p>'
+          . '<p style="text-align:center;margin:28px 0"><a href="' . h($link) . '" style="background:#e8572a;color:#fff;'
+          . 'padding:14px 28px;border-radius:99px;text-decoration:none;font-weight:bold">Criar uma senha nova</a></p>'
+          . '<p style="font-size:13px;color:#6b7378">O link vale por 1 hora. Se o botão não funcionar, copie este endereço no navegador:<br>'
+          . h($link) . '</p>'
+          . '<p style="font-size:13px;color:#6b7378">Se não foi você que pediu, é só ignorar este e-mail: a sua senha continua a mesma.</p></div>';
+    $texto = "Olá, " . strtok($nome, " ") . "!\n\nPara criar uma senha nova na Infância Viva, abra o link abaixo (vale por 1 hora):\n"
+           . $link . "\n\nSe não foi você que pediu, ignore este e-mail: a sua senha continua a mesma.";
+    return enviar_email($email, $nome, "Criar uma senha nova - Infância Viva", $html, $texto);
+}
+
+// Chave da sessão para os formulários da "Minha conta" (impede que outro site envie o formulário pela pessoa)
+function chave_conta() {
+    if (empty($_SESSION["chave_conta"])) $_SESSION["chave_conta"] = sha1(uniqid(mt_rand(), true));
+    return $_SESSION["chave_conta"];
+}
+
+// ---- DOAÇÕES: ajustes no formato da tabela ----
+// "ponto" passou de 50 para 120 letras (o mesmo tamanho do nome do local) e o endereço do doador
+// virou opcional (quem doa leva o brinquedo ao local, então a ONG não precisa do endereço).
+function garantir_colunas_doacoes() {
+    global $pdo;
+    static $feito = false;
+    if ($feito) return;
+    $feito = true;
+    $ponto = $pdo->query("SHOW COLUMNS FROM doacoes LIKE 'ponto'")->fetch();
+    $end   = $pdo->query("SHOW COLUMNS FROM doacoes LIKE 'endereco'")->fetch();
+    if (($ponto && stripos($ponto["Type"], "varchar(50)") !== false) || ($end && $end["Null"] === "NO")) {
+        $pdo->exec("ALTER TABLE doacoes MODIFY ponto VARCHAR(120) NOT NULL, MODIFY endereco VARCHAR(200) NULL");
+    }
+}
+
 // ---- LOCAIS DE COLETA ----
 // Escolas, centros de acolhimento etc. onde as pessoas entregam os brinquedos. O admin cadastra no painel.
 $TIPOS_LOCAL = array("Escola" => "Escola", "Centro de acolhimento" => "Centro de acolhimento",
@@ -413,7 +471,7 @@ function site_inicio($titulo, $menu) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= h($titulo) ?> - Infância Viva</title>
-    <link rel="stylesheet" href="estilo.css?v=13">
+    <link rel="stylesheet" href="estilo.css?v=14">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
@@ -453,10 +511,10 @@ function site_fim($scripts = array()) {
             <p><a href="doacao_brinquedo.php">Doar brinquedos</a><br><a href="pagamento.html">Contribuir online</a><br><a href="faq.html">Perguntas frequentes</a></p>
         </div>
     </div>
-    <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC</p>
+    <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC · <a href="privacidade.html">Política de Privacidade</a></p>
 </footer>
 <?php foreach ($scripts as $s): ?><script src="<?= h($s) ?>"></script>
-<?php endforeach; ?><script src="script.js?v=11"></script>
+<?php endforeach; ?><script src="script.js?v=12"></script>
 </body>
 </html>
 <?php
@@ -575,6 +633,7 @@ function exigir_admin() {
     garantir_tabela_locais();
     garantir_colunas_pagamento();
     garantir_tabela_estoque();
+    garantir_colunas_doacoes();
     $u = exigir_login();
     if ($u["tipo"] !== "admin") {
         header("Location: index.html");
@@ -659,7 +718,7 @@ function painel_inicio($titulo, $ativo, $admin) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= h($titulo) ?> - Painel - Infância Viva</title>
-    <link rel="stylesheet" href="estilo.css?v=13">
+    <link rel="stylesheet" href="estilo.css?v=14">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
@@ -714,7 +773,7 @@ function painel_fim() {
     ?>
     </main>
 </div>
-<script src="script.js?v=11"></script>
+<script src="script.js?v=12"></script>
 </body>
 </html>
     <?php
@@ -759,7 +818,7 @@ function registros_config() {
             "brinquedo"   => array("Brinquedo", "texto", true),
             "quantidade"  => array("Quantidade", "numero", true),
             "data_doacao" => array("Data da entrega", "data", true),
-            "endereco"    => array("Endereço", "texto", true),
+            "endereco"    => array("Endereço", "texto", false),
             "ponto"       => array("Local de entrega", "texto", true),
             "valor"       => array("Valor em dinheiro (R$)", "dinheiro", false),
             "observacoes" => array("Observações", "textarea", false),

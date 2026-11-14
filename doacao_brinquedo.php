@@ -10,7 +10,7 @@ $locais = locais_ativos();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Doe um brinquedo - Infância Viva</title>
-    <link rel="stylesheet" href="estilo.css?v=13">
+    <link rel="stylesheet" href="estilo.css?v=14">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
@@ -89,21 +89,19 @@ $locais = locais_ativos();
     <select id="local" name="local" required>
         <option value="">Escolha um local de coleta</option>
         <?php foreach ($locais as $l): ?>
-            <option value="<?= (int) $l["id"] ?>"><?= h($l["nome"]) ?> (<?= h($l["coleta"]) ?>)</option>
+            <option value="<?= (int) $l["id"] ?>" data-coleta="<?= h($l["coleta"]) ?>"><?= h($l["nome"]) ?> (<?= h($l["coleta"]) ?>)</option>
         <?php endforeach; ?>
     </select>
 
     <label for="data">Quando você vai entregar?</label>
-    <input id="data" type="date" name="data" required>
-    <p class="dica">Escolha um dia em que o local recebe brinquedos.</p>
-
-    <label for="endereco">Seu endereço</label>
-    <input id="endereco" type="text" name="endereco" required>
+    <input id="data" type="date" name="data" min="<?= date("Y-m-d") ?>" max="<?= date("Y-m-d", strtotime("+1 year")) ?>" required>
+    <p class="dica" id="dicaColeta">Escolha um dia em que o local recebe brinquedos.</p>
 
     <label for="observacoes">Observações <small>(opcional)</small></label>
     <input id="observacoes" type="text" name="observacoes">
 
     <button type="submit">Registrar doação</button>
+    <p class="dica">Usamos esses dados só para organizar a sua doação. Veja a nossa <a href="privacidade.html">Política de Privacidade</a>.</p>
 </form>
 
 <p>Prefere ajudar com dinheiro? <a href="pagamento.html">Doe em dinheiro →</a></p>
@@ -124,8 +122,8 @@ $locais = locais_ativos();
             <p><a href="doacao_brinquedo.php">Doar brinquedos</a><br><a href="pagamento.html">Contribuir online</a><br><a href="faq.html">Perguntas frequentes</a></p>
         </div>
     </div>
-    <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC</p>
+    <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC · <a href="privacidade.html">Política de Privacidade</a></p>
 </footer>
-<script src="script.js?v=11"></script>
+<script src="script.js?v=12"></script>
 </body>
 </html>

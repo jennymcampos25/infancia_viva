@@ -7,6 +7,16 @@ iniciar_sessao();
 
 $u = exigir_login();
 $hist = buscar_historico((int) $u["id"]);
+
+// Resultado de "Meus dados" (vem do conta_salvar.php)
+$avisos_conta = array(
+    "nome_ok" => array(true, "Nome atualizado!"), "senha_ok" => array(true, "Senha alterada!"),
+    "nome_vazio" => array(false, "Escreva o seu nome (até 100 letras)."),
+    "senha_atual" => array(false, "A senha atual está errada."),
+    "senha_curta" => array(false, "A senha nova precisa ter pelo menos 6 caracteres."),
+    "senhas_diferentes" => array(false, "As senhas novas não conferem."),
+);
+$aviso_conta = isset($_GET["conta"]) && isset($avisos_conta[$_GET["conta"]]) ? $avisos_conta[$_GET["conta"]] : null;
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -14,7 +24,7 @@ $hist = buscar_historico((int) $u["id"]);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Minha conta - Infância Viva</title>
-    <link rel="stylesheet" href="estilo.css?v=13">
+    <link rel="stylesheet" href="estilo.css?v=14">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
@@ -35,6 +45,32 @@ $hist = buscar_historico((int) $u["id"]);
 <main class="largo">
     <h1>Olá, <?= h($u["nome"]) ?>!</h1>
     <p>E-mail: <?= h($u["email"]) ?> · Conta criada em <?= h($u["desde"]) ?></p>
+
+    <h2 id="dados">Meus dados</h2>
+    <?php if ($aviso_conta): ?><p class="aviso <?= $aviso_conta[0] ? "ok" : "erro" ?>"><?= h($aviso_conta[1]) ?></p><?php endif; ?>
+    <div class="meus-dados">
+        <form action="conta_salvar.php" method="post">
+            <input type="hidden" name="acao" value="nome">
+            <input type="hidden" name="chave" value="<?= h(chave_conta()) ?>">
+            <h3>Trocar o nome</h3>
+            <label for="nomeConta">Nome</label>
+            <input id="nomeConta" type="text" name="nome" maxlength="100" value="<?= h($u["nome"]) ?>" required>
+            <p class="dica">O e-mail (<?= h($u["email"]) ?>) não pode ser trocado aqui. Se precisar, fale com a gente pela página Contato.</p>
+            <button type="submit">Salvar nome</button>
+        </form>
+        <form action="conta_salvar.php" method="post">
+            <input type="hidden" name="acao" value="senha">
+            <input type="hidden" name="chave" value="<?= h(chave_conta()) ?>">
+            <h3>Trocar a senha</h3>
+            <label for="senhaAtual">Senha atual</label>
+            <input id="senhaAtual" type="password" name="atual" autocomplete="current-password" required>
+            <label for="senhaNova">Senha nova</label>
+            <input id="senhaNova" type="password" name="senha" minlength="6" autocomplete="new-password" required>
+            <label for="senhaConfirmar">Repita a senha nova</label>
+            <input id="senhaConfirmar" type="password" name="confirmar" minlength="6" autocomplete="new-password" required>
+            <button type="submit">Trocar senha</button>
+        </form>
+    </div>
 
     <h2 id="foto">Foto de perfil</h2>
     <form class="formulario-estreito a-esquerda" action="foto_salvar.php" method="post">
@@ -84,8 +120,8 @@ $hist = buscar_historico((int) $u["id"]);
             <p><a href="doacao_brinquedo.php">Doar brinquedos</a><br><a href="pagamento.html">Contribuir online</a><br><a href="faq.html">Perguntas frequentes</a></p>
         </div>
     </div>
-    <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC</p>
+    <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC · <a href="privacidade.html">Política de Privacidade</a></p>
 </footer>
-<script src="script.js?v=11"></script>
+<script src="script.js?v=12"></script>
 </body>
 </html>

@@ -36,14 +36,14 @@ function iniciarPagamento() {
 
 /* ===== Preenchimento automático =====
    Formulários com o atributo data-preencher (doação de brinquedo, doação em dinheiro e contato)
-   recebem nome, e-mail, telefone e endereço de quem está logado. Telefone e endereço vêm da
-   última doação da pessoa. Só preenche campos vazios, e a pessoa pode mudar o que quiser. */
+   recebem nome, e-mail e telefone de quem está logado. O telefone vem da última doação
+   da pessoa. Só preenche campos vazios, e a pessoa pode mudar o que quiser. */
 function preencherFormularios(sessao) {
     if (!sessao.logado) return;
     var forms = document.querySelectorAll("form[data-preencher]");
     for (var i = 0; i < forms.length; i++) {
         var preencheu = false;
-        var campos = ["nome", "email", "telefone", "endereco"];
+        var campos = ["nome", "email", "telefone"];
         for (var c = 0; c < campos.length; c++) {
             var el = forms[i].elements[campos[c]];
             if (el && !el.value && sessao[campos[c]]) {
@@ -182,6 +182,27 @@ function iniciarCartao() {
         f.final.value = n.slice(-4);
         document.getElementById("processando").hidden = false;
         setTimeout(function () { f.submit(); }, 2200);
+    });
+}
+
+// Doe um brinquedo: ao escolher o local, mostra os dias em que ele recebe brinquedos
+function iniciarDicaColeta() {
+    var local = document.getElementById("local");
+    var dica = document.getElementById("dicaColeta");
+    if (!local || !dica) return;
+    local.addEventListener("change", function () {
+        var op = local.options[local.selectedIndex];
+        var coleta = op ? op.getAttribute("data-coleta") : "";
+        dica.innerHTML = "";
+        if (coleta) {
+            dica.appendChild(document.createTextNode("Este local recebe brinquedos: "));
+            var b = document.createElement("strong");
+            b.textContent = coleta;
+            dica.appendChild(b);
+            dica.appendChild(document.createTextNode(". Escolha um desses dias."));
+        } else {
+            dica.textContent = "Escolha um dia em que o local recebe brinquedos.";
+        }
     });
 }
 
@@ -474,4 +495,5 @@ document.addEventListener("DOMContentLoaded", function () {
     iniciarPix();
     iniciarCartao();
     iniciarRecibo();
+    iniciarDicaColeta();
 });

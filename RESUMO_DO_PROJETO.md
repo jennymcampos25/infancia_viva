@@ -135,3 +135,10 @@ index.html, doacao.html, sobre.html, faq.html, contato.html, login.html, cadastr
 - Estoque de brinquedos (admin.php?pagina=estoque, tabela estoque criada sozinha por garantir_tabela_estoque()): brinquedo, categoria, quantidade, faixa etária, situação (Em avaliação, Em estoque, Entregue, Descartado), doador, recebido em, instituição e data de entrega. Em Doações, o botão "Receber no estoque" cria o registro já preenchido e ligado à doação (doacao_id). O botão "Entregar" abre o registro com situação Entregue e a data de hoje; a instituição é obrigatória. Filtros por situação e contagem em estoque por faixa etária.
 - Estoque: lista "Aguardando chegada" com as doações do site que ainda não foram recebidas (com "Receber no estoque"), contador e filtro próprios.
 - Minha conta: cada doação mostra a situação (Aguardando entrega no local, Recebida pela ONG, Entregue a uma instituição).
+
+## Ajustes finais (senha, conta, doação, privacidade, fuso)
+- Esqueci minha senha: esqueci_senha.php manda um link (redefinir_senha.php?codigo=...) que vale 1 hora e só uma vez; o banco guarda só o hash (colunas token_senha e token_senha_expira, criadas por garantir_colunas_senha()). A resposta é a mesma exista o e-mail ou não.
+- Minha conta: trocar o nome e trocar a senha (pede a senha atual), por conta_salvar.php com chave_conta().
+- Doe um brinquedo: a data de entrega não pode ser no passado nem passar de 12 meses; ao escolher o local aparecem os dias em que ele recebe; o campo de endereço saiu (doacoes.endereco agora pode ser NULL). doacoes.ponto passou de 50 para 120 letras (garantir_colunas_doacoes()).
+- Política de Privacidade (privacidade.html, LGPD), com link em todos os rodapés, no cadastro e no formulário de doação.
+- Fuso horário de Brasília no PHP e no MySQL (conexao.php): antes os horários apareciam 3 horas adiantados.
