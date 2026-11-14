@@ -244,10 +244,71 @@ label.lembrar input { margin:0; accent-color:var(--vermelho); width:18px; height
 .formulario-estreito { max-width:460px; margin:0 auto; }
 .esqueci { margin:10px 0 0; text-align:right; font-size:.95rem; }
 .caixa-mensagem { background:#fff; padding:28px; border-radius:var(--raio); box-shadow:var(--sombra); text-align:center; }
-/* Minha conta: trocar nome e senha */
-.meus-dados { display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start; }
-.meus-dados form { margin:0; }
-.meus-dados h3 { margin:0 0 4px; }
+/* ===== Minha conta ===== */
+.conta-topo {
+    display:flex; align-items:center; gap:20px; background:#fff; border-radius:var(--raio); padding:22px 26px;
+    box-shadow:var(--sombra); border-top:6px solid var(--vermelho); margin:6px 0 18px;
+}
+.conta-foto { position:relative; flex:none; width:88px; height:88px; border-radius:50%; overflow:hidden; border:3px solid var(--amarelo); }
+.conta-foto img { width:100%; height:100%; object-fit:cover; display:block; background:#fff; }
+.conta-foto span {
+    position:absolute; left:0; right:0; bottom:0; padding:3px 0 5px; text-align:center; font-size:.75rem; font-weight:800;
+    color:#fff; background:rgba(36,45,50,.65); opacity:0; transition:opacity .2s;
+}
+.conta-foto:hover span, .conta-foto:focus-visible span { opacity:1; }
+.conta-quem { flex:1; min-width:0; }
+.conta-quem h1 { margin:0; font-size:2rem; }
+.conta-quem p { margin:4px 0 0; color:var(--suave); overflow-wrap:anywhere; }
+.conta-topo .botao { margin:0; flex:none; }
+/* abas (o JavaScript liga; sem ele as duas partes aparecem uma embaixo da outra) */
+.abas-conta { display:none; gap:6px; background:#fff; padding:6px; border-radius:999px; box-shadow:var(--sombra); margin:0 0 20px; }
+.com-abas .abas-conta { display:grid; grid-template-columns:1fr 1fr; }
+.abas-conta button { margin:0; background:none; color:var(--escuro); box-shadow:none; padding:11px 16px; }
+.abas-conta button:hover { background:var(--creme); color:var(--escuro); transform:none; }
+.abas-conta button[aria-selected="true"] { background:var(--vermelho); color:#fff; }
+.com-abas .aba-conta { display:none; }
+.com-abas .aba-conta.ativa { display:block; animation:surgir .25s ease-out; }
+@keyframes surgir { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+.aba-conta > h2 { margin:26px 0 10px; font-size:1.35rem; }
+/* resumo em números */
+.conta-numeros { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; }
+.conta-numeros div {
+    background:#fff; border-radius:16px; padding:16px 14px; text-align:center; box-shadow:var(--sombra);
+    color:var(--suave); font-size:.88rem; line-height:1.35;
+}
+.conta-numeros strong { display:block; font-family:"Quicksand", sans-serif; font-size:1.7rem; margin-bottom:2px; color:var(--vermelho); }
+.conta-numeros div:nth-child(2) strong { color:var(--verde); }
+.conta-numeros div:nth-child(3) strong { color:var(--azul); }
+.conta-numeros div:nth-child(4) strong { color:var(--amarelo-texto); }
+/* listas do histórico */
+.conta-lista { list-style:none; margin:0; padding:0; background:#fff; border-radius:var(--raio); box-shadow:var(--sombra); overflow:hidden; }
+.conta-lista li { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 20px; border-bottom:1px solid var(--borda); }
+.conta-lista li:last-child { border-bottom:none; }
+.item-principal { min-width:0; }
+.item-principal strong { display:block; color:var(--escuro); }
+.item-principal span, .item-principal small { display:block; color:var(--suave); font-size:.92rem; overflow-wrap:anywhere; }
+.item-principal small { font-style:italic; }
+.item-lado { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex:none; }
+.item-lado a { font-size:.88rem; font-weight:800; }
+.item-data { color:var(--suave); white-space:nowrap; flex:none; }
+.item-principal .estrelas-mini { display:inline; color:var(--amarelo); margin-left:6px; font-size:1rem; letter-spacing:1px; }
+.situacao { flex:none; padding:4px 12px; border-radius:99px; font-size:.82rem; font-weight:800; white-space:nowrap; }
+.sit-espera { background:#fff1dc; color:var(--amarelo-texto); }
+.sit-recebida { background:#e6f2e1; color:var(--verde); }
+.sit-entregue { background:var(--azul); color:#fff; }
+.sit-neutra { background:#eef0f2; color:var(--suave); }
+.conta-vazio { text-align:center; background:#fff; border-radius:var(--raio); padding:30px 24px; box-shadow:var(--sombra); margin-top:18px; }
+.conta-vazio h2 { margin:0 0 6px; }
+.conta-vazio .botao { margin:12px 6px 0; }
+/* meus dados */
+.conta-dados { display:grid; grid-template-columns:1fr 1.2fr; gap:18px; align-items:start; }
+.conta-coluna { display:grid; gap:18px; }
+.cartao-dados { margin:0; }
+.cartao-dados h2 { margin:0 0 4px; font-size:1.25rem; }
+.cartao-dados label:first-of-type { margin-top:10px; }
+.senha-dupla { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.cartao-dados .avatares { display:grid; grid-template-columns:repeat(7, 1fr); gap:6px; }
+.cartao-dados .avatares button { width:100%; height:auto; aspect-ratio:1; max-width:46px; justify-self:center; }
 /* Política de Privacidade */
 .privacidade { display:grid; gap:14px; margin-top:16px; }
 .privacidade section { background:#fff; border-radius:var(--raio); padding:20px 26px; box-shadow:var(--sombra); border-left:6px solid var(--azul); }
@@ -763,7 +824,8 @@ a.acao.acao-receber:hover { background:var(--verde); color:#fff; }
     .proposito { font-size:1.15rem; padding:24px 22px 22px 56px; }
     .proposito::before { left:12px; font-size:4rem; }
     .missao-visao { grid-template-columns:1fr; }
-    .escolha-doacao, .canais, .direito, .meus-dados { grid-template-columns:1fr; }
+    .escolha-doacao, .canais, .direito, .conta-dados { grid-template-columns:1fr; }
+    .conta-numeros { grid-template-columns:repeat(2, 1fr); }
     .direito { gap:24px; }
     .abas-doacao a { padding:10px 8px; font-size:.9rem; white-space:nowrap; }
     .abas-doacao a svg { display:none; }
@@ -778,6 +840,11 @@ a.acao.acao-receber:hover { background:var(--verde); color:#fff; }
     .logo svg { width:36px; height:36px; }
     .cartao { flex-basis:100%; }
     .cartoes.quatro { grid-template-columns:1fr; }
+    .conta-topo { flex-direction:column; text-align:center; padding:22px 18px; }
+    .conta-quem h1 { font-size:1.7rem; }
+    .senha-dupla { grid-template-columns:1fr; gap:0; }
+    .conta-lista li { flex-direction:column; align-items:flex-start; gap:8px; padding:14px 16px; }
+    .item-lado { flex-direction:row; align-items:center; gap:12px; }
     form { padding:20px; }
     .etapas li { font-size:.72rem; }
     .valores-rapidos { grid-template-columns:repeat(2, 1fr); }

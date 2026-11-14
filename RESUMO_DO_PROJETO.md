@@ -142,3 +142,5 @@ index.html, doacao.html, sobre.html, faq.html, contato.html, login.html, cadastr
 - Doe um brinquedo: a data de entrega não pode ser no passado nem passar de 12 meses; ao escolher o local aparecem os dias em que ele recebe; o campo de endereço saiu (doacoes.endereco agora pode ser NULL). doacoes.ponto passou de 50 para 120 letras (garantir_colunas_doacoes()).
 - Política de Privacidade (privacidade.html, LGPD), com link em todos os rodapés, no cadastro e no formulário de doação.
 - Fuso horário de Brasília no PHP e no MySQL (conexao.php): antes os horários apareciam 3 horas adiantados.
+
+- Minha conta reorganizada: cartão do topo com foto, nome e "Fazer uma nova doação"; abas "Minhas doações" (4 números, listas de brinquedos com a situação, dinheiro com link para o recibo, mensagens e avaliações; seções vazias não aparecem) e "Meus dados" (foto, nome e senha). Sem JavaScript as duas partes aparecem uma embaixo da outra. mostrar_historico() continua igual para o painel do admin.

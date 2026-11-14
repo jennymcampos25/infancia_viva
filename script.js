@@ -206,6 +206,35 @@ function iniciarDicaColeta() {
     });
 }
 
+// Minha conta: abas "Minhas doações" e "Meus dados"
+function iniciarAbasConta() {
+    var nav = document.querySelector(".abas-conta");
+    if (!nav) return;
+    document.body.classList.add("com-abas");
+    var botoes = nav.querySelectorAll("[data-aba]");
+    function abrir(nome) {
+        for (var i = 0; i < botoes.length; i++) {
+            var ativo = botoes[i].getAttribute("data-aba") === nome;
+            botoes[i].setAttribute("aria-selected", ativo ? "true" : "false");
+            document.getElementById("aba-" + botoes[i].getAttribute("data-aba")).classList.toggle("ativa", ativo);
+        }
+    }
+    for (var i = 0; i < botoes.length; i++) {
+        botoes[i].addEventListener("click", function () { abrir(this.getAttribute("data-aba")); });
+    }
+    // A foto do topo leva direto para "Meus dados"
+    var atalhos = document.querySelectorAll("[data-ir-aba]");
+    for (var j = 0; j < atalhos.length; j++) {
+        atalhos[j].addEventListener("click", function (e) {
+            e.preventDefault();
+            abrir(this.getAttribute("data-ir-aba"));
+            nav.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+    }
+    var inicial = (location.hash === "#dados" || location.hash === "#foto") ? "dados" : nav.getAttribute("data-aba-inicial");
+    abrir(inicial || "doacoes");
+}
+
 function iniciarRecibo() {
     var b = document.getElementById("imprimirRecibo");
     if (b) b.addEventListener("click", function () { window.print(); });
@@ -496,4 +525,5 @@ document.addEventListener("DOMContentLoaded", function () {
     iniciarCartao();
     iniciarRecibo();
     iniciarDicaColeta();
+    iniciarAbasConta();
 });

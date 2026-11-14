@@ -471,7 +471,7 @@ function site_inicio($titulo, $menu) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= h($titulo) ?> - Infância Viva</title>
-    <link rel="stylesheet" href="estilo.css?v=14">
+    <link rel="stylesheet" href="estilo.css?v=16">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
@@ -514,7 +514,7 @@ function site_fim($scripts = array()) {
     <p class="rodape-final">© 2026 Infância Viva · Projeto de TCC · <a href="privacidade.html">Política de Privacidade</a></p>
 </footer>
 <?php foreach ($scripts as $s): ?><script src="<?= h($s) ?>"></script>
-<?php endforeach; ?><script src="script.js?v=12"></script>
+<?php endforeach; ?><script src="script.js?v=13"></script>
 </body>
 </html>
 <?php
@@ -718,7 +718,7 @@ function painel_inicio($titulo, $ativo, $admin) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= h($titulo) ?> - Painel - Infância Viva</title>
-    <link rel="stylesheet" href="estilo.css?v=14">
+    <link rel="stylesheet" href="estilo.css?v=16">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap">
@@ -773,7 +773,7 @@ function painel_fim() {
     ?>
     </main>
 </div>
-<script src="script.js?v=12"></script>
+<script src="script.js?v=13"></script>
 </body>
 </html>
     <?php
@@ -927,7 +927,7 @@ function buscar_historico($usuario_id) {
                                              WHEN COUNT(*) > 0 THEN 'Recebida pela ONG' END
                                  FROM estoque e WHERE e.doacao_id = doacoes.id) AS situacao
                          FROM doacoes WHERE $onde ORDER BY id DESC",
-        "pagamentos" => "SELECT id, nome, valor, metodo, detalhe, status, $dh FROM pagamentos WHERE $onde ORDER BY id DESC",
+        "pagamentos" => "SELECT id, codigo, nome, valor, metodo, detalhe, status, $dh FROM pagamentos WHERE $onde ORDER BY id DESC",
         "mensagens"  => "SELECT nome, email, mensagem, $dh FROM mensagens WHERE $onde ORDER BY id DESC",
         "avaliacoes" => "SELECT nota, comentario, $dh FROM avaliacoes WHERE $onde ORDER BY id DESC"
     );

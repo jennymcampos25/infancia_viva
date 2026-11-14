@@ -62,7 +62,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <title>Atualizar banco</title>
-    <link rel="stylesheet" href="estilo.css?v=14">
+    <link rel="stylesheet" href="estilo.css?v=16">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 <body>
