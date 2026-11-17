@@ -372,6 +372,10 @@ tr:hover td { background:#fff1dc; }
 .ferramentas form { display:inline-block; background:none; box-shadow:none; padding:0; margin:4px 8px 4px 0; }
 .ferramentas button.perigo { background:var(--erro); margin-top:0; font-size:14px; padding:8px 16px; box-shadow:none; }
 .ferramentas button.perigo:hover { background:#922b21; transform:none; }
+.ferramentas h3 { margin:18px 0 4px; font-size:1rem; color:var(--suave); }
+.ferramentas p { color:#999; font-size:13px; max-width:640px; }
+.ferramentas button.demo { background:var(--verde); margin-top:0; font-size:14px; padding:8px 16px; box-shadow:none; }
+.ferramentas button.demo:hover { background:#3d6e2c; transform:none; }
 
 /* ===== Rodapé ===== */
 .rodape { background:var(--escuro); color:#c7cfd3; margin-top:40px; font-size:.95rem; }

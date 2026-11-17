@@ -144,3 +144,8 @@ index.html, doacao.html, sobre.html, faq.html, contato.html, login.html, cadastr
 - Fuso horário de Brasília no PHP e no MySQL (conexao.php): antes os horários apareciam 3 horas adiantados.
 
 - Minha conta reorganizada: cartão do topo com foto, nome e "Fazer uma nova doação"; abas "Minhas doações" (4 números, listas de brinquedos com a situação, dinheiro com link para o recibo, mensagens e avaliações; seções vazias não aparecem) e "Meus dados" (foto, nome e senha). Sem JavaScript as duas partes aparecem uma embaixo da outra. mostrar_historico() continua igual para o painel do admin.
+
+## Dados de demonstração
+- Painel → Visão geral → Ferramentas de teste → "Gerar dados de demonstração" (admin_demo.php): cria 40 pessoas com conta, 75 doações de brinquedos (com o estoque coerente: em avaliação, em estoque, entregues e 1 ou outra descartada), 36 doações em dinheiro, 14 mensagens e 22 avaliações, espalhadas pelos últimos 4 meses. Usa os locais de coleta ativos e os centros de acolhimento cadastrados.
+- Tudo fictício: nomes inventados, e-mails @example.com (domínio reservado para exemplos) e telefones (21) 90000-XXXX. As contas têm senha sorteada e descartada, então ninguém entra nelas.
+- "Apagar dados de demonstração" apaga tudo o que tem e-mail @example.com (e o estoque/avaliações ligados), sem mexer nos registros reais. Não deixa gerar duas vezes seguidas.

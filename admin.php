@@ -147,6 +147,20 @@ if ($pagina === "geral"):
                 <button type="submit" class="perigo"><?= h($b[0]) ?></button>
             </form>
         <?php endforeach; ?>
+
+        <h3>Dados de demonstração</h3>
+        <p>Cria pessoas e registros fictícios (nomes inventados, e-mails @example.com e telefones (21) 90000-…) para o site
+           não parecer vazio na apresentação. "Apagar dados de demonstração" tira só eles; os registros reais ficam.</p>
+        <form action="admin_demo.php" method="post" onsubmit="return confirm('Criar cerca de 40 pessoas e 180 registros de demonstração?')">
+            <input type="hidden" name="acao" value="gerar_demo">
+            <input type="hidden" name="chave" value="<?= h(chave_admin()) ?>">
+            <button type="submit" class="demo">Gerar dados de demonstração</button>
+        </form>
+        <form action="admin_demo.php" method="post" onsubmit="return confirm('Apagar todos os dados de demonstração?')">
+            <input type="hidden" name="acao" value="apagar_demo">
+            <input type="hidden" name="chave" value="<?= h(chave_admin()) ?>">
+            <button type="submit" class="perigo">Apagar dados de demonstração</button>
+        </form>
     </details>
 <?php
 
