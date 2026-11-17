@@ -30,7 +30,7 @@ etapas_pagamento(4);
 <article class="recibo" id="recibo">
     <header class="recibo-topo">
         <div class="recibo-marca">
-            <img src="imagens/logo_infancia_viva.png?v=2" alt="Infância Viva" width="150">
+            <img src="imagens/logo_infancia_viva.png?v=3" alt="Infância Viva" width="150">
         </div>
         <div class="recibo-numero">
             <span>Recibo de doação</span>
