@@ -53,7 +53,7 @@ etapas_pagamento(4);
 
     <div class="recibo-assinatura">
         <span>Infância Viva</span>
-        <small>Doar brinquedos. Transformar infâncias.</small>
+        <small>Doar brinquedos, transformar infâncias.</small>
     </div>
 
     <p class="recibo-aviso">Documento emitido no ambiente de demonstração do site (projeto de TCC).
