@@ -149,3 +149,7 @@ index.html, doacao.html, sobre.html, faq.html, contato.html, login.html, cadastr
 - Painel → Visão geral → Ferramentas de teste → "Gerar dados de demonstração" (admin_demo.php): cria 40 pessoas com conta, 75 doações de brinquedos (com o estoque coerente: em avaliação, em estoque, entregues e 1 ou outra descartada), 36 doações em dinheiro, 14 mensagens e 22 avaliações, espalhadas pelos últimos 4 meses. Usa os locais de coleta ativos e os centros de acolhimento cadastrados.
 - Tudo fictício: nomes inventados, e-mails @example.com (domínio reservado para exemplos) e telefones (21) 90000-XXXX. As contas têm senha sorteada e descartada, então ninguém entra nelas.
 - "Apagar dados de demonstração" apaga tudo o que tem e-mail @example.com (e o estoque/avaliações ligados), sem mexer nos registros reais. Não deixa gerar duas vezes seguidas.
+
+## Letras maiores e slogan em destaque (depois do ensaio)
+- html { font-size:18px } em estilo.css é a base de todas as letras (quase tudo usa rem): aumentar ou diminuir ali muda o site todo. No celular continua 16px. Áreas de conteúdo mais largas (main 1080px, seções e rodapé 1240px), botões, campos e cartões um pouco maiores.
+- Página inicial: logo sem o slogan miúdo (imagens/logo_sem_slogan.png) e, logo abaixo, o slogan em texto grande ("Doar brinquedos," / "transformar infâncias." com as cores da logo). Rodapé: slogan em destaque (classe rodape-slogan).

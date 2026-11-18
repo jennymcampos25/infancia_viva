@@ -15,13 +15,13 @@
 }
 * { box-sizing:border-box; }
 [hidden] { display:none !important; }
-html { scroll-behavior:smooth; }
+html { scroll-behavior:smooth; font-size:18px; } /* base das letras: aumente ou diminua aqui para mudar o site todo */
 body {
     font-family:"Nunito", "Segoe UI", Arial, sans-serif; margin:0; background:var(--creme);
-    color:var(--texto); line-height:1.7; font-size:17px;
+    color:var(--texto); line-height:1.7; font-size:1.05rem;
     display:flex; flex-direction:column; min-height:100vh;
 }
-main { width:100%; max-width:960px; margin:0 auto; padding:24px 24px 56px; flex:1; }
+main { width:100%; max-width:1080px; margin:0 auto; padding:24px 24px 56px; flex:1; }
 main.largo { max-width:1200px; } /* painel e Minha conta: mais espaço para as tabelas */
 h1, h2, h3 { font-family:"Quicksand", "Nunito", sans-serif; color:var(--escuro); line-height:1.25; font-weight:700; }
 h1 { font-size:2.4rem; margin:16px 0 12px; }
@@ -46,7 +46,7 @@ img { max-width:100%; }
     font-family:"Quicksand", "Nunito", sans-serif; font-size:1.45rem; font-weight:700; color:var(--escuro);
 }
 .logo:hover { color:var(--escuro); }
-.logo svg { width:42px; height:42px; flex-shrink:0; }
+.logo svg { width:48px; height:48px; flex-shrink:0; }
 .logo:hover svg { animation:pulinho .6s; }
 .logo .l1 { color:var(--vermelho); } .logo .l2 { color:var(--verde); }
 .logo .l3 { color:var(--azul); } .logo .l4 { color:var(--amarelo); }
@@ -104,11 +104,20 @@ label.botao-arquivo { margin:0; font-weight:800; font-size:.95rem; padding:10px 
 /* ===== Página inicial: abertura com a logo grande e as fotos ===== */
 .abertura {
     position:relative; display:grid; grid-template-columns:1.05fr 1fr; gap:40px; align-items:center;
-    max-width:1200px; margin:0 auto; padding:48px 32px 64px; width:100%;
+    max-width:1320px; margin:0 auto; padding:28px 32px 56px; width:100%;
     overflow:hidden; /* o anel girando não pode alargar a página no celular */
 }
-.logo-grande { width:100%; max-width:470px; display:block; margin:0 0 18px -8px; }
-.slogan { font-size:1.2rem; margin:0 0 20px; max-width:470px; }
+.logo-grande { width:100%; max-width:480px; display:block; margin:0 0 4px -8px; }
+.slogan { font-size:1.15rem; line-height:1.6; margin:0 0 18px; max-width:540px; }
+/* slogan em destaque, logo abaixo da logo grande */
+.slogan-grande {
+    font-family:"Quicksand", "Nunito", sans-serif; font-weight:700; font-size:2.15rem; line-height:1.15;
+    color:var(--escuro); margin:0 0 14px; max-width:600px; letter-spacing:-.01em;
+}
+.slogan-grande span {
+    background:linear-gradient(90deg, var(--vermelho), var(--amarelo) 45%, var(--verde) 72%, var(--azul));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+}
 .foto-abertura { position:relative; aspect-ratio:1/1; }
 /* moldura que muda de forma devagar ("respira") */
 .moldura {
@@ -125,7 +134,7 @@ label.botao-arquivo { margin:0; font-weight:800; font-size:.95rem; padding:10px 
 .f2 { top:72%; left:44%; width:40px; animation-delay:1.2s; }
 .f3 { top:12%; right:3%; width:46px; animation-delay:.6s; }
 .f4 { bottom:6%; right:10%; width:30px; animation-delay:2s; }
-.f5 { top:48%; left:1%; width:26px; animation-delay:1.6s; }
+.f5 { bottom:5%; left:44%; width:26px; animation-delay:1.6s; }
 /* o texto da abertura entra deslizando */
 .entra { opacity:0; transform:translateY(24px); animation:entrar .8s forwards; }
 .entra.d2 { animation-delay:.2s; } .entra.d3 { animation-delay:.4s; }
@@ -133,7 +142,7 @@ label.botao-arquivo { margin:0; font-weight:800; font-size:.95rem; padding:10px 
 /* Faixa de números (vêm do banco pelo numeros.php) */
 .numeros { background:var(--escuro); color:#fff; width:100%; }
 .numeros-grade {
-    max-width:1100px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); gap:20px;
+    max-width:1240px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); gap:20px;
     padding:34px 32px; text-align:center;
 }
 .numeros strong { display:block; font-family:"Quicksand", sans-serif; font-size:2.6rem; line-height:1.1; }
@@ -141,7 +150,7 @@ label.botao-arquivo { margin:0; font-weight:800; font-size:.95rem; padding:10px 
 .numeros .n3 strong { color:#7fc06a; }        .numeros .n4 strong { color:#6cc3c9; }
 
 /* Seções da página inicial */
-.secao { max-width:1100px; margin:0 auto; padding:70px 32px 10px; width:100%; }
+.secao { max-width:1240px; margin:0 auto; padding:70px 32px 10px; width:100%; }
 .titulo-secao { text-align:center; margin-bottom:34px; }
 .titulo-secao h2 { font-size:2.1rem; margin:0 0 10px; }
 
@@ -167,7 +176,7 @@ label.botao-arquivo { margin:0; font-weight:800; font-size:.95rem; padding:10px 
 
 /* ===== Botões ===== */
 button, .botao {
-    background:var(--vermelho); color:#fff; border:none; padding:12px 28px; font-size:1rem;
+    background:var(--vermelho); color:#fff; border:none; padding:14px 32px; font-size:1rem;
     font-weight:800; font-family:inherit; border-radius:999px; cursor:pointer;
     text-decoration:none; display:inline-block; margin-top:16px;
     box-shadow:0 8px 20px rgba(232,87,42,.3); transition:transform .2s, background .2s, box-shadow .2s;
@@ -186,7 +195,7 @@ button:hover, .botao:hover { background:#cf4519; color:#fff; transform:translate
 .cartao {
     --cor:var(--vermelho);
     background:#fff; border-radius:var(--raio); padding:26px; box-shadow:var(--sombra);
-    flex:0 1 280px; position:relative; overflow:hidden; transition:transform .3s, box-shadow .3s;
+    flex:0 1 320px; position:relative; overflow:hidden; transition:transform .3s, box-shadow .3s;
 }
 /* Grupo de 4 cartões: os 4 na mesma linha (2 + 2 no tablet), para não sobrar 1 sozinho embaixo */
 .cartoes.quatro { display:grid; grid-template-columns:repeat(4, 1fr); }
@@ -221,12 +230,12 @@ button:hover, .botao:hover { background:#cf4519; color:#fff; transform:translate
 
 /* ===== Formulários ===== */
 form {
-    background:#fff; padding:28px; border-radius:var(--raio); box-shadow:var(--sombra); margin:20px 0;
+    background:#fff; padding:32px; border-radius:var(--raio); box-shadow:var(--sombra); margin:20px 0;
 }
 form br { display:none; }
 label { display:block; margin-top:16px; font-weight:800; font-size:.95rem; }
 input, select, textarea {
-    width:100%; padding:12px 14px; margin-top:6px; border:2px solid var(--borda);
+    width:100%; padding:14px 16px; margin-top:6px; border:2px solid var(--borda);
     border-radius:12px; font-size:1rem; font-family:inherit; background:#fffdf9; color:var(--texto);
     transition:border-color .2s, box-shadow .2s;
 }
@@ -241,7 +250,7 @@ label.lembrar input { margin:0; accent-color:var(--vermelho); width:18px; height
 .aviso.ok, .aviso.erro { padding:12px 16px; border-radius:12px; }
 .aviso.ok { color:var(--certo); background:#e7f4e3; }
 .aviso.erro { color:var(--erro); background:#fdecea; }
-.formulario-estreito { max-width:460px; margin:0 auto; }
+.formulario-estreito { max-width:520px; margin:0 auto; }
 .esqueci { margin:10px 0 0; text-align:right; font-size:.95rem; }
 .caixa-mensagem { background:#fff; padding:28px; border-radius:var(--raio); box-shadow:var(--sombra); text-align:center; }
 /* ===== Minha conta ===== */
@@ -381,12 +390,13 @@ tr:hover td { background:#fff1dc; }
 .rodape { background:var(--escuro); color:#c7cfd3; margin-top:40px; font-size:.95rem; }
 .chamada.larga + .rodape { margin-top:0; }
 .rodape-conteudo {
-    max-width:1100px; margin:0 auto; padding:40px 24px 12px;
+    max-width:1240px; margin:0 auto; padding:44px 24px 14px;
     display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:24px;
 }
 .rodape strong { color:#fff; font-family:"Quicksand", sans-serif; font-size:1.1rem; display:flex; align-items:center; gap:8px; }
 .rodape strong svg { width:32px; height:32px; }
 .rodape p { margin:8px 0 0; }
+.rodape .rodape-slogan { font-family:"Quicksand", sans-serif; font-weight:700; font-size:1.25rem; line-height:1.3; color:var(--amarelo); max-width:280px; }
 .rodape a { color:#c7cfd3; font-weight:600; overflow-wrap:anywhere; }
 .rodape a:hover { color:var(--amarelo); }
 .rodape-final { text-align:center; border-top:1px solid rgba(255,255,255,.1); padding:14px; margin:20px 0 0 !important; font-size:.85rem; }
@@ -837,7 +847,9 @@ a.acao.acao-receber:hover { background:var(--verde); color:#fff; }
     .titulo-secao h2 { font-size:1.75rem; }
 }
 @media (max-width: 600px) {
+    html { font-size:16px; }
     body { font-size:16px; }
+    .slogan-grande { font-size:1.75rem; margin:0 auto 16px; }
     main { padding:16px 16px 40px; }
     h1 { font-size:1.9rem; }
     .logo { font-size:1.25rem; }
